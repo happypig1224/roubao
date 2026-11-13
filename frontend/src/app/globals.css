@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@variant dark (&:is(.dark, .dark *));
+
+/* 强制清除所有浏览器（Edge/Chrome/Firefox/WebKit）原生滚动条与滑槽 */
+html,
+body,
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+::-webkit-scrollbar,
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-corner {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px;
+  }
+
+  body {
+    background-color: #fafafa;
+    color: #18181b;
+    font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dark body,
+  body.dark,
+  html.dark body {
+    background-color: #0c0c0d;
+    color: #f4f4f5;
+  }
+}
+
+/* First-version clean minimal card styling */
+.clean-card {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+}
+
+.dark .clean-card {
+  background-color: #141416;
+  border: 1px solid #27272a;
+}
+
+.clean-card:hover {
+  border-color: #d4d4d8;
+}
+
+.dark .clean-card:hover {
+  border-color: #3f3f46;
+}
+
+/* Clean translucent top navigation */
+.clean-nav {
+  background: rgba(250, 250, 250, 0.84);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+.dark .clean-nav {
+  background: rgba(12, 12, 13, 0.84);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+/* Crisp tactile button feedback without heavy shadows */
+.tactile-btn {
+  transition:
+    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tactile-btn:active {
+  transform: scale(0.975);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Custom scrollbar */
+pre::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+pre::-webkit-scrollbar-thumb {
+  background: rgba(161, 161, 170, 0.3);
+  border-radius: 9999px;
+}
+pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .tactile-btn {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* 打印与阅读导出优化 */
+@media print {
+  header,
+  footer,
+  nav,
+  .clean-nav,
+  [aria-label="主导航"],
+  [aria-label="文章目录"],
+  button,
+  .tactile-btn,
+  .fixed {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .clean-card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

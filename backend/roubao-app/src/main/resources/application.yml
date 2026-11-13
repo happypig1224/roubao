@@ -1,0 +1,29 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: roubao-server
+  profiles:
+    active: dev
+  threads:
+    virtual:
+      enabled: true
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+logging:
+  level:
+    root: INFO
+    com.roubao: DEBUG

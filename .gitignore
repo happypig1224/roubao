@@ -1,0 +1,22 @@
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Log and temporary files
+*.log
+*.tmp
+*.bak
+
+# Subproject dependencies and build outputs (root fallback)
+**/target/
+**/node_modules/
+**/.next/
+**/*.tsbuildinfo
