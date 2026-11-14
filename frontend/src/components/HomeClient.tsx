@@ -10,19 +10,31 @@ import { AdminDrawer } from "@/components/AdminDrawer";
 import { ResumeSheet } from "@/components/ResumeSheet";
 import { Footer } from "@/components/Footer";
 import { MOCK_PROJECTS } from "@/data/mockData";
-import { Article } from "@/types";
+import { Article, Project } from "@/types";
 
 interface HomeClientProps {
   initialArticles: Article[];
+  initialProjects?: Project[];
 }
 
-export function HomeClient({ initialArticles }: HomeClientProps) {
+const emptySubscribe = () => () => {};
+function useIsHydrated() {
+  return React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+}
+
+export function HomeClient({ initialArticles, initialProjects }: HomeClientProps) {
   const router = useRouter();
+  const projects = initialProjects && initialProjects.length > 0 ? initialProjects : MOCK_PROJECTS;
   const [extraArticles, setExtraArticles] = useState<Article[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
   const [resumeOpen, setResumeOpen] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<SectionId>("top");
+  const isHydrated = useIsHydrated();
 
   const articles = React.useMemo(
     () => [
@@ -82,13 +94,25 @@ export function HomeClient({ initialArticles }: HomeClientProps) {
 
   useEffect(() => {
     const handleGlobalKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === "a") {
+      const isKeyA =
+        e.key.toLowerCase() === "a" ||
+        e.code === "KeyA" ||
+        e.key.toLowerCase() === "keya";
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && isKeyA) {
         e.preventDefault();
         setAdminOpen((prev) => !prev);
       }
     };
-    window.addEventListener("keydown", handleGlobalKey);
-    return () => window.removeEventListener("keydown", handleGlobalKey);
+    const handleToggleAdmin = () => setAdminOpen((prev) => !prev);
+
+    window.addEventListener("keydown", handleGlobalKey, true);
+    document.addEventListener("keydown", handleGlobalKey, true);
+    window.addEventListener("roubao:toggle-admin", handleToggleAdmin);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKey, true);
+      document.removeEventListener("keydown", handleGlobalKey, true);
+      window.removeEventListener("roubao:toggle-admin", handleToggleAdmin);
+    };
   }, []);
 
   const benchmarkSlug =
@@ -97,11 +121,14 @@ export function HomeClient({ initialArticles }: HomeClientProps) {
     "java-21-virtual-threads-benchmark-pitfalls";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafafa] dark:bg-[#0c0c0d] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 dark:selection:bg-zinc-800">
+    <div
+      data-hydrated={isHydrated ? "true" : undefined}
+      className="min-h-screen flex flex-col bg-[#fafafa] dark:bg-[#0c0c0d] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 dark:selection:bg-zinc-800"
+    >
       <Navbar
         activeSection={activeSection}
         articles={articles}
-        projects={MOCK_PROJECTS}
+        projects={projects}
       />
 
       <main className="flex-1">
@@ -109,7 +136,7 @@ export function HomeClient({ initialArticles }: HomeClientProps) {
           onOpenResume={() => setResumeOpen(true)}
           benchmarkSlug={benchmarkSlug}
         />
-        <ProjectsSection projects={MOCK_PROJECTS} />
+        <ProjectsSection projects={projects} />
         <BlogSection
           articles={articles}
           selectedCategory={selectedCategory}

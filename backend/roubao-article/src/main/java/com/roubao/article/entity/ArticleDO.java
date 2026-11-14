@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.roubao.framework.config.JsonListTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -82,7 +82,7 @@ public class ArticleDO implements Serializable {
     /**
      * 技术标签列表 (JSON 数组)
      */
-    @TableField(value = "tags", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "tags", typeHandler = JsonListTypeHandler.class)
     private List<String> tags;
 
     /**

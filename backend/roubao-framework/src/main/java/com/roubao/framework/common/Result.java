@@ -3,12 +3,14 @@ package com.roubao.framework.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.ToString;
+import org.slf4j.MDC;
 
 import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * 统一 API 响应包装类
+ * 支持全链路日志 TraceId 自动注入与跨端透传
  *
  * @param <T> 数据载荷泛型
  * @author roubao
@@ -42,11 +44,17 @@ public class Result<T> implements Serializable {
      */
     private final long timestamp;
 
+    /**
+     * 全链路调用唯一追踪标识
+     */
+    private final String traceId;
+
     private Result(int code, String message, T data) {
         this.code = code;
         this.message = message;
         this.data = data;
         this.timestamp = System.currentTimeMillis();
+        this.traceId = MDC.get("traceId");
     }
 
     public static <T> Result<T> success(T data) {

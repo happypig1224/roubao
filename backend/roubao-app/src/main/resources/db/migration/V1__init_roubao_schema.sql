@@ -16,8 +16,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ------------------------------------------------------------------------------
 -- 1. 文章分类字典表 (tb_category)
 -- ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS `tb_category`;
-CREATE TABLE `tb_category` (
+CREATE TABLE IF NOT EXISTS `tb_category` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '分类主键ID',
     `category_name` varchar(64) NOT NULL DEFAULT '' COMMENT '分类名称（如：后端架构、前端工程）',
     `category_slug` varchar(64) NOT NULL DEFAULT '' COMMENT '分类英文路由标识（如：backend, frontend）',
@@ -30,21 +29,18 @@ CREATE TABLE `tb_category` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_category_slug` (`category_slug`),
     KEY `idx_sort_order` (`sort_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章分类字典表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章分类字典表';
 
 -- ------------------------------------------------------------------------------
 -- 2. 文章核心元数据表 (tb_article)
--- 说明: 存储文章轻量级基础属性，不存庞大的正文 Markdown，提升全表扫描及列表分页效率
--- 标签直接采用 MySQL 8.x 原生 JSON 数组 tags，彻底免除多对多中间表的性能与代码开销
 -- ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS `tb_article`;
-CREATE TABLE `tb_article` (
+CREATE TABLE IF NOT EXISTS `tb_article` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '文章主键ID',
     `category_id` bigint unsigned NOT NULL DEFAULT 0 COMMENT '所属分类ID（对应tb_category.id，应用层弱关联）',
     `title` varchar(128) NOT NULL DEFAULT '' COMMENT '文章主标题',
     `slug` varchar(128) NOT NULL DEFAULT '' COMMENT '文章URL唯一标识路径（SEO与人类可读Slug）',
     `summary` varchar(500) NOT NULL DEFAULT '' COMMENT '文章导读摘要',
-    `cover_image_key` varchar(255) NOT NULL DEFAULT '' COMMENT '封面图在对象存储中的相对Key(如: cover/2026/11/threads.webp)',
+    `cover_image_key` varchar(255) NOT NULL DEFAULT '' COMMENT '封面图在对象存储中的相对Key(如: covers/2026/11/threads.webp)',
     `content_url` varchar(255) NOT NULL DEFAULT '' COMMENT '静态Markdown原稿OSS/CDN外链(可选)',
     `file_type` varchar(16) NOT NULL DEFAULT 'md' COMMENT '正文格式类型: md-Markdown, pdf-文档',
     `tags` json DEFAULT NULL COMMENT '技术标签列表(JSON数组，如:["Java 21", "Spring Boot", "性能优化"])',
@@ -58,34 +54,29 @@ CREATE TABLE `tb_article` (
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '记录最后修改时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_slug` (`slug`),
+    UNIQUE KEY `uk_article_slug` (`slug`),
     KEY `idx_category_published_top` (`category_id`, `is_published`, `is_top`, `sort_order`),
     KEY `idx_published_at` (`published_at`),
     KEY `idx_gmt_create` (`gmt_create`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章主体元数据表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章主体元数据表';
 
 -- ------------------------------------------------------------------------------
--- 3. 文章长正文扩展表 (tb_article_content) - 【核心性能优化：大字段垂直隔离】
--- 说明: 超长正文独立分表存储，避免大字段影响主表索引与全表扫描效率
+-- 3. 文章长正文扩展表 (tb_article_content)
 -- ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS `tb_article_content`;
-CREATE TABLE `tb_article_content` (
+CREATE TABLE IF NOT EXISTS `tb_article_content` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键ID',
     `article_id` bigint unsigned NOT NULL COMMENT '文章ID（关联tb_article.id，1对1映射）',
     `content_markdown` mediumtext NOT NULL COMMENT '文章完整Markdown富文本源码',
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '记录最后修改时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_article_id` (`article_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章长正文扩展内容表';
+    UNIQUE KEY `uk_content_article_id` (`article_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章长正文扩展内容表';
 
 -- ------------------------------------------------------------------------------
--- 4. 文章高频统计指标表 (tb_article_stats) - 【核心性能优化：冷热计数解耦】
--- 架构设计: 垂直冷热隔离。将频繁被高并发写（自增、点赞）的计数字段从 tb_article 抽离，
--- 消除行级互斥锁争用，配合 Redis INCR 与定时批处理回写。
+-- 4. 文章高频统计指标表 (tb_article_stats)
 -- ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS `tb_article_stats`;
-CREATE TABLE `tb_article_stats` (
+CREATE TABLE IF NOT EXISTS `tb_article_stats` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键ID',
     `article_id` bigint unsigned NOT NULL COMMENT '文章ID（关联tb_article.id，1对1映射）',
     `view_count` int unsigned NOT NULL DEFAULT 0 COMMENT '累计阅读浏览总量',
@@ -95,15 +86,14 @@ CREATE TABLE `tb_article_stats` (
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '记录最后修改时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_article_id` (`article_id`),
+    UNIQUE KEY `uk_stats_article_id` (`article_id`),
     KEY `idx_view_count` (`view_count`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章高频统计指标表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章高频统计指标表';
 
 -- ------------------------------------------------------------------------------
 -- 5. 开源与实战项目展厅表 (tb_project)
 -- ------------------------------------------------------------------------------
-DROP TABLE IF EXISTS `tb_project`;
-CREATE TABLE `tb_project` (
+CREATE TABLE IF NOT EXISTS `tb_project` (
     `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '项目主键ID',
     `project_name` varchar(64) NOT NULL DEFAULT '' COMMENT '项目名称（如：Roubao Gateway）',
     `slug` varchar(64) NOT NULL DEFAULT '' COMMENT '项目唯一URL标识路径（如：roubao-gateway）',
@@ -121,8 +111,8 @@ CREATE TABLE `tb_project` (
     `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '记录创建时间',
     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '记录最后修改时间',
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_slug` (`slug`),
+    UNIQUE KEY `uk_project_slug` (`slug`),
     KEY `idx_featured_sort` (`is_featured`, `sort_order`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='开源与实战项目展厅表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='开源与实战项目展厅表';
 
 SET FOREIGN_KEY_CHECKS = 1;

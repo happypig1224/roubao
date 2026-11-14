@@ -2,13 +2,10 @@ import React from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ArticleDetailClient } from "@/components/ArticleDetailClient";
-import {
-  getCachedArticleBySlug,
-  getCachedArticles,
-} from "@/lib/articlesStore";
+import { fetchArticleBySlug, fetchArticles } from "@/lib/api";
 
 export async function generateStaticParams() {
-  const articles = await getCachedArticles();
+  const articles = await fetchArticles();
   return articles.map((article) => ({
     slug: article.slug,
   }));
@@ -21,7 +18,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const article = await getCachedArticleBySlug(decodedSlug);
+  const article = await fetchArticleBySlug(decodedSlug);
 
   if (!article) {
     return {
@@ -35,6 +32,8 @@ export async function generateMetadata({
   };
 }
 
+export const instant = false;
+
 export default async function BlogArticlePage({
   params,
 }: {
@@ -42,26 +41,29 @@ export default async function BlogArticlePage({
 }) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
-  const articles = await getCachedArticles();
-  const currentIndex = articles.findIndex((a) => a.slug === decodedSlug);
+  const [article, articles] = await Promise.all([
+    fetchArticleBySlug(decodedSlug),
+    fetchArticles(),
+  ]);
 
-  if (currentIndex === -1) {
+  if (!article) {
     notFound();
   }
 
-  const article = articles[currentIndex];
+  const currentIndex = articles.findIndex((a) => a.slug === decodedSlug);
   const prevArticle = currentIndex > 0 ? articles[currentIndex - 1] : null;
   const nextArticle =
-    currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
+    currentIndex !== -1 && currentIndex < articles.length - 1 ? articles[currentIndex + 1] : null;
 
   return (
-    <ArticleDetailClient
-      key={article.slug}
-      article={article}
-      allArticles={articles}
-      prevArticle={prevArticle}
-      nextArticle={nextArticle}
-    />
+    <React.Suspense fallback={<div className="min-h-screen bg-[#fafafa] dark:bg-[#0c0c0d]" />}>
+      <ArticleDetailClient
+        key={article.slug}
+        article={article}
+        allArticles={articles}
+        prevArticle={prevArticle}
+        nextArticle={nextArticle}
+      />
+    </React.Suspense>
   );
 }
-

@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * 全局统一分页响应包装模型
+ * 双向对齐前后端 page/pageNo, size/pageSize 与 totalPages 契约
  *
  * @param <T> 列表项数据类型
  * @author roubao
@@ -55,6 +56,30 @@ public class PageResult<T> implements Serializable {
         this.total = total;
         this.page = page;
         this.size = size;
+    }
+
+    /**
+     * 前端规范化页码别名
+     */
+    public long getPageNo() {
+        return this.page;
+    }
+
+    /**
+     * 前端规范化每页条数别名
+     */
+    public long getPageSize() {
+        return this.size;
+    }
+
+    /**
+     * 计算总页数
+     */
+    public long getTotalPages() {
+        if (this.size <= 0) {
+            return 0L;
+        }
+        return (this.total + this.size - 1) / this.size;
     }
 
     /**

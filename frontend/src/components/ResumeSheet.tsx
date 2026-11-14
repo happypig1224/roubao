@@ -153,9 +153,11 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
           <button
             onClick={onClose}
             aria-label="关闭履历预览"
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+            className="hit-budget-44 -mr-2 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer ios-pressable"
           >
-            <X className="w-4 h-4" />
+            <span className="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+              <X className="w-3.5 h-3.5" />
+            </span>
           </button>
         </div>
 

@@ -59,7 +59,18 @@ public enum ErrorCode {
     /**
      * 对象存储服务通信异常
      */
-    STORAGE_ERROR(502, "对象存储底层通信异常");
+    STORAGE_ERROR(502, "对象存储底层通信异常"),
+
+    /**
+     * 文章领域业务错误
+     */
+    ARTICLE_NOT_FOUND(1001, "文章不存在或已下架"),
+    CATEGORY_NOT_FOUND(1002, "分类不存在"),
+
+    /**
+     * 项目展厅领域业务错误
+     */
+    PROJECT_NOT_FOUND(2001, "开源项目不存在");
 
     private final int code;
     private final String message;

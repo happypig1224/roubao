@@ -40,6 +40,7 @@
         <lombok.version>1.18.34</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <apache-commons-lang3>3.20.0</apache-commons-lang3>
     </properties>
 
     <dependencyManagement>
@@ -90,6 +91,14 @@
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
+
+            <!-- Apache Commons Lang3 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${apache-commons-lang3}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

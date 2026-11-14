@@ -3,6 +3,7 @@ import { Project, Article } from "@/types";
 export const MOCK_PROJECTS: Project[] = [
   {
     id: "roubao-gateway",
+    slug: "roubao-gateway",
     name: "Roubao Gateway",
     tagline: "轻量级高吞吐 API 网关",
     description: "基于 Java 21 虚拟线程与 Netty 开发。支持动态路由、令牌桶限流与全链路 TraceId 透传，单机 2C4G 实测支撑 3.8 万 QPS。",
@@ -18,6 +19,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "cloud-trace",
+    slug: "cloud-trace",
     name: "CloudTrace Hub",
     tagline: "分布式全链路追踪看板",
     description: "为中小型全栈系统量身打造的可观测工具。存储端采用 ClickHouse 代替沉重的 ES，前端提供直观的服务调用拓扑图与慢 SQL 归因。",
@@ -33,6 +35,7 @@ export const MOCK_PROJECTS: Project[] = [
   },
   {
     id: "tactile-ui",
+    slug: "tactile-ui",
     name: "Tactile UI",
     tagline: "轻量物理动效与微交互组件库",
     description: "面向 React 19 与 Tailwind CSS 的质感组件库。封装了高精抽屉、分段切换器与触觉按压反馈，注重手感细节与性能体验。",

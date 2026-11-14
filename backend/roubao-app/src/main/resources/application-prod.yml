@@ -1,0 +1,14 @@
+# ==============================================================================
+# Roubao 生产环境专属配置 (Profile: prod)
+# 强制要求注入生产级数据库凭证与 ADMIN_TOKEN
+# ==============================================================================
+
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:roubao_blog}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=true&allowPublicKeyRetrieval=false
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+roubao:
+  admin:
+    token: ${ADMIN_TOKEN}

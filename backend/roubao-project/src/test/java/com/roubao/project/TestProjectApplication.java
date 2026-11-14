@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author roubao
  * @since 2026-11-13
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.roubao.project", "com.roubao.framework"})
 @MapperScan("com.roubao.project.mapper")
 public class TestProjectApplication {
 }

@@ -25,16 +25,16 @@ export function Footer() {
           <span className="text-zinc-700 dark:text-zinc-300 font-semibold tracking-tight">
             肉包 · Roubao
           </span>
-          <span>© 2026</span>
+          <span className="font-mono tabular-nums">© 2026</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-4 sm:gap-5">
           {/* 完整邮箱展示 + 一键复制/发送 */}
-          <div className="inline-flex items-center gap-1.5 font-mono text-[11px] sm:text-xs">
+          <div className="inline-flex items-center gap-1 font-mono text-[11px] sm:text-xs">
             <a
               href={`mailto:${AUTHOR_EMAIL}`}
               title="点击发送邮件"
-              className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors inline-flex items-center gap-1.5"
+              className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors inline-flex items-center gap-1.5 py-1.5"
             >
               <Mail className="w-3.5 h-3.5 text-zinc-400" />
               <span>{AUTHOR_EMAIL}</span>
@@ -44,13 +44,15 @@ export function Footer() {
               onClick={handleCopyEmail}
               title="复制完整邮箱"
               aria-label="复制完整邮箱"
-              className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+              className="hit-budget-44 -mr-2 rounded text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer ios-pressable"
             >
-              {copied ? (
-                <Check className="w-3 h-3 text-emerald-500" />
-              ) : (
-                <Copy className="w-3 h-3" />
-              )}
+              <span className="w-6 h-6 rounded flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+              </span>
             </button>
           </div>
 
@@ -58,7 +60,7 @@ export function Footer() {
             href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors inline-flex items-center gap-1.5 font-sans"
+            className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors inline-flex items-center gap-1.5 font-sans py-1.5 ios-pressable"
           >
             <GithubIcon className="w-3.5 h-3.5" />
             <span>GitHub</span>

@@ -34,7 +34,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       {/* Projects Bento */}
       <div className="space-y-4">
         {featuredProject && (
-          <article className="clean-card rounded-2xl p-6 sm:p-7 group shadow-xs">
+          <article className="apple-card rounded-[24px] p-6 sm:p-7 group select-none">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
               {/* Left Column: Core Identity & Narrative */}
               <div className="lg:col-span-7 space-y-4">
@@ -62,7 +62,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                   {featuredProject.techTags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-2.5 py-0.5 text-[11px] font-mono rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
+                      className="px-2.5 py-0.5 text-[11px] font-mono rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
                     >
                       {tag}
                     </span>
@@ -82,8 +82,8 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                 </div>
               </div>
 
-              {/* Right Column: Sleek Integrated Highlights (No chunky grey inner box) */}
-              <div className="lg:col-span-5 p-5 rounded-xl border border-zinc-200/60 dark:border-zinc-800/60 bg-zinc-50/50 dark:bg-zinc-900/30 space-y-3">
+              {/* Right Column: HIG Concentric Radius R_inner(14px) = R_outer(24px) - Padding(20px) */}
+              <div className="lg:col-span-5 p-5 rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] bg-[#767680]/8 dark:bg-[#767680]/15 space-y-3">
                 <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-semibold">
                   核心技术实现 / Highlights
                 </div>
@@ -104,7 +104,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
           {secondaryProjects.map((project) => (
             <article
               key={project.id}
-              className="clean-card rounded-2xl p-5 sm:p-6 group flex flex-col justify-between shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+              className="apple-card rounded-[20px] p-5 sm:p-6 group flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors select-none"
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-3">
@@ -129,7 +129,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       href={project.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="tactile-btn p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                      className="tactile-btn hit-budget-44 -mr-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                       title="源码仓库"
                       aria-label={`${project.name} GitHub 源码仓库`}
                     >

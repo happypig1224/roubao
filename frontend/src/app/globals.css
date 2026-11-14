@@ -40,14 +40,21 @@ body::-webkit-scrollbar {
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 72px;
+    scroll-padding-top: 85px;
+    scrollbar-gutter: stable;
+    /* Apple HIG: 去除浏览器橡皮筋露底与双重反弹 */
+    overscroll-behavior-y: none;
   }
 
   body {
     background-color: #fafafa;
     color: #18181b;
-    font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    /* Apple HIG 官方字体栈与反网页化重置 */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif;
     transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .dark body,
@@ -56,18 +63,118 @@ body::-webkit-scrollbar {
     background-color: #0c0c0d;
     color: #f4f4f5;
   }
+
+  /* 允许在文本区域正常选中文本，其余默认禁止误触选中 */
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+}
+
+/* ==========================================================================
+   Apple HIG Native Design System Tokens & Utilities
+   ========================================================================== */
+
+/* 1. iOS 原生 Inset 卡片（天顶 1px 晶莹高光 + 底部微压痕 + 双层轻柔漫反射） */
+.apple-card {
+  background-color: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-inline: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 8px 24px -4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dark .apple-card {
+  background-color: #1c1c1e;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  border-inline: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    0 8px 24px -4px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.apple-card:hover {
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 14px 32px -4px rgba(0, 0, 0, 0.07),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1);
+}
+
+.dark .apple-card:hover {
+  border-top-color: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    0 14px 32px -4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+}
+
+/* 2. Apple 经典微缩触感反馈 (Tactile Spring Depress) */
+.ios-pressable {
+  transition:
+    transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-pressable:active {
+  transform: scale(0.972);
+  opacity: 0.86;
+}
+
+/* 3. 44pt 触控热区预算保障 */
+.hit-budget-44 {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 4. 0.5px 极细发丝分割线 (Apple Hairline Separator) */
+.ios-hairline {
+  border-bottom: 0.5px solid rgba(60, 60, 67, 0.12);
+}
+
+.dark .ios-hairline {
+  border-bottom: 0.5px solid rgba(84, 84, 88, 0.36);
 }
 
 /* First-version clean minimal card styling */
 .clean-card {
   background-color: #ffffff;
-  border: 1px solid #e4e4e7;
-  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+  border-top: 1px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-inline: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.02),
+    0 8px 24px -4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .dark .clean-card {
   background-color: #141416;
-  border: 1px solid #27272a;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  border-inline: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    0 8px 24px -4px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
 }
 
 .clean-card:hover {
@@ -78,30 +185,38 @@ body::-webkit-scrollbar {
   border-color: #3f3f46;
 }
 
-/* Clean translucent top navigation */
+/* Clean translucent top navigation (Apple HIG Liquid Frosted Glass) */
 .clean-nav {
-  background: rgba(250, 250, 250, 0.84);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(250, 250, 250, 0.82);
+  backdrop-filter: blur(20px) saturate(185%);
+  -webkit-backdrop-filter: blur(20px) saturate(185%);
+  border-top: 1px solid rgba(255, 255, 255, 0.95);
+  border-bottom: 0.5px solid rgba(60, 60, 67, 0.12);
 }
 
 .dark .clean-nav {
-  background: rgba(12, 12, 13, 0.84);
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(12, 12, 13, 0.82);
+  backdrop-filter: blur(20px) saturate(185%);
+  -webkit-backdrop-filter: blur(20px) saturate(185%);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 0.5px solid rgba(84, 84, 88, 0.36);
 }
 
-/* Crisp tactile button feedback without heavy shadows */
+/* Crisp tactile button feedback with Apple spring physics */
 .tactile-btn {
   transition:
-    transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    transform 0.16s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.16s ease,
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tactile-btn:active {
-  transform: scale(0.975);
+  transform: scale(0.972);
+  opacity: 0.88;
 }
 
 .tabular-nums {
@@ -128,6 +243,55 @@ pre::-webkit-scrollbar-track {
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Highlight.js Modern Technical Dark Theme */
+.hljs {
+  color: #e4e4e7;
+  background: transparent;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-subst {
+  color: #f43f5e;
+  font-weight: 600;
+}
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: #34d399;
+}
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: #71717a;
+  font-style: italic;
+}
+.hljs-number,
+.hljs-regexp,
+.hljs-link {
+  color: #fb923c;
+}
+.hljs-variable,
+.hljs-template-variable {
+  color: #38bdf8;
+}
+.hljs-built_in,
+.hljs-class .hljs-title {
+  color: #a78bfa;
+}
+.hljs-function .hljs-title {
+  color: #60a5fa;
+}
+.hljs-params {
+  color: #cbd5e1;
 }
 
 @media (prefers-reduced-motion: reduce) {

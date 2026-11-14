@@ -183,7 +183,7 @@ export function Hero({
 
         {/* Right Stage: Sleek Flagship Benchmark Console */}
         <div className="lg:col-span-5">
-          <div className="clean-card rounded-2xl p-5 sm:p-6 space-y-5 shadow-xs">
+          <div className="apple-card rounded-[24px] p-5 sm:p-6 space-y-5 select-none">
             {/* Top Bar */}
             <div className="flex items-start justify-between gap-3 pb-3 border-b border-zinc-100 dark:border-zinc-800/80">
               <div className="flex items-center gap-3">
@@ -263,7 +263,7 @@ export function Hero({
               </div>
 
               {stageTab === "benchmark" ? (
-                <div className="p-3.5 rounded-xl border border-zinc-200/70 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/40 space-y-3 text-xs tabular-nums">
+                <div className="p-3.5 rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] bg-[#767680]/8 dark:bg-[#767680]/15 space-y-3 text-xs tabular-nums">
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium text-zinc-800 dark:text-zinc-200 text-xs">
@@ -297,7 +297,7 @@ export function Hero({
                   </p>
                 </div>
               ) : (
-                <pre className="p-3.5 rounded-xl bg-zinc-900 dark:bg-black border border-zinc-800 text-zinc-200 text-[11px] font-mono leading-relaxed overflow-x-auto">
+                <pre className="p-3.5 rounded-[14px] bg-zinc-900 dark:bg-black border border-zinc-800 text-zinc-200 text-[11px] font-mono leading-relaxed overflow-x-auto">
                   <code>{`private final ReentrantLock lock = new ReentrantLock();
 
 public String fetchConfigFixed() {

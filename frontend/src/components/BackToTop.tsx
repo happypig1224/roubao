@@ -30,7 +30,7 @@ export function BackToTop() {
       onClick={scrollToTop}
       aria-label="返回顶部"
       title="返回顶部"
-      className={`fixed right-5 sm:right-8 bottom-[calc(env(safe-area-inset-bottom)+24px)] z-40 w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center bg-white/45 dark:bg-zinc-900/45 hover:bg-white/75 dark:hover:bg-zinc-900/75 backdrop-blur-md border border-zinc-900/8 dark:border-white/10 hover:border-zinc-900/15 dark:hover:border-white/20 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-all duration-300 cursor-pointer active:scale-90 ${
+      className={`fixed right-5 sm:right-8 bottom-[calc(env(safe-area-inset-bottom)+24px)] z-40 w-11 h-11 rounded-full flex items-center justify-center bg-white/75 dark:bg-[#1c1c1e]/75 hover:bg-white/90 dark:hover:bg-[#1c1c1e]/90 backdrop-blur-[20px] saturate-[185%] border-t border-white/90 dark:border-white/15 border-b border-black/[0.06] dark:border-black/40 text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-200 cursor-pointer ios-pressable select-none ${
         visible
           ? "opacity-100 translate-y-0 pointer-events-auto"
           : "opacity-0 translate-y-3 pointer-events-none"

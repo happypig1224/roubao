@@ -18,6 +18,7 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
   });
 
   const [token, setToken] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [title, setTitle] = useState<string>("");
   const [slug, setSlug] = useState<string>("");
   const [contentUrl, setContentUrl] = useState<string>(
@@ -37,11 +38,16 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
 
   useEffect(() => {
     if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
   if (!isMounted) return null;
@@ -55,8 +61,8 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
       return;
     }
 
-    if (!title.trim() || !slug.trim() || !contentUrl.trim() || !summary.trim()) {
-      setErrorMsg("请完整填写标题、别名(Slug)、CDN 文件地址与摘要");
+    if (!title.trim() || !slug.trim() || !summary.trim()) {
+      setErrorMsg("请完整填写标题、别名(Slug)与摘要，或直接选择 .md 文件");
       return;
     }
 
@@ -65,37 +71,60 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
     setSuccessMsg(null);
 
     try {
-      const response = await fetch("/api/articles", {
+      const formData = new FormData();
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      } else {
+        const frontmatter = `---
+title: "${title.trim()}"
+slug: "${slug.trim()}"
+category: "${category}"
+tags: ${JSON.stringify(tags.split(",").map((t) => t.trim()).filter(Boolean))}
+summary: "${summary.trim()}"
+---
+${sampleContent}
+`;
+        const blob = new Blob([frontmatter], { type: "text/markdown" });
+        formData.append("file", blob, `${slug.trim() || "article"}.md`);
+      }
+
+      const response = await fetch("/api/v1/admin/articles/upload", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "x-admin-token": token.trim(),
+          "X-Admin-Token": token.trim(),
         },
-        body: JSON.stringify({
-          title: title.trim(),
-          slug: slug.trim(),
-          summary: summary.trim(),
-          contentUrl: contentUrl.trim(),
-          category,
-          tags: tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
-          contentMarkdown: sampleContent,
-        }),
+        body: formData,
       });
 
       const payload = (await response.json()) as {
-        article?: Article;
-        error?: string;
+        code?: number;
+        message?: string;
+        data?: number;
       };
 
-      if (!response.ok || !payload.article) {
-        setErrorMsg(payload.error ?? "保存失败，请检查输入");
+      if (!response.ok || payload.code !== 0) {
+        setErrorMsg(payload.message ?? "保存失败，请检查输入或 Token");
         return;
       }
 
-      onAddArticle(payload.article);
+      const newArticle: Article = {
+        id: String(payload.data || Date.now()),
+        title: title.trim(),
+        slug: slug.trim(),
+        summary: summary.trim(),
+        contentUrl: contentUrl.trim(),
+        fileType: "md",
+        category,
+        tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+        views: 0,
+        likeCount: 0,
+        readTimeMinutes: Math.max(1, Math.ceil(sampleContent.length / 400)),
+        publishedAt: new Date().toISOString().slice(0, 10),
+        contentMarkdown: sampleContent,
+      };
+
+      onAddArticle(newArticle);
+      setSelectedFile(null);
       setTitle("");
       setSlug("");
       setSummary("");
@@ -115,7 +144,7 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-end"
+      className="fixed inset-0 z-50 flex items-center justify-end overflow-hidden"
       role="dialog"
       aria-modal="true"
       aria-labelledby="admin-drawer-title"
@@ -150,9 +179,11 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
           <button
             onClick={onClose}
             aria-label="关闭控制台"
-            className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+            className="hit-budget-44 -mr-2 rounded-full text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors cursor-pointer ios-pressable"
           >
-            <X className="w-4 h-4" />
+            <span className="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+              <X className="w-3.5 h-3.5" />
+            </span>
           </button>
         </div>
 
@@ -170,6 +201,41 @@ export function AdminDrawer({ isOpen, onClose, onAddArticle }: AdminDrawerProps)
                 placeholder="请输入服务端 ADMIN_TOKEN"
                 className="w-full px-3 py-1.5 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 font-mono text-xs"
               />
+            </div>
+
+            <div className="p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-dashed border-zinc-200 dark:border-zinc-700">
+              <label className="block font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                直接选择 Markdown 文件导入 (.md)
+              </label>
+              <input
+                type="file"
+                accept=".md,.markdown"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setSelectedFile(file);
+                    const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+                    if (!title) setTitle(nameWithoutExt);
+                    if (!slug) setSlug(nameWithoutExt.toLowerCase().replace(/[^a-z0-9_-]/g, "-"));
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const content = event.target?.result as string;
+                      if (content) {
+                        setSampleContent(content);
+                        if (!summary) {
+                          const clean = content.replace(/#+\s+.*/g, "").trim();
+                          setSummary(clean.slice(0, 100) + (clean.length > 100 ? "..." : ""));
+                        }
+                      }
+                    };
+                    reader.readAsText(file);
+                  }
+                }}
+                className="w-full text-xs text-zinc-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:bg-zinc-200 dark:file:bg-zinc-700 file:text-zinc-800 dark:file:text-zinc-200 cursor-pointer"
+              />
+              <p className="text-[10px] text-zinc-400 mt-1">
+                支持解析 Frontmatter 元数据 (title, slug, category, tags)
+              </p>
             </div>
 
             <div>

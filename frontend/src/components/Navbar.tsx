@@ -200,13 +200,13 @@ export function Navbar({
               rel="noopener noreferrer"
               aria-label="GitHub"
               title="GitHub"
-              className="tactile-btn p-2.5 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="tactile-btn hit-budget-44 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <GithubIcon className="w-5 h-5" />
             </a>
             <button
               onClick={toggleTheme}
-              className="tactile-btn p-2.5 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="tactile-btn hit-budget-44 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               aria-label={isDark ? "切换浅色模式" : "切换深色模式"}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -257,7 +257,7 @@ export function Navbar({
               onKeyDown={handleInputKeyDown}
               placeholder="搜索文章或项目..."
               aria-label="搜索文章或项目"
-              className="w-full pl-9 pr-8 py-2 text-xs sm:text-[13px] rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+              className="w-full pl-9 pr-9 py-2 text-xs sm:text-[13px] rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
             />
             {searchQuery && (
               <button
@@ -266,9 +266,11 @@ export function Navbar({
                   inputRef.current?.focus();
                 }}
                 aria-label="清空搜索"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer"
+                className="absolute right-0 top-1/2 -translate-y-1/2 hit-budget-44 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer ios-pressable"
               >
-                <X className="w-4 h-4" />
+                <span className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
+                  <X className="w-2.5 h-2.5" />
+                </span>
               </button>
             )}
 
@@ -292,7 +294,7 @@ export function Navbar({
                               handleSelectResult(item);
                             }}
                             onMouseEnter={() => setSelectedIndex(idx)}
-                            className={`w-full px-2.5 py-2 rounded-lg text-left flex items-start gap-2.5 transition-colors cursor-pointer ${
+                            className={`w-full px-2.5 py-2 rounded-lg text-left flex items-start gap-2.5 transition-all cursor-pointer ios-pressable ${
                               isSelected
                                 ? "bg-zinc-100 dark:bg-zinc-800"
                                 : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
@@ -318,7 +320,7 @@ export function Navbar({
                             handleSelectResult(item);
                           }}
                           onMouseEnter={() => setSelectedIndex(idx)}
-                          className={`w-full px-2.5 py-2 rounded-lg text-left flex items-start gap-2.5 transition-colors cursor-pointer ${
+                          className={`w-full px-2.5 py-2 rounded-lg text-left flex items-start gap-2.5 transition-all cursor-pointer ios-pressable ${
                             isSelected
                               ? "bg-zinc-100 dark:bg-zinc-800"
                               : "hover:bg-zinc-50 dark:hover:bg-zinc-800/50"

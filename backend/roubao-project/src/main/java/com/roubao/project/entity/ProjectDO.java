@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import com.roubao.framework.config.JsonListTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -64,13 +64,13 @@ public class ProjectDO implements Serializable {
     /**
      * 核心架构亮点列表 (JSON 数组)
      */
-    @TableField(value = "architecture_highlights", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "architecture_highlights", typeHandler = JsonListTypeHandler.class)
     private List<String> architectureHighlights;
 
     /**
      * 关键技术栈标签列表 (JSON 数组)
      */
-    @TableField(value = "tech_tags", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "tech_tags", typeHandler = JsonListTypeHandler.class)
     private List<String> techTags;
 
     /**
