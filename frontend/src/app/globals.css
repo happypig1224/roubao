@@ -40,7 +40,7 @@ body::-webkit-scrollbar {
 
   html {
     scroll-behavior: smooth;
-    scroll-padding-top: 85px;
+    scroll-padding-top: 86px;
     scrollbar-gutter: stable;
     /* Apple HIG: 去除浏览器橡皮筋露底与双重反弹 */
     overscroll-behavior-y: none;

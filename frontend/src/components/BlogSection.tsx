@@ -56,9 +56,9 @@ export function BlogSection({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         {/* =========================================================================
             左侧控制台/导航轨 (Left Filter Rail)
-            HIG 布局：精准计算 85px 顶部避让，与全局粘滞导航保持绝对视觉平行
+            HIG 布局：精准计算 86px 顶部避让，与全局粘滞导航保持绝对视觉平行 (0.000px 差值)
            ========================================================================= */}
-        <aside className="lg:col-span-4 lg:sticky lg:top-[85px] space-y-5">
+        <aside className="lg:col-span-4 lg:sticky lg:top-[86px] space-y-5">
           {/* 标题与辅注（SF Pro 动态字阶：大标题 tight，小字 footnote 舒展） */}
           <div className="space-y-1">
             <div className="text-[11px] font-semibold tracking-[0.06em] uppercase text-[#0071e3] dark:text-[#2997ff] font-mono">
@@ -148,8 +148,9 @@ export function BlogSection({
         {/* =========================================================================
             右侧文章流 (Right Stream: Apple Inset Grouped Cards)
             HIG 空间深度：每张卡片具备天顶 1px 晶莹高光 + 多层柔和漫反射环境光
+            设定 min-h-[500px] 保证切换筛选分类时高度稳定，杜绝底部抖动弹跳
            ========================================================================= */}
-        <div className="lg:col-span-8">
+        <div className="lg:col-span-8 min-h-[500px]">
           {filteredArticles.length === 0 ? (
             /* Apple 风格纯净温润空状态 */
             <div className="apple-card rounded-[22px] py-16 px-6 text-center space-y-4">

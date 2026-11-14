@@ -263,7 +263,7 @@ export function Hero({
               </div>
 
               {stageTab === "benchmark" ? (
-                <div className="p-3.5 rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] bg-[#767680]/8 dark:bg-[#767680]/15 space-y-3 text-xs tabular-nums">
+                <div className="p-3.5 rounded-[14px] border border-black/[0.04] dark:border-white/[0.06] bg-[#767680]/8 dark:bg-[#767680]/15 space-y-3 text-xs tabular-nums h-[210px] flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="font-medium text-zinc-800 dark:text-zinc-200 text-xs">
@@ -297,7 +297,7 @@ export function Hero({
                   </p>
                 </div>
               ) : (
-                <pre className="p-3.5 rounded-[14px] bg-zinc-900 dark:bg-black border border-zinc-800 text-zinc-200 text-[11px] font-mono leading-relaxed overflow-x-auto">
+                <pre className="p-3.5 rounded-[14px] bg-zinc-900 dark:bg-black border border-zinc-800 text-zinc-200 text-[11px] font-mono leading-relaxed overflow-x-auto h-[210px] flex flex-col justify-center">
                   <code>{`private final ReentrantLock lock = new ReentrantLock();
 
 public String fetchConfigFixed() {
