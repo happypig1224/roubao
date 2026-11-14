@@ -1,4 +1,4 @@
-package com.roubao.app.controller.portal;
+package com.roubao.article.controller;
 
 import com.roubao.article.model.dto.ArticleQueryDTO;
 import com.roubao.article.model.vo.ArticleDetailVO;
@@ -64,4 +64,3 @@ public class ArticlePortalController {
         return Result.success();
     }
 }
-

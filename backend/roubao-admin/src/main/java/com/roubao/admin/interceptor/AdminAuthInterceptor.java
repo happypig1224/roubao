@@ -1,4 +1,4 @@
-package com.roubao.app.interceptor;
+package com.roubao.admin.interceptor;
 
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;

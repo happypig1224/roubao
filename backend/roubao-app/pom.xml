@@ -24,6 +24,10 @@
             <groupId>com.roubao</groupId>
             <artifactId>roubao-project</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.roubao</groupId>
+            <artifactId>roubao-admin</artifactId>
+        </dependency>
 
         <!-- 基础设施模块依赖 -->
         <dependency>

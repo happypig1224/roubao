@@ -1,5 +1,6 @@
-package com.roubao.app.controller.admin;
+package com.roubao.admin.controller;
 
+import com.roubao.admin.TestAdminApplication;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author roubao
  * @since 2026-11-14
  */
-@SpringBootTest
+@SpringBootTest(classes = TestAdminApplication.class)
 @AutoConfigureMockMvc
 class ArticleAdminControllerTest {
 
@@ -97,4 +98,3 @@ class ArticleAdminControllerTest {
                 .andExpect(jsonPath("$.data.contentMarkdown").value(containsString("当查询条件不满足最左前缀原则时")));
     }
 }
-

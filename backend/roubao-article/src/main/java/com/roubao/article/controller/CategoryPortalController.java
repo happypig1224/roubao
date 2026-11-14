@@ -1,4 +1,4 @@
-package com.roubao.app.controller.portal;
+package com.roubao.article.controller;
 
 import com.roubao.article.model.vo.CategoryVO;
 import com.roubao.article.service.CategoryService;
@@ -48,4 +48,3 @@ public class CategoryPortalController {
         return Result.success(category);
     }
 }
-

@@ -22,6 +22,7 @@
         <module>roubao-framework</module>
         <module>roubao-article</module>
         <module>roubao-project</module>
+        <module>roubao-admin</module>
         <module>roubao-app</module>
     </modules>
 
@@ -59,6 +60,11 @@
             <dependency>
                 <groupId>com.roubao</groupId>
                 <artifactId>roubao-project</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.roubao</groupId>
+                <artifactId>roubao-admin</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

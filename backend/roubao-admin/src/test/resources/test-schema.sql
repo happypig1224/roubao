@@ -1,0 +1,51 @@
+CREATE TABLE IF NOT EXISTS `tb_category` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `category_name` VARCHAR(64) NOT NULL DEFAULT '',
+    `category_slug` VARCHAR(64) NOT NULL DEFAULT '',
+    `description` VARCHAR(255) NOT NULL DEFAULT '',
+    `icon_name` VARCHAR(64) NOT NULL DEFAULT '',
+    `sort_order` INT NOT NULL DEFAULT 0,
+    `is_deleted` TINYINT NOT NULL DEFAULT 0,
+    `gmt_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS `tb_article` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `category_id` BIGINT NOT NULL DEFAULT 0,
+    `title` VARCHAR(128) NOT NULL DEFAULT '',
+    `slug` VARCHAR(128) NOT NULL DEFAULT '',
+    `summary` VARCHAR(500) NOT NULL DEFAULT '',
+    `cover_image_key` VARCHAR(255) NOT NULL DEFAULT '',
+    `content_url` VARCHAR(255) NOT NULL DEFAULT '',
+    `file_type` VARCHAR(16) NOT NULL DEFAULT 'md',
+    `tags` VARCHAR(1024) DEFAULT NULL,
+    `read_time_minutes` SMALLINT NOT NULL DEFAULT 1,
+    `sort_order` INT NOT NULL DEFAULT 0,
+    `is_published` TINYINT NOT NULL DEFAULT 0,
+    `is_top` TINYINT NOT NULL DEFAULT 0,
+    `is_featured` TINYINT NOT NULL DEFAULT 0,
+    `is_deleted` TINYINT NOT NULL DEFAULT 0,
+    `published_at` TIMESTAMP NULL DEFAULT NULL,
+    `gmt_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS `tb_article_content` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `article_id` BIGINT NOT NULL,
+    `content_markdown` CLOB NOT NULL,
+    `gmt_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS `tb_article_stats` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `article_id` BIGINT NOT NULL,
+    `view_count` BIGINT NOT NULL DEFAULT 0,
+    `like_count` BIGINT NOT NULL DEFAULT 0,
+    `share_count` BIGINT NOT NULL DEFAULT 0,
+    `comment_count` BIGINT NOT NULL DEFAULT 0,
+    `gmt_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `gmt_modified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

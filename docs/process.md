@@ -9,10 +9,12 @@
 
 ## 🎯 一、 架构契约与系统不变量 (System Invariants)
 
-1. **模块依赖单向无环**：
+1. **模块职责与依赖单向无环 (Clean Separation of Concerns)**：
    - `roubao-framework` 为绝对底座，严禁反向依赖业务领域模块。
-   - `roubao-article` 与 `roubao-project` 同级自治，严禁跨模块 DAO 注入，仅通过服务与 DTO 契约协作。
-   - `roubao-app` 充当聚合入口，为唯一 Spring Boot 打包运行目标。
+   - `roubao-article` 负责文章与分类领域完整闭环，前台控制器 `ArticlePortalController` 与 `CategoryPortalController` 下沉至此。
+   - `roubao-project` 负责开源项目领域完整闭环，前台控制器 `ProjectPortalController` 下沉至此。
+   - `roubao-admin` 为独立后台管理系统模块，沉淀管理员接口（`ArticleAdminController`）、管理端安全拦截器（`AdminAuthInterceptor`）及路由拦截装配（`AdminWebMvcConfig`）。
+   - `roubao-app` 保持绝对纯净，**严禁放置任何 Controller 与业务 Interceptor**，仅作为聚合入口、Flyway 物理迁移底座、全局跨域（CORS）与 Spring Boot 启动引导层。
 2. **数据所有权隔离 (Data Ownership)**：
    - `tb_article*` 所有表归属 `roubao-article`；
    - `tb_project` 归属 `roubao-project`；
@@ -100,11 +102,12 @@ flowchart TD
 
 ## 📊 四、 全套测试门禁汇总统计 (Test Gate Metrics)
 
-- **后端 Java 单元与集成测试套件**：`5/5` 模块全部构建成功，**49/49** 测试通过（0 Failure, 0 Error, 100% Pass）
-  - `roubao-framework`: 4/4 绿灯
-  - `roubao-article`: 19/19 绿灯
-  - `roubao-project`: 7/7 绿灯
-  - `roubao-app`: 19/19 绿灯
+- **后端 Java 单元与集成测试套件**：`6/6` 模块全部构建成功，**53/53** 测试通过（0 Failure, 0 Error, 100% Pass）
+  - `roubao-framework`: 4/4 绿灯 (TraceId, PageResult)
+  - `roubao-article`: 24/24 绿灯 (ArticlePortalController, CategoryPortalController, Service, Index, Virtual Threads)
+  - `roubao-project`: 13/13 绿灯 (ProjectPortalController, Service, Mapper)
+  - `roubao-admin`: 7/7 绿灯 (ArticleAdminController, AdminAuthInterceptor, AdminTokenSecurity)
+  - `roubao-app`: 5/5 绿灯 (FlywayMigration, CorsSecurity)
 - **前端 Playwright 端到端 (E2E) 测试套件**：**20/20** 测试通过（0 Failure, 0 Flaky, 100% Pass）
   - `admin-drawer.spec.ts`: 3/3 绿灯
   - `article-detail.spec.ts`: 4/4 绿灯

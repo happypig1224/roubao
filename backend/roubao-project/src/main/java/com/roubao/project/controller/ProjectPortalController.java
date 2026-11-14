@@ -1,4 +1,4 @@
-package com.roubao.app.controller.portal;
+package com.roubao.project.controller;
 
 import com.roubao.framework.common.PageResult;
 import com.roubao.framework.common.Result;
@@ -63,4 +63,3 @@ public class ProjectPortalController {
         return Result.success(project);
     }
 }
-
