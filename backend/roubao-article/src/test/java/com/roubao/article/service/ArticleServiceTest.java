@@ -14,9 +14,11 @@ import com.roubao.article.model.dto.ArticleQueryDTO;
 import com.roubao.article.model.vo.ArticleDetailVO;
 import com.roubao.article.model.vo.ArticleListVO;
 import com.roubao.framework.common.PageResult;
+import com.roubao.framework.constant.CacheConstants;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
 import com.roubao.framework.redis.RedisCache;
+import com.roubao.framework.redis.RedisUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,8 +75,8 @@ class ArticleServiceTest {
         categoryMapper.delete(null);
 
         // 清理文章缓存
-        redisCache.deleteObject("roubao:article:page:default:1");
-        redisCache.deleteObject(redisCache.scanKeys("roubao:article:*"));
+        RedisUtils.deleteObject(CacheConstants.ARTICLE_PAGE_DEFAULT);
+        RedisUtils.deleteObject(RedisUtils.scanKeys(CacheConstants.ARTICLE_STATIC_PREFIX + "*"));
 
         // 初始化分类
         CategoryDO cat1 = new CategoryDO();
@@ -220,7 +222,7 @@ class ArticleServiceTest {
         // 1. 首次查询：写入静态详情缓存
         ArticleDetailVO vo1 = articleService.getArticleDetailBySlug("cache-static-dynamic-demo");
         assertThat(vo1).isNotNull();
-        assertThat(redisCache.hasKey("roubao:article:static:cache-static-dynamic-demo")).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.ARTICLE_STATIC_PREFIX + "cache-static-dynamic-demo")).isTrue();
 
         // 2. 阅读量自增打点（更新动态计数）
         articleService.incrementViews("cache-static-dynamic-demo");
@@ -245,18 +247,18 @@ class ArticleServiceTest {
         query.setPageSize(10L);
         PageResult<ArticleListVO> page1 = articleService.pageArticles(query);
         assertThat(page1.getTotal()).isEqualTo(1);
-        assertThat(redisCache.hasKey("roubao:article:page:default:1")).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.ARTICLE_PAGE_DEFAULT)).isTrue();
 
         // 发布新文章：触发第一页缓存主动失效
         ArticleDO a2 = createArticleDo(backendCategoryId, "首页文章 2", "home-article-2",
                 List.of("Spring"), 20, LocalDateTime.now());
         articleService.createArticle(a2, "# 正文 2");
-        assertThat(redisCache.hasKey("roubao:article:page:default:1")).isFalse();
+        assertThat(RedisUtils.hasKey(CacheConstants.ARTICLE_PAGE_DEFAULT)).isFalse();
 
         // 再次默认分页拉取：重新回填最新数据
         PageResult<ArticleListVO> page2 = articleService.pageArticles(query);
         assertThat(page2.getTotal()).isEqualTo(2);
-        assertThat(redisCache.hasKey("roubao:article:page:default:1")).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.ARTICLE_PAGE_DEFAULT)).isTrue();
     }
 
     @Test
@@ -267,7 +269,7 @@ class ArticleServiceTest {
                 .isInstanceOf(BusinessException.class);
 
         // 断言 Redis 已生成防穿透标记 Key
-        assertThat(redisCache.hasKey("roubao:article:static:" + nonExistentSlug)).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.ARTICLE_STATIC_PREFIX + nonExistentSlug)).isTrue();
 
         // 再次查询：应直接命中防穿透标记并抛出异常，不再执行后续 DB 流程
         assertThatThrownBy(() -> articleService.getArticleDetailBySlug(nonExistentSlug))

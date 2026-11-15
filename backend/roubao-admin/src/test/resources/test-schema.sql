@@ -1,3 +1,6 @@
+CREATE ALIAS IF NOT EXISTS JSON_CONTAINS FOR "com.roubao.framework.util.H2DbFunctions.jsonContains";
+CREATE ALIAS IF NOT EXISTS JSON_QUOTE FOR "com.roubao.framework.util.H2DbFunctions.jsonQuote";
+
 CREATE TABLE IF NOT EXISTS `tb_category` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `category_name` VARCHAR(64) NOT NULL DEFAULT '',

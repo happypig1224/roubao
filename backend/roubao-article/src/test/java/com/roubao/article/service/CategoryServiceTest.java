@@ -4,9 +4,11 @@ import com.roubao.article.TestArticleApplication;
 import com.roubao.article.entity.CategoryDO;
 import com.roubao.article.mapper.CategoryMapper;
 import com.roubao.article.model.vo.CategoryVO;
+import com.roubao.framework.constant.CacheConstants;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
 import com.roubao.framework.redis.RedisCache;
+import com.roubao.framework.redis.RedisUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,7 @@ class CategoryServiceTest {
 
     @BeforeEach
     void cleanCache() {
-        redisCache.deleteObject("roubao:category:list");
+        RedisUtils.deleteObject(CacheConstants.CATEGORY_LIST);
     }
 
     @Test
@@ -108,7 +110,7 @@ class CategoryServiceTest {
         assertThat(firstRead).isNotEmpty();
 
         // 验证 Redis 中已生成对应 Key
-        assertThat(redisCache.hasKey("roubao:category:list")).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.CATEGORY_LIST)).isTrue();
 
         // 第二次读取：直接命中 Redis
         List<CategoryVO> cachedRead = categoryService.listCategories();

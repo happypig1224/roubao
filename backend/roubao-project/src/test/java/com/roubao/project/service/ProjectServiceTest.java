@@ -1,9 +1,11 @@
 package com.roubao.project.service;
 
 import com.roubao.framework.common.PageResult;
+import com.roubao.framework.constant.CacheConstants;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
 import com.roubao.framework.redis.RedisCache;
+import com.roubao.framework.redis.RedisUtils;
 import com.roubao.project.TestProjectApplication;
 import com.roubao.project.entity.ProjectDO;
 import com.roubao.project.mapper.ProjectMapper;
@@ -42,7 +44,7 @@ class ProjectServiceTest {
 
     @BeforeEach
     void cleanCache() {
-        redisCache.deleteObject("roubao:project:featured");
+        RedisUtils.deleteObject(CacheConstants.PROJECT_FEATURED);
     }
 
     @Test
@@ -113,17 +115,17 @@ class ProjectServiceTest {
         // 首次读取：触发回填
         List<ProjectVO> list1 = projectService.listFeaturedProjects();
         assertThat(list1).isNotEmpty();
-        assertThat(redisCache.hasKey("roubao:project:featured")).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.PROJECT_FEATURED)).isTrue();
 
         // 再次新增精选项目：应主动触发缓存失效
         ProjectDO p2 = createProjectDo("精选网关微核心", "gateway-micro", true, 1999, 2);
         projectService.createProject(p2);
-        assertThat(redisCache.hasKey("roubao:project:featured")).isFalse();
+        assertThat(RedisUtils.hasKey(CacheConstants.PROJECT_FEATURED)).isFalse();
 
         // 重新读取：重新回填最新数据
         List<ProjectVO> list2 = projectService.listFeaturedProjects();
         assertThat(list2).hasSize(2);
-        assertThat(redisCache.hasKey("roubao:project:featured")).isTrue();
+        assertThat(RedisUtils.hasKey(CacheConstants.PROJECT_FEATURED)).isTrue();
     }
 
     private ProjectDO createProjectDo(String name, String slug, boolean featured, int stars, int sortOrder) {

@@ -16,9 +16,10 @@ import com.roubao.article.model.vo.ArticleDetailVO;
 import com.roubao.article.model.vo.ArticleListVO;
 import com.roubao.article.service.ArticleService;
 import com.roubao.framework.common.PageResult;
+import com.roubao.framework.constant.CacheConstants;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
-import com.roubao.framework.redis.RedisCache;
+import com.roubao.framework.redis.RedisUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -42,44 +42,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
-    public static final String CACHE_KEY_DEFAULT_FIRST_PAGE = "roubao:article:page:default:1";
-    public static final String CACHE_KEY_STATIC_PREFIX = "roubao:article:static:";
-
     private final ArticleMapper articleMapper;
     private final ArticleContentMapper articleContentMapper;
     private final ArticleStatsMapper articleStatsMapper;
     private final CategoryMapper categoryMapper;
-    private final RedisCache redisCache;
-    private java.util.concurrent.Executor virtualThreadExecutor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    private javax.sql.DataSource dataSource;
-
-    private volatile Boolean isMySql = null;
-
-    private boolean isMySql() {
-        if (isMySql == null) {
-            if (dataSource == null) {
-                isMySql = true;
-            } else {
-                try (java.sql.Connection conn = dataSource.getConnection()) {
-                    String name = conn.getMetaData().getDatabaseProductName();
-                    isMySql = name != null && name.toLowerCase().contains("mysql");
-                } catch (Exception e) {
-                    isMySql = true;
-                }
-            }
-        }
-        return isMySql;
-    }
-
-    @org.springframework.beans.factory.annotation.Autowired(required = false)
-    public void setVirtualThreadExecutor(@org.springframework.beans.factory.annotation.Qualifier("virtualThreadExecutor") java.util.concurrent.Executor virtualThreadExecutor) {
-        if (virtualThreadExecutor != null) {
-            this.virtualThreadExecutor = virtualThreadExecutor;
-        }
-    }
-
+    @Override
     public PageResult<ArticleListVO> pageArticles(ArticleQueryDTO query) {
         long current = (query != null && query.getPageNo() != null) ? query.getPageNo() : 1L;
         long size = (query != null && query.getPageSize() != null) ? query.getPageSize() : 10L;
@@ -94,7 +62,7 @@ public class ArticleServiceImpl implements ArticleService {
         );
 
         if (isDefaultFirstPage) {
-            PageResult<ArticleListVO> cachedPage = redisCache.getCacheObject(CACHE_KEY_DEFAULT_FIRST_PAGE);
+            PageResult<ArticleListVO> cachedPage = RedisUtils.getCacheObject(CacheConstants.ARTICLE_PAGE_DEFAULT);
             if (cachedPage != null) {
                 return cachedPage;
             }
@@ -108,14 +76,10 @@ public class ArticleServiceImpl implements ArticleService {
             if (query.getCategoryId() != null) {
                 wrapper.eq(ArticleDO::getCategoryId, query.getCategoryId());
             }
-            // 2. 标签匹配 (生产 MySQL 8 原生 JSON_CONTAINS 规范函数，支持多值索引下推加速；测试环境自适应降级)
+            // 2. 标签匹配 (生产 MySQL 8 原生 JSON_CONTAINS 规范函数，多值索引下推加速)
             if (StringUtils.hasText(query.getTag())) {
                 String tagVal = query.getTag().trim();
-                if (isMySql()) {
-                    wrapper.apply("JSON_CONTAINS(tags, JSON_QUOTE({0}))", tagVal);
-                } else {
-                    wrapper.like(ArticleDO::getTags, "\"" + tagVal + "\"");
-                }
+                wrapper.apply("JSON_CONTAINS(tags, JSON_QUOTE({0}))", tagVal);
             }
             // 3. 关键字模糊搜索 (标题或导读摘要)
             if (StringUtils.hasText(query.getKeyword())) {
@@ -166,24 +130,30 @@ public class ArticleServiceImpl implements ArticleService {
 
         PageResult<ArticleListVO> pageResult = new PageResult<>(voList, resultPage.getTotal(), current, size);
         if (isDefaultFirstPage && !voList.isEmpty()) {
-            redisCache.setCacheObjectWithJitter(CACHE_KEY_DEFAULT_FIRST_PAGE, pageResult, 15, TimeUnit.MINUTES);
+            RedisUtils.setCacheObjectWithJitter(
+                    CacheConstants.ARTICLE_PAGE_DEFAULT,
+                    pageResult,
+                    CacheConstants.ARTICLE_PAGE_DEFAULT_TTL.toSeconds(),
+                    TimeUnit.SECONDS
+            );
         }
 
         return pageResult;
     }
 
+    @Override
     public ArticleDetailVO getArticleDetailBySlug(String slug) {
         if (!StringUtils.hasText(slug)) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "文章标识不能为空");
         }
         String trimmedSlug = slug.trim();
-        String cacheKey = CACHE_KEY_STATIC_PREFIX + trimmedSlug;
+        String cacheKey = CacheConstants.ARTICLE_STATIC_PREFIX + trimmedSlug;
 
         // 1. 尝试从 Redis 提取静态大对象 (Markdown 大正文 + 静态元数据，动静解耦)
-        ArticleStaticDTO staticDto = redisCache.getCacheObject(cacheKey);
+        ArticleStaticDTO staticDto = RedisUtils.getCacheObject(cacheKey);
 
         if (staticDto != null && staticDto.isEmpty()) {
-            // 命中防穿透空对象标记
+            // 命中防穿透空对象标记 (Null-Cache)
             throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
         }
 
@@ -192,35 +162,35 @@ public class ArticleServiceImpl implements ArticleService {
             ArticleDO article = articleMapper.findBySlug(trimmedSlug).orElse(null);
             if (article == null) {
                 // 防穿透保护：回填空对象，短期 TTL 60 秒
-                redisCache.setCacheObject(cacheKey, ArticleStaticDTO.EMPTY, 60, TimeUnit.SECONDS);
+                RedisUtils.setCacheObject(
+                        cacheKey,
+                        ArticleStaticDTO.EMPTY,
+                        CacheConstants.NULL_CACHE_TTL.toSeconds(),
+                        TimeUnit.SECONDS
+                );
                 throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
             }
 
-            // 虚拟线程并行查询长正文与分类名称
-            CompletableFuture<ArticleContentDO> contentFuture = CompletableFuture.supplyAsync(() ->
-                    articleContentMapper.selectOne(
-                            new LambdaQueryWrapper<ArticleContentDO>()
-                                    .eq(ArticleContentDO::getArticleId, article.getId())
-                    ), virtualThreadExecutor
+            // 串行单连接查正文与分类，消除连接池雪崩风险
+            ArticleContentDO contentDO = articleContentMapper.selectOne(
+                    new LambdaQueryWrapper<ArticleContentDO>()
+                            .eq(ArticleContentDO::getArticleId, article.getId())
             );
-
-            CompletableFuture<CategoryDO> categoryFuture = CompletableFuture.supplyAsync(() ->
-                    (article.getCategoryId() != null && article.getCategoryId() > 0)
-                            ? categoryMapper.selectById(article.getCategoryId())
-                            : null, virtualThreadExecutor
-            );
-
-            CompletableFuture.allOf(contentFuture, categoryFuture).join();
-
-            ArticleContentDO contentDO = contentFuture.join();
-            CategoryDO categoryDO = categoryFuture.join();
+            CategoryDO categoryDO = (article.getCategoryId() != null && article.getCategoryId() > 0)
+                    ? categoryMapper.selectById(article.getCategoryId())
+                    : null;
 
             String markdown = contentDO != null ? contentDO.getContentMarkdown() : "";
             String categoryName = categoryDO != null ? categoryDO.getCategoryName() : "";
 
             staticDto = ArticleStaticDTO.from(article, markdown, categoryName);
-            // 回填 Redis 缓存，带随机扰动 TTL (2 小时)
-            redisCache.setCacheObjectWithJitter(cacheKey, staticDto, 2, TimeUnit.HOURS);
+            // 回填 Redis 缓存，带随机扰动 TTL
+            RedisUtils.setCacheObjectWithJitter(
+                    cacheKey,
+                    staticDto,
+                    CacheConstants.ARTICLE_STATIC_TTL.toSeconds(),
+                    TimeUnit.SECONDS
+            );
         }
 
         // 3. 动态指标独立查轻量统计表（毫秒级，解耦大正文，阅读量自增不冲刷大正文缓存）
@@ -235,6 +205,7 @@ public class ArticleServiceImpl implements ArticleService {
         return ArticleDetailVO.from(staticDto, viewCount, likeCount);
     }
 
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createArticle(ArticleDO article, String contentMarkdown) {
         if (!StringUtils.hasText(contentMarkdown)) {
@@ -260,14 +231,15 @@ public class ArticleServiceImpl implements ArticleService {
         articleStatsMapper.insert(statsDO);
 
         // 4. 主动精准失效关联缓存 (Cache Eviction)
-        redisCache.deleteObject(CACHE_KEY_DEFAULT_FIRST_PAGE);
+        RedisUtils.deleteObject(CacheConstants.ARTICLE_PAGE_DEFAULT);
         if (StringUtils.hasText(article.getSlug())) {
-            redisCache.deleteObject(CACHE_KEY_STATIC_PREFIX + article.getSlug().trim());
+            RedisUtils.deleteObject(CacheConstants.ARTICLE_STATIC_PREFIX + article.getSlug().trim());
         }
 
         return article.getId();
     }
 
+    @Override
     public void incrementViews(String slug) {
         if (!StringUtils.hasText(slug)) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "文章标识不能为空");
