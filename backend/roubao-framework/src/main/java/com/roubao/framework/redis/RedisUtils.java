@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 @Component
 public class RedisUtils {
 
-    private static RedisCache redisCache;
+    private static volatile RedisCache redisCache;
 
     @Autowired
     public void setRedisCache(RedisCache cache) {

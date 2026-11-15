@@ -10,6 +10,7 @@ import com.roubao.article.mapper.ArticleContentMapper;
 import com.roubao.article.mapper.ArticleMapper;
 import com.roubao.article.mapper.ArticleStatsMapper;
 import com.roubao.article.mapper.CategoryMapper;
+import com.roubao.article.model.dto.ArticleCreateDTO;
 import com.roubao.article.model.dto.ArticleQueryDTO;
 import com.roubao.article.model.dto.ArticleStaticDTO;
 import com.roubao.article.model.vo.ArticleDetailVO;
@@ -21,9 +22,14 @@ import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
 import com.roubao.framework.redis.RedisUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +44,7 @@ import java.util.stream.Collectors;
  * @author roubao
  * @since 2026-11-14
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
@@ -208,6 +215,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createArticle(ArticleDO article, String contentMarkdown) {
+        if (article == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章元数据实体不能为空");
+        }
         if (!StringUtils.hasText(contentMarkdown)) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "文章正文内容不能为空");
         }
@@ -230,13 +240,54 @@ public class ArticleServiceImpl implements ArticleService {
         statsDO.setCommentCount(0L);
         articleStatsMapper.insert(statsDO);
 
-        // 4. 主动精准失效关联缓存 (Cache Eviction)
-        RedisUtils.deleteObject(CacheConstants.ARTICLE_PAGE_DEFAULT);
-        if (StringUtils.hasText(article.getSlug())) {
-            RedisUtils.deleteObject(CacheConstants.ARTICLE_STATIC_PREFIX + article.getSlug().trim());
-        }
+        // 4. 短事务控制：事务提交后精准失效关联缓存
+        evictArticleCacheAfterCommit(article.getSlug());
 
         return article.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long createArticle(ArticleCreateDTO dto) {
+        if (dto == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "创建文章参数不能为空");
+        }
+
+        ArticleDO article = new ArticleDO();
+        article.setCategoryId(dto.categoryId());
+        article.setTitle(dto.title());
+        article.setSlug(dto.slug());
+        article.setSummary(dto.summary());
+        article.setCoverImageKey(dto.coverImageKey());
+        article.setFileType("md");
+        article.setTags(dto.tags());
+        article.setReadTimeMinutes(dto.readTimeMinutes());
+        article.setSortOrder(dto.sortOrder());
+        article.setPublished(Boolean.TRUE.equals(dto.published()));
+        article.setTop(Boolean.TRUE.equals(dto.top()));
+        article.setFeatured(Boolean.TRUE.equals(dto.featured()));
+        article.setPublishedAt(LocalDateTime.now());
+
+        return createArticle(article, dto.contentMarkdown());
+    }
+
+    private void evictArticleCacheAfterCommit(String slug) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    RedisUtils.deleteObject(CacheConstants.ARTICLE_PAGE_DEFAULT);
+                    if (StringUtils.hasText(slug)) {
+                        RedisUtils.deleteObject(CacheConstants.ARTICLE_STATIC_PREFIX + slug.trim());
+                    }
+                }
+            });
+        } else {
+            RedisUtils.deleteObject(CacheConstants.ARTICLE_PAGE_DEFAULT);
+            if (StringUtils.hasText(slug)) {
+                RedisUtils.deleteObject(CacheConstants.ARTICLE_STATIC_PREFIX + slug.trim());
+            }
+        }
     }
 
     @Override
@@ -246,6 +297,16 @@ public class ArticleServiceImpl implements ArticleService {
         }
         ArticleDO article = articleMapper.findBySlug(slug.trim())
                 .orElseThrow(() -> new BusinessException(ErrorCode.ARTICLE_NOT_FOUND, "文章不存在或已下架"));
-        articleStatsMapper.incrementViewCount(article.getId(), 1L);
+        int updatedRows = articleStatsMapper.incrementViewCount(article.getId(), 1L);
+        if (updatedRows == 0) {
+            log.warn("文章统计指标记录不存在，执行原子补偿初始化: articleId={}", article.getId());
+            ArticleStatsDO stats = new ArticleStatsDO();
+            stats.setArticleId(article.getId());
+            stats.setViewCount(1L);
+            stats.setLikeCount(0L);
+            stats.setShareCount(0L);
+            stats.setCommentCount(0L);
+            articleStatsMapper.insert(stats);
+        }
     }
 }

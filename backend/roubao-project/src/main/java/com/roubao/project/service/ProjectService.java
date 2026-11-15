@@ -1,7 +1,10 @@
 package com.roubao.project.service;
 
 import com.roubao.framework.common.PageResult;
+import com.roubao.framework.exception.BusinessException;
+import com.roubao.framework.exception.ErrorCode;
 import com.roubao.project.entity.ProjectDO;
+import com.roubao.project.model.dto.ProjectCreateDTO;
 import com.roubao.project.model.dto.ProjectQueryDTO;
 import com.roubao.project.model.vo.ProjectVO;
 
@@ -41,9 +44,36 @@ public interface ProjectService {
     /**
      * 创建开源项目
      *
+     * @param dto 项目创建入参 DTO
+     * @return 项目主键 ID
+     */
+    Long createProject(ProjectCreateDTO dto);
+
+    /**
+     * 兼容重载：由实体入参适配为 DTO 调用
+     *
      * @param project 项目实体
      * @return 项目主键 ID
      */
-    Long createProject(ProjectDO project);
+    default Long createProject(ProjectDO project) {
+        if (project == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "项目实体不能为空");
+        }
+        ProjectCreateDTO dto = new ProjectCreateDTO(
+                project.getProjectName(),
+                project.getSlug(),
+                project.getTagline(),
+                project.getDescription(),
+                project.getArchitectureHighlights(),
+                project.getTechTags(),
+                project.getRepoUrl(),
+                project.getDemoUrl(),
+                project.getStarCount(),
+                project.getMetricsSummary(),
+                project.getSortOrder(),
+                project.getFeatured()
+        );
+        return createProject(dto);
+    }
 }
 

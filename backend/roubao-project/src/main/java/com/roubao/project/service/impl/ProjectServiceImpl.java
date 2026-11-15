@@ -9,6 +9,7 @@ import com.roubao.framework.exception.ErrorCode;
 import com.roubao.framework.redis.RedisUtils;
 import com.roubao.project.entity.ProjectDO;
 import com.roubao.project.mapper.ProjectMapper;
+import com.roubao.project.model.dto.ProjectCreateDTO;
 import com.roubao.project.model.dto.ProjectQueryDTO;
 import com.roubao.project.model.vo.ProjectVO;
 import com.roubao.project.service.ProjectService;
@@ -98,10 +99,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Long createProject(ProjectDO project) {
-        if (project == null) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "项目实体不能为空");
+    public Long createProject(ProjectCreateDTO dto) {
+        if (dto == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "项目创建参数不能为空");
         }
+        ProjectDO project = new ProjectDO();
+        project.setProjectName(dto.projectName());
+        project.setSlug(dto.slug());
+        project.setTagline(dto.tagline());
+        project.setDescription(dto.description());
+        project.setArchitectureHighlights(dto.architectureHighlights());
+        project.setTechTags(dto.techTags());
+        project.setRepoUrl(dto.repoUrl());
+        project.setDemoUrl(dto.demoUrl());
+        project.setStarCount(dto.starCount());
+        project.setMetricsSummary(dto.metricsSummary());
+        project.setSortOrder(dto.sortOrder());
+        project.setFeatured(dto.featured());
+
         projectMapper.insert(project);
         // 主动核销精选推荐缓存
         RedisUtils.deleteObject(CacheConstants.PROJECT_FEATURED);

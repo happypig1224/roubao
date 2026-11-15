@@ -1,10 +1,13 @@
 package com.roubao.article.service;
 
 import com.roubao.article.entity.ArticleDO;
+import com.roubao.article.model.dto.ArticleCreateDTO;
 import com.roubao.article.model.dto.ArticleQueryDTO;
 import com.roubao.article.model.vo.ArticleDetailVO;
 import com.roubao.article.model.vo.ArticleListVO;
 import com.roubao.framework.common.PageResult;
+import com.roubao.framework.exception.BusinessException;
+import com.roubao.framework.exception.ErrorCode;
 
 /**
  * 文章业务领域服务接口
@@ -31,7 +34,15 @@ public interface ArticleService {
     ArticleDetailVO getArticleDetailBySlug(String slug);
 
     /**
-     * 原子创建文章 (短事务控制: tb_article + tb_article_content)
+     * 原子创建文章 (推荐：跨模块解耦，短事务控制与提交后缓存失效)
+     *
+     * @param dto 文章创建入参 DTO
+     * @return 生成的文章 ID
+     */
+    Long createArticle(ArticleCreateDTO dto);
+
+    /**
+     * 兼容创建文章 (实体入参)
      *
      * @param article         文章元数据实体
      * @param contentMarkdown 正文 Markdown 内容

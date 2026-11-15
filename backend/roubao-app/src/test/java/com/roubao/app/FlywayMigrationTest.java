@@ -101,9 +101,10 @@ class FlywayMigrationTest {
         }
 
         assertThat(indexNames)
-                .as("文章表必须具备 Slug 唯一索引与分类发布置顶联合索引")
+                .as("文章表必须具备 Slug 唯一索引与分类发布置顶联合索引及全站排序索引")
                 .anyMatch(name -> name.contains("uk_article_slug") || name.contains("slug"))
-                .anyMatch(name -> name.contains("idx_category_published_top"));
+                .anyMatch(name -> name.contains("idx_category_published_top"))
+                .anyMatch(name -> name.contains("idx_published_sort_published_at"));
     }
 
     @Test

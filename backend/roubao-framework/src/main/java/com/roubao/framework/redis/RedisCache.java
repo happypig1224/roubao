@@ -37,13 +37,9 @@ import java.util.function.Supplier;
 @Component
 public class RedisCache {
 
-    @Autowired
-    public RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    public RedisCache() {
-    }
-
-    public RedisCache(RedisTemplate redisTemplate) {
+    public RedisCache(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -52,7 +48,7 @@ public class RedisCache {
      *
      * @return RedisTemplate
      */
-    public RedisTemplate getRedisTemplate() {
+    public RedisTemplate<String, Object> getRedisTemplate() {
         return redisTemplate;
     }
 
@@ -139,8 +135,7 @@ public class RedisCache {
      */
     public <T> T getCacheObject(final String key) {
         try {
-            ValueOperations<String, T> operation = redisTemplate.opsForValue();
-            return operation.get(key);
+            return (T) redisTemplate.opsForValue().get(key);
         } catch (Exception e) {
             log.warn("Redis getCacheObject 异常降级 [key={}], 自动回源数据库: {}", key, e.getMessage());
             return null;
@@ -285,7 +280,7 @@ public class RedisCache {
             if (dataList == null || dataList.isEmpty()) {
                 return 0L;
             }
-            Long count = redisTemplate.opsForList().rightPushAll(key, dataList);
+            Long count = redisTemplate.opsForList().rightPushAll(key, (Collection) dataList);
             return count != null ? count : 0L;
         } catch (Exception e) {
             log.warn("Redis setCacheList 异常降级 [key={}]: {}", key, e.getMessage());
@@ -301,8 +296,8 @@ public class RedisCache {
      */
     public <T> List<T> getCacheList(final String key) {
         try {
-            List<T> range = redisTemplate.opsForList().range(key, 0, -1);
-            return range != null ? range : Collections.emptyList();
+            List range = redisTemplate.opsForList().range(key, 0, -1);
+            return (List<T>) (range != null ? range : Collections.emptyList());
         } catch (Exception e) {
             log.warn("Redis getCacheList 异常降级 [key={}]: {}", key, e.getMessage());
             return Collections.emptyList();
@@ -322,14 +317,14 @@ public class RedisCache {
      */
     public <T> BoundSetOperations<String, T> setCacheSet(final String key, final Set<T> dataSet) {
         try {
-            BoundSetOperations<String, T> setOperation = redisTemplate.boundSetOps(key);
+            BoundSetOperations setOperation = redisTemplate.boundSetOps(key);
             if (dataSet != null && !dataSet.isEmpty()) {
                 Iterator<T> it = dataSet.iterator();
                 while (it.hasNext()) {
                     setOperation.add(it.next());
                 }
             }
-            return setOperation;
+            return (BoundSetOperations<String, T>) setOperation;
         } catch (Exception e) {
             log.warn("Redis setCacheSet 异常降级 [key={}]: {}", key, e.getMessage());
             return null;
@@ -344,8 +339,8 @@ public class RedisCache {
      */
     public <T> Set<T> getCacheSet(final String key) {
         try {
-            Set<T> members = redisTemplate.opsForSet().members(key);
-            return members != null ? members : Collections.emptySet();
+            Set members = redisTemplate.opsForSet().members(key);
+            return (Set<T>) (members != null ? members : Collections.emptySet());
         } catch (Exception e) {
             log.warn("Redis getCacheSet 异常降级 [key={}]: {}", key, e.getMessage());
             return Collections.emptySet();
@@ -380,8 +375,8 @@ public class RedisCache {
      */
     public <T> Map<String, T> getCacheMap(final String key) {
         try {
-            Map<String, T> entries = redisTemplate.opsForHash().entries(key);
-            return entries != null ? entries : Collections.emptyMap();
+            Map entries = redisTemplate.opsForHash().entries(key);
+            return (Map<String, T>) (entries != null ? entries : Collections.emptyMap());
         } catch (Exception e) {
             log.warn("Redis getCacheMap 异常降级 [key={}]: {}", key, e.getMessage());
             return Collections.emptyMap();
@@ -412,8 +407,7 @@ public class RedisCache {
      */
     public <T> T getCacheMapValue(final String key, final String hKey) {
         try {
-            HashOperations<String, String, T> opsForHash = redisTemplate.opsForHash();
-            return opsForHash.get(key, hKey);
+            return (T) redisTemplate.opsForHash().get(key, hKey);
         } catch (Exception e) {
             log.warn("Redis getCacheMapValue 异常降级 [key={}, hKey={}]: {}", key, hKey, e.getMessage());
             return null;

@@ -66,6 +66,13 @@ public class GlobalExceptionHandler {
         return Result.failure(ErrorCode.NOT_FOUND.getCode(), "未找到请求的路径资源");
     }
 
+    @ExceptionHandler(org.springframework.dao.DuplicateKeyException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Result<Void> handleDuplicateKeyException(org.springframework.dao.DuplicateKeyException ex) {
+        log.warn("数据唯一性约束冲突拦截: {}", ex.getMessage());
+        return Result.failure(ErrorCode.CONFLICT.getCode(), "数据已存在或路由标识冲突");
+    }
+
     @ExceptionHandler(Throwable.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleUnexpectedThrowable(Throwable ex) {

@@ -10,6 +10,7 @@ import com.roubao.article.mapper.ArticleContentMapper;
 import com.roubao.article.mapper.ArticleMapper;
 import com.roubao.article.mapper.ArticleStatsMapper;
 import com.roubao.article.mapper.CategoryMapper;
+import com.roubao.article.model.dto.ArticleCreateDTO;
 import com.roubao.article.model.dto.ArticleQueryDTO;
 import com.roubao.article.model.vo.ArticleDetailVO;
 import com.roubao.article.model.vo.ArticleListVO;
@@ -274,6 +275,51 @@ class ArticleServiceTest {
         // 再次查询：应直接命中防穿透标记并抛出异常，不再执行后续 DB 流程
         assertThatThrownBy(() -> articleService.getArticleDetailBySlug(nonExistentSlug))
                 .isInstanceOf(BusinessException.class);
+    }
+
+    @Test
+    @DisplayName("通过 ArticleCreateDTO 创建文章：验证短事务落库与数据完整性")
+    void shouldCreateArticleViaDtoSuccessfully() {
+        ArticleCreateDTO dto = new ArticleCreateDTO(
+                1L,
+                "DTO测试文章标题",
+                "dto-test-slug",
+                "DTO文章测试摘要",
+                "covers/dto.webp",
+                List.of("Java", "Spring"),
+                4,
+                15,
+                true,
+                false,
+                false,
+                "# DTO 正文内容"
+        );
+        Long id = articleService.createArticle(dto);
+        assertThat(id).isNotNull().isGreaterThan(0L);
+
+        ArticleDetailVO detail = articleService.getArticleDetailBySlug("dto-test-slug");
+        assertThat(detail).isNotNull();
+        assertThat(detail.title()).isEqualTo("DTO测试文章标题");
+        assertThat(detail.contentMarkdown()).isEqualTo("# DTO 正文内容");
+    }
+
+    @Test
+    @DisplayName("阅读量自增健壮性：当文章统计行因历史数据缺失时，应触发原子补偿初始化而非静默失败")
+    void shouldCompensateArticleStatsWhenRowMissingDuringIncrementViews() {
+        ArticleDO article = createArticleDo(1L, "缺失统计行测试", "missing-stats-slug", List.of("Java"), 1, LocalDateTime.now());
+        Long id = articleService.createArticle(article, "# 正文");
+
+        // 模拟极端边缘场景：物理删除该文章对应的统计指标记录
+        articleStatsMapper.delete(new LambdaQueryWrapper<ArticleStatsDO>().eq(ArticleStatsDO::getArticleId, id));
+        assertThat(articleStatsMapper.findByArticleId(id)).isEmpty();
+
+        // 执行累加阅读量
+        articleService.incrementViews("missing-stats-slug");
+
+        // 断言已触发原子补偿插入，且 viewCount 为 1
+        ArticleStatsDO stats = articleStatsMapper.findByArticleId(id).orElse(null);
+        assertThat(stats).isNotNull();
+        assertThat(stats.getViewCount()).isEqualTo(1L);
     }
 
     private ArticleDO createArticleDo(Long categoryId, String title, String slug,

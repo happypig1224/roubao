@@ -1,9 +1,11 @@
 package com.roubao.framework.config;
 
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -21,6 +23,19 @@ public class VirtualThreadConfig {
     @Bean(name = VIRTUAL_THREAD_EXECUTOR_BEAN)
     @ConditionalOnMissingBean(name = VIRTUAL_THREAD_EXECUTOR_BEAN)
     public Executor virtualThreadExecutor() {
-        return Executors.newVirtualThreadPerTaskExecutor();
+        Executor baseExecutor = Executors.newVirtualThreadPerTaskExecutor();
+        return command -> {
+            Map<String, String> contextMap = MDC.getCopyOfContextMap();
+            baseExecutor.execute(() -> {
+                if (contextMap != null) {
+                    MDC.setContextMap(contextMap);
+                }
+                try {
+                    command.run();
+                } finally {
+                    MDC.clear();
+                }
+            });
+        };
     }
 }

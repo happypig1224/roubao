@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
@@ -64,7 +65,9 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
         }
 
         // 使用恒定时间对比防止基于响应时序的时序攻击 (Timing Attack)
-        if (!MessageDigest.isEqual(token.trim().getBytes(), configuredToken.trim().getBytes())) {
+        if (!MessageDigest.isEqual(
+                token.trim().getBytes(StandardCharsets.UTF_8),
+                configuredToken.trim().getBytes(StandardCharsets.UTF_8))) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "管理员凭证无效，拒绝访问");
         }
 

@@ -1,8 +1,8 @@
 package com.roubao.admin.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.roubao.article.entity.ArticleDO;
+import com.roubao.admin.support.MarkdownFrontmatterParser;
+import com.roubao.admin.support.MarkdownFrontmatterParser.ParsedMarkdown;
+import com.roubao.article.model.dto.ArticleCreateDTO;
 import com.roubao.article.model.vo.CategoryVO;
 import com.roubao.article.service.ArticleService;
 import com.roubao.article.service.CategoryService;
@@ -18,19 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 后台文章管理与 Markdown 文件上传接入控制器
- * 支持直接导入 Markdown 原文，自动解析 Frontmatter 元数据并持久化入库
+ * 严格遵守单一职责原则，仅负责参数绑定、权限分发与统一响应，复杂解析委托领域解析组件
  *
  * @author roubao
  * @since 2026-11-14
@@ -43,7 +37,7 @@ public class ArticleAdminController {
 
     private final ArticleService articleService;
     private final CategoryService categoryService;
-    private final ObjectMapper objectMapper;
+    private final MarkdownFrontmatterParser markdownFrontmatterParser;
 
     /**
      * 上传并解析 Markdown 文档原子入库
@@ -70,136 +64,29 @@ public class ArticleAdminController {
             throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "读取上传文档内容失败");
         }
 
-        ParsedMarkdown parsed = parseMarkdownWithFrontmatter(rawContent, originalFilename);
+        // 委托领域解析组件解析 Frontmatter
+        ParsedMarkdown parsed = markdownFrontmatterParser.parse(rawContent, originalFilename);
 
         // 匹配所属分类 ID
         Long categoryId = resolveCategoryId(parsed.categoryValue());
 
-        ArticleDO article = new ArticleDO();
-        article.setCategoryId(categoryId);
-        article.setTitle(parsed.title());
-        article.setSlug(parsed.slug());
-        article.setSummary(parsed.summary());
-        article.setCoverImageKey(parsed.coverImageKey());
-        article.setFileType("md");
-        article.setTags(parsed.tags());
-        article.setReadTimeMinutes(parsed.readTimeMinutes());
-        article.setSortOrder(parsed.sortOrder());
-        article.setPublished(true);
-        article.setTop(false);
-        article.setFeatured(false);
-        article.setPublishedAt(LocalDateTime.now());
+        ArticleCreateDTO createDTO = new ArticleCreateDTO(
+                categoryId,
+                parsed.title(),
+                parsed.slug(),
+                parsed.summary(),
+                parsed.coverImageKey(),
+                parsed.tags(),
+                parsed.readTimeMinutes(),
+                parsed.sortOrder(),
+                true,
+                false,
+                false,
+                parsed.contentMarkdown()
+        );
 
-        Long articleId = articleService.createArticle(article, parsed.contentMarkdown());
+        Long articleId = articleService.createArticle(createDTO);
         return Result.success(articleId);
-    }
-
-    private ParsedMarkdown parseMarkdownWithFrontmatter(String rawContent, String originalFilename) {
-        String trimmed = rawContent.trim();
-        Map<String, String> metaMap = new HashMap<>();
-        String contentMarkdown = trimmed;
-
-        if (trimmed.startsWith("---")) {
-            int secondSeparatorIndex = trimmed.indexOf("---", 3);
-            if (secondSeparatorIndex != -1) {
-                String frontmatterBlock = trimmed.substring(3, secondSeparatorIndex).trim();
-                contentMarkdown = trimmed.substring(secondSeparatorIndex + 3).trim();
-
-                try (BufferedReader reader = new BufferedReader(new StringReader(frontmatterBlock))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        int colonIndex = line.indexOf(':');
-                        if (colonIndex > 0) {
-                            String key = line.substring(0, colonIndex).trim();
-                            String value = line.substring(colonIndex + 1).trim();
-                            if ((value.startsWith("\"") && value.endsWith("\"")) ||
-                                    (value.startsWith("'") && value.endsWith("'"))) {
-                                value = value.substring(1, value.length() - 1);
-                            }
-                            metaMap.put(key, value);
-                        }
-                    }
-                } catch (IOException ignored) {
-                }
-            }
-        }
-
-        String fallbackBaseName = StringUtils.hasText(originalFilename)
-                ? originalFilename.replaceAll("\\.[^.]+$", "")
-                : "untitled-post";
-
-        String title = metaMap.getOrDefault("title", fallbackBaseName);
-        String slug = metaMap.getOrDefault("slug", fallbackBaseName.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", ""));
-        String summary = metaMap.getOrDefault("summary", "");
-        if (!StringUtils.hasText(summary)) {
-            summary = extractSummaryFromContent(contentMarkdown);
-        }
-
-        String coverImageKey = metaMap.getOrDefault("cover", "");
-        String categoryValue = metaMap.getOrDefault("category", "backend");
-
-        List<String> tags = new ArrayList<>();
-        String tagsRaw = metaMap.get("tags");
-        if (StringUtils.hasText(tagsRaw)) {
-            if (tagsRaw.startsWith("[") && tagsRaw.endsWith("]")) {
-                try {
-                    tags = objectMapper.readValue(tagsRaw, new TypeReference<List<String>>() {});
-                } catch (Exception e) {
-                    log.warn("解析 tags JSON 数组失败，尝试降级逗号分隔: {}", tagsRaw);
-                    tags = parseCommaSeparatedTags(tagsRaw.substring(1, tagsRaw.length() - 1));
-                }
-            } else {
-                tags = parseCommaSeparatedTags(tagsRaw);
-            }
-        }
-
-        int wordCount = contentMarkdown.length();
-        int readTimeMinutes = Math.max(1, wordCount / 400);
-
-        int sortOrder = 0;
-        try {
-            if (metaMap.containsKey("order")) {
-                sortOrder = Integer.parseInt(metaMap.get("order"));
-            }
-        } catch (NumberFormatException ignored) {
-        }
-
-        return new ParsedMarkdown(title, slug, summary, coverImageKey, categoryValue, tags, readTimeMinutes, sortOrder, contentMarkdown);
-    }
-
-    private List<String> parseCommaSeparatedTags(String raw) {
-        List<String> list = new ArrayList<>();
-        for (String item : raw.split(",")) {
-            String clean = item.trim().replaceAll("^[\"']|[\"']$", "");
-            if (StringUtils.hasText(clean)) {
-                list.add(clean);
-            }
-        }
-        return list;
-    }
-
-    private String extractSummaryFromContent(String markdown) {
-        if (!StringUtils.hasText(markdown)) {
-            return "暂无文章摘要";
-        }
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new StringReader(markdown))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String clean = line.trim();
-                if (clean.isEmpty() || clean.startsWith("#") || clean.startsWith("```") || clean.startsWith(">") || clean.startsWith("-") || clean.startsWith("*")) {
-                    continue;
-                }
-                sb.append(clean).append(" ");
-                if (sb.length() >= 150) {
-                    break;
-                }
-            }
-        } catch (IOException ignored) {
-        }
-
-        String res = sb.toString().trim();
-        return res.length() > 200 ? res.substring(0, 197) + "..." : (res.isEmpty() ? "暂无文章摘要" : res);
     }
 
     private Long resolveCategoryId(String categoryValue) {
@@ -225,16 +112,4 @@ public class ArticleAdminController {
         // 3. 兜底返回首个分类
         return categories.get(0).id();
     }
-
-    private record ParsedMarkdown(
-            String title,
-            String slug,
-            String summary,
-            String coverImageKey,
-            String categoryValue,
-            List<String> tags,
-            Integer readTimeMinutes,
-            Integer sortOrder,
-            String contentMarkdown
-    ) {}
 }

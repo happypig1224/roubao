@@ -9,6 +9,7 @@ import com.roubao.framework.redis.RedisUtils;
 import com.roubao.project.TestProjectApplication;
 import com.roubao.project.entity.ProjectDO;
 import com.roubao.project.mapper.ProjectMapper;
+import com.roubao.project.model.dto.ProjectCreateDTO;
 import com.roubao.project.model.dto.ProjectQueryDTO;
 import com.roubao.project.model.vo.ProjectVO;
 import org.junit.jupiter.api.BeforeEach;
@@ -126,6 +127,32 @@ class ProjectServiceTest {
         List<ProjectVO> list2 = projectService.listFeaturedProjects();
         assertThat(list2).hasSize(2);
         assertThat(RedisUtils.hasKey(CacheConstants.PROJECT_FEATURED)).isTrue();
+    }
+
+    @Test
+    @DisplayName("通过 ProjectCreateDTO 创建项目：验证实体防腐与缓存主动核销")
+    void shouldCreateProjectViaDtoSuccessfully() {
+        ProjectCreateDTO dto = new ProjectCreateDTO(
+                "DTO 项目",
+                "dto-project",
+                "标语",
+                "详细描述",
+                List.of("高可用"),
+                List.of("Java"),
+                "https://github.com/example/dto",
+                "https://demo.example.com",
+                200,
+                "20K QPS",
+                10,
+                true
+        );
+        Long id = projectService.createProject(dto);
+        assertThat(id).isNotNull().isGreaterThan(0L);
+
+        ProjectVO vo = projectService.getProjectBySlug("dto-project");
+        assertThat(vo).isNotNull();
+        assertThat(vo.projectName()).isEqualTo("DTO 项目");
+        assertThat(RedisUtils.hasKey(CacheConstants.PROJECT_FEATURED)).isFalse();
     }
 
     private ProjectDO createProjectDo(String name, String slug, boolean featured, int stars, int sortOrder) {
