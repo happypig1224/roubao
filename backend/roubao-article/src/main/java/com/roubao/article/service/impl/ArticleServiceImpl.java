@@ -11,12 +11,14 @@ import com.roubao.article.mapper.ArticleMapper;
 import com.roubao.article.mapper.ArticleStatsMapper;
 import com.roubao.article.mapper.CategoryMapper;
 import com.roubao.article.model.dto.ArticleQueryDTO;
+import com.roubao.article.model.dto.ArticleStaticDTO;
 import com.roubao.article.model.vo.ArticleDetailVO;
 import com.roubao.article.model.vo.ArticleListVO;
 import com.roubao.article.service.ArticleService;
 import com.roubao.framework.common.PageResult;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
+import com.roubao.framework.redis.RedisCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -39,10 +42,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
+    public static final String CACHE_KEY_DEFAULT_FIRST_PAGE = "roubao:article:page:default:1";
+    public static final String CACHE_KEY_STATIC_PREFIX = "roubao:article:static:";
+
     private final ArticleMapper articleMapper;
     private final ArticleContentMapper articleContentMapper;
     private final ArticleStatsMapper articleStatsMapper;
     private final CategoryMapper categoryMapper;
+    private final RedisCache redisCache;
     private java.util.concurrent.Executor virtualThreadExecutor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor();
 
     @org.springframework.beans.factory.annotation.Autowired(required = false)
@@ -76,6 +83,22 @@ public class ArticleServiceImpl implements ArticleService {
     public PageResult<ArticleListVO> pageArticles(ArticleQueryDTO query) {
         long current = (query != null && query.getPageNo() != null) ? query.getPageNo() : 1L;
         long size = (query != null && query.getPageSize() != null) ? query.getPageSize() : 10L;
+
+        // 仅对无筛选条件的默认第 1 页启用缓存加速 (读写比 > 500:1)
+        boolean isDefaultFirstPage = (query == null) || (
+                query.getCategoryId() == null &&
+                !StringUtils.hasText(query.getTag()) &&
+                !StringUtils.hasText(query.getKeyword()) &&
+                (query.getPageNo() == null || query.getPageNo() == 1L) &&
+                (query.getPageSize() == null || query.getPageSize() == 10L)
+        );
+
+        if (isDefaultFirstPage) {
+            PageResult<ArticleListVO> cachedPage = redisCache.getCacheObject(CACHE_KEY_DEFAULT_FIRST_PAGE);
+            if (cachedPage != null) {
+                return cachedPage;
+            }
+        }
 
         Page<ArticleDO> page = new Page<>(current, size);
         LambdaQueryWrapper<ArticleDO> wrapper = new LambdaQueryWrapper<>();
@@ -141,47 +164,75 @@ public class ArticleServiceImpl implements ArticleService {
             return ArticleListVO.from(article, categoryName, viewCount, likeCount);
         }).toList();
 
-        return new PageResult<>(voList, resultPage.getTotal(), current, size);
+        PageResult<ArticleListVO> pageResult = new PageResult<>(voList, resultPage.getTotal(), current, size);
+        if (isDefaultFirstPage && !voList.isEmpty()) {
+            redisCache.setCacheObjectWithJitter(CACHE_KEY_DEFAULT_FIRST_PAGE, pageResult, 15, TimeUnit.MINUTES);
+        }
+
+        return pageResult;
     }
 
     public ArticleDetailVO getArticleDetailBySlug(String slug) {
-        // 1. 查询文章主体元数据
-        ArticleDO article = articleMapper.findBySlug(slug)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ARTICLE_NOT_FOUND));
+        if (!StringUtils.hasText(slug)) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章标识不能为空");
+        }
+        String trimmedSlug = slug.trim();
+        String cacheKey = CACHE_KEY_STATIC_PREFIX + trimmedSlug;
 
-        // 2. 组合单表异步并行查询，装配大字段正文、分类名与统计数据 (Java 21 虚拟线程原生调度)
-        CompletableFuture<ArticleContentDO> contentFuture = CompletableFuture.supplyAsync(() ->
-                articleContentMapper.selectOne(
-                        new LambdaQueryWrapper<ArticleContentDO>()
-                                .eq(ArticleContentDO::getArticleId, article.getId())
-                ), virtualThreadExecutor
+        // 1. 尝试从 Redis 提取静态大对象 (Markdown 大正文 + 静态元数据，动静解耦)
+        ArticleStaticDTO staticDto = redisCache.getCacheObject(cacheKey);
+
+        if (staticDto != null && staticDto.isEmpty()) {
+            // 命中防穿透空对象标记
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+
+        if (staticDto == null) {
+            // 2. 缓存未命中，回源 DB 查文章元数据
+            ArticleDO article = articleMapper.findBySlug(trimmedSlug).orElse(null);
+            if (article == null) {
+                // 防穿透保护：回填空对象，短期 TTL 60 秒
+                redisCache.setCacheObject(cacheKey, ArticleStaticDTO.EMPTY, 60, TimeUnit.SECONDS);
+                throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+            }
+
+            // 虚拟线程并行查询长正文与分类名称
+            CompletableFuture<ArticleContentDO> contentFuture = CompletableFuture.supplyAsync(() ->
+                    articleContentMapper.selectOne(
+                            new LambdaQueryWrapper<ArticleContentDO>()
+                                    .eq(ArticleContentDO::getArticleId, article.getId())
+                    ), virtualThreadExecutor
+            );
+
+            CompletableFuture<CategoryDO> categoryFuture = CompletableFuture.supplyAsync(() ->
+                    (article.getCategoryId() != null && article.getCategoryId() > 0)
+                            ? categoryMapper.selectById(article.getCategoryId())
+                            : null, virtualThreadExecutor
+            );
+
+            CompletableFuture.allOf(contentFuture, categoryFuture).join();
+
+            ArticleContentDO contentDO = contentFuture.join();
+            CategoryDO categoryDO = categoryFuture.join();
+
+            String markdown = contentDO != null ? contentDO.getContentMarkdown() : "";
+            String categoryName = categoryDO != null ? categoryDO.getCategoryName() : "";
+
+            staticDto = ArticleStaticDTO.from(article, markdown, categoryName);
+            // 回填 Redis 缓存，带随机扰动 TTL (2 小时)
+            redisCache.setCacheObjectWithJitter(cacheKey, staticDto, 2, TimeUnit.HOURS);
+        }
+
+        // 3. 动态指标独立查轻量统计表（毫秒级，解耦大正文，阅读量自增不冲刷大正文缓存）
+        ArticleStatsDO statsDO = articleStatsMapper.selectOne(
+                new LambdaQueryWrapper<ArticleStatsDO>()
+                        .eq(ArticleStatsDO::getArticleId, staticDto.id())
         );
 
-        CompletableFuture<CategoryDO> categoryFuture = CompletableFuture.supplyAsync(() ->
-                (article.getCategoryId() != null && article.getCategoryId() > 0)
-                        ? categoryMapper.selectById(article.getCategoryId())
-                        : null, virtualThreadExecutor
-        );
-
-        CompletableFuture<ArticleStatsDO> statsFuture = CompletableFuture.supplyAsync(() ->
-                articleStatsMapper.selectOne(
-                        new LambdaQueryWrapper<ArticleStatsDO>()
-                                .eq(ArticleStatsDO::getArticleId, article.getId())
-                ), virtualThreadExecutor
-        );
-
-        CompletableFuture.allOf(contentFuture, categoryFuture, statsFuture).join();
-
-        ArticleContentDO contentDO = contentFuture.join();
-        CategoryDO categoryDO = categoryFuture.join();
-        ArticleStatsDO statsDO = statsFuture.join();
-
-        String markdown = contentDO != null ? contentDO.getContentMarkdown() : "";
-        String categoryName = categoryDO != null ? categoryDO.getCategoryName() : "";
         Long viewCount = statsDO != null ? statsDO.getViewCount() : 0L;
         Long likeCount = statsDO != null ? statsDO.getLikeCount() : 0L;
 
-        return ArticleDetailVO.from(article, markdown, categoryName, viewCount, likeCount);
+        return ArticleDetailVO.from(staticDto, viewCount, likeCount);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -207,6 +258,12 @@ public class ArticleServiceImpl implements ArticleService {
         statsDO.setShareCount(0L);
         statsDO.setCommentCount(0L);
         articleStatsMapper.insert(statsDO);
+
+        // 4. 主动精准失效关联缓存 (Cache Eviction)
+        redisCache.deleteObject(CACHE_KEY_DEFAULT_FIRST_PAGE);
+        if (StringUtils.hasText(article.getSlug())) {
+            redisCache.deleteObject(CACHE_KEY_STATIC_PREFIX + article.getSlug().trim());
+        }
 
         return article.getId();
     }

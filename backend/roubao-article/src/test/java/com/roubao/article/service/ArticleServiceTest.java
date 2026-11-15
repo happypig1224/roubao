@@ -16,6 +16,7 @@ import com.roubao.article.model.vo.ArticleListVO;
 import com.roubao.framework.common.PageResult;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
+import com.roubao.framework.redis.RedisCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,9 @@ class ArticleServiceTest {
     @Autowired
     private ArticleStatsMapper articleStatsMapper;
 
+    @Autowired
+    private RedisCache redisCache;
+
     @SpyBean
     private ArticleContentMapper articleContentMapper;
 
@@ -67,6 +71,10 @@ class ArticleServiceTest {
         articleStatsMapper.delete(null);
         articleMapper.delete(null);
         categoryMapper.delete(null);
+
+        // 清理文章缓存
+        redisCache.deleteObject("roubao:article:page:default:1");
+        redisCache.deleteObject(redisCache.scanKeys("roubao:article:*"));
 
         // 初始化分类
         CategoryDO cat1 = new CategoryDO();
@@ -200,6 +208,70 @@ class ArticleServiceTest {
         assertThatThrownBy(() -> articleService.incrementViews("non-existing-slug"))
                 .isInstanceOf(BusinessException.class)
                 .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode()).isEqualTo(ErrorCode.ARTICLE_NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("动静解耦缓存集成：大正文缓存命中，同时阅读数独立更新不冲刷大正文缓存")
+    void shouldCacheArticleStaticDetailAndSeparateDynamicStats() {
+        ArticleDO article = createArticleDo(backendCategoryId, "动静分离缓存实战", "cache-static-dynamic-demo",
+                List.of("Redis", "Architecture"), 99, LocalDateTime.now());
+        Long articleId = articleService.createArticle(article, "# 超大正文内容 100KB...");
+
+        // 1. 首次查询：写入静态详情缓存
+        ArticleDetailVO vo1 = articleService.getArticleDetailBySlug("cache-static-dynamic-demo");
+        assertThat(vo1).isNotNull();
+        assertThat(redisCache.hasKey("roubao:article:static:cache-static-dynamic-demo")).isTrue();
+
+        // 2. 阅读量自增打点（更新动态计数）
+        articleService.incrementViews("cache-static-dynamic-demo");
+        articleService.incrementViews("cache-static-dynamic-demo");
+
+        // 3. 再次查询：静态大正文直接命中缓存，而动态阅读量依然准确拿到最新值 2L
+        ArticleDetailVO vo2 = articleService.getArticleDetailBySlug("cache-static-dynamic-demo");
+        assertThat(vo2.contentMarkdown()).isEqualTo("# 超大正文内容 100KB...");
+        assertThat(vo2.viewCount()).isEqualTo(2L);
+    }
+
+    @Test
+    @DisplayName("默认第一页缓存集成：首页默认第一页写入缓存，新建文章时主动失效")
+    void shouldCacheDefaultFirstPageAndInvalidateOnNewArticle() {
+        ArticleDO a1 = createArticleDo(backendCategoryId, "首页文章 1", "home-article-1",
+                List.of("Spring"), 10, LocalDateTime.now());
+        articleService.createArticle(a1, "# 正文 1");
+
+        // 首次默认分页拉取：回填缓存
+        ArticleQueryDTO query = new ArticleQueryDTO();
+        query.setPageNo(1L);
+        query.setPageSize(10L);
+        PageResult<ArticleListVO> page1 = articleService.pageArticles(query);
+        assertThat(page1.getTotal()).isEqualTo(1);
+        assertThat(redisCache.hasKey("roubao:article:page:default:1")).isTrue();
+
+        // 发布新文章：触发第一页缓存主动失效
+        ArticleDO a2 = createArticleDo(backendCategoryId, "首页文章 2", "home-article-2",
+                List.of("Spring"), 20, LocalDateTime.now());
+        articleService.createArticle(a2, "# 正文 2");
+        assertThat(redisCache.hasKey("roubao:article:page:default:1")).isFalse();
+
+        // 再次默认分页拉取：重新回填最新数据
+        PageResult<ArticleListVO> page2 = articleService.pageArticles(query);
+        assertThat(page2.getTotal()).isEqualTo(2);
+        assertThat(redisCache.hasKey("roubao:article:page:default:1")).isTrue();
+    }
+
+    @Test
+    @DisplayName("防穿透保护：查询不存在的 Slug 时回填 Null-Object 缓存，拦截后续对 DB 的重复下探")
+    void shouldCacheNullObjectOnNonExistentSlugToPreventPenetration() {
+        String nonExistentSlug = "ghost-article-slug";
+        assertThatThrownBy(() -> articleService.getArticleDetailBySlug(nonExistentSlug))
+                .isInstanceOf(BusinessException.class);
+
+        // 断言 Redis 已生成防穿透标记 Key
+        assertThat(redisCache.hasKey("roubao:article:static:" + nonExistentSlug)).isTrue();
+
+        // 再次查询：应直接命中防穿透标记并抛出异常，不再执行后续 DB 流程
+        assertThatThrownBy(() -> articleService.getArticleDetailBySlug(nonExistentSlug))
+                .isInstanceOf(BusinessException.class);
     }
 
     private ArticleDO createArticleDo(Long categoryId, String title, String slug,

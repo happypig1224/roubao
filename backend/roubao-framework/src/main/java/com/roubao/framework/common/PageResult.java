@@ -1,5 +1,7 @@
 package com.roubao.framework.common;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -51,7 +53,12 @@ public class PageResult<T> implements Serializable {
      * @param page  当前页码
      * @param size  每页大小
      */
-    public PageResult(List<T> list, long total, long page, long size) {
+    @JsonCreator
+    public PageResult(
+            @JsonProperty("list") List<T> list,
+            @JsonProperty("total") long total,
+            @JsonProperty("page") long page,
+            @JsonProperty("size") long size) {
         this.list = (list != null) ? Collections.unmodifiableList(list) : Collections.emptyList();
         this.total = total;
         this.page = page;

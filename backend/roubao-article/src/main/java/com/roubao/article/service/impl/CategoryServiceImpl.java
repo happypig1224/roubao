@@ -7,10 +7,12 @@ import com.roubao.article.model.vo.CategoryVO;
 import com.roubao.article.service.CategoryService;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
+import com.roubao.framework.redis.RedisCache;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 分类业务领域服务实现
@@ -22,15 +24,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
+    public static final String CACHE_KEY_CATEGORY_LIST = "roubao:category:list";
+
     private final CategoryMapper categoryMapper;
+    private final RedisCache redisCache;
 
     public List<CategoryVO> listCategories() {
-        LambdaQueryWrapper<CategoryDO> queryWrapper = new LambdaQueryWrapper<CategoryDO>();
-        queryWrapper.orderByDesc(CategoryDO::getSortOrder)
-                .orderByDesc(CategoryDO::getId);
+        return redisCache.getCacheObject(CACHE_KEY_CATEGORY_LIST, 24, TimeUnit.HOURS, () -> {
+            LambdaQueryWrapper<CategoryDO> queryWrapper = new LambdaQueryWrapper<CategoryDO>();
+            queryWrapper.orderByDesc(CategoryDO::getSortOrder)
+                    .orderByDesc(CategoryDO::getId);
 
-        List<CategoryDO> list = categoryMapper.selectList(queryWrapper);
-        return list.stream().map(CategoryVO::from).toList();
+            List<CategoryDO> list = categoryMapper.selectList(queryWrapper);
+            return list.stream().map(CategoryVO::from).toList();
+        });
     }
 
     public CategoryVO getCategoryById(Long id) {

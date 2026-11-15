@@ -6,6 +6,8 @@ import com.roubao.article.mapper.CategoryMapper;
 import com.roubao.article.model.vo.CategoryVO;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
+import com.roubao.framework.redis.RedisCache;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,14 @@ class CategoryServiceTest {
 
     @Autowired
     private CategoryMapper categoryMapper;
+
+    @Autowired
+    private RedisCache redisCache;
+
+    @BeforeEach
+    void cleanCache() {
+        redisCache.deleteObject("roubao:category:list");
+    }
 
     @Test
     @DisplayName("获取全部分类列表：按 sortOrder 降序排列且过滤已删除项")
@@ -82,6 +92,27 @@ class CategoryServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode())
                         .isEqualTo(ErrorCode.CATEGORY_NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("分类列表缓存集成：首次查库并写入 Redis，后续读取直接命中缓存")
+    void shouldCacheCategoryListInRedis() {
+        CategoryDO c = new CategoryDO();
+        c.setCategoryName("性能调优");
+        c.setCategorySlug("perf-tuning");
+        c.setSortOrder(80);
+        categoryMapper.insert(c);
+
+        // 首次读取：触发 Cache-Aside 回源并回填
+        List<CategoryVO> firstRead = categoryService.listCategories();
+        assertThat(firstRead).isNotEmpty();
+
+        // 验证 Redis 中已生成对应 Key
+        assertThat(redisCache.hasKey("roubao:category:list")).isTrue();
+
+        // 第二次读取：直接命中 Redis
+        List<CategoryVO> cachedRead = categoryService.listCategories();
+        assertThat(cachedRead).hasSameSizeAs(firstRead);
     }
 }
 

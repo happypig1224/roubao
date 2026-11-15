@@ -1,6 +1,7 @@
 package com.roubao.article.model.vo;
 
 import com.roubao.article.entity.ArticleDO;
+import com.roubao.article.model.dto.ArticleStaticDTO;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -82,6 +83,45 @@ public record ArticleDetailVO(
                 likeCount != null ? Math.max(0L, likeCount) : 0L,
                 article.getGmtCreate(),
                 article.getGmtModified()
+        );
+    }
+
+    /**
+     * 从静态大对象与独立动态计数组装完整视图 (动静解耦)
+     *
+     * @param staticDto 静态大对象
+     * @param viewCount 阅读量
+     * @param likeCount 点赞量
+     * @return 文章详情视图对象
+     */
+    public static ArticleDetailVO from(ArticleStaticDTO staticDto,
+                                       Long viewCount,
+                                       Long likeCount) {
+        if (staticDto == null) {
+            return null;
+        }
+        return new ArticleDetailVO(
+                staticDto.id(),
+                staticDto.categoryId(),
+                staticDto.categoryName() != null ? staticDto.categoryName() : "",
+                staticDto.title(),
+                staticDto.slug(),
+                staticDto.summary(),
+                staticDto.coverImageKey(),
+                staticDto.contentMarkdown() != null ? staticDto.contentMarkdown() : "",
+                staticDto.contentUrl(),
+                staticDto.fileType(),
+                staticDto.tags() != null ? List.copyOf(staticDto.tags()) : Collections.emptyList(),
+                staticDto.readTimeMinutes(),
+                staticDto.sortOrder(),
+                Boolean.TRUE.equals(staticDto.published()),
+                Boolean.TRUE.equals(staticDto.top()),
+                Boolean.TRUE.equals(staticDto.featured()),
+                staticDto.publishedAt(),
+                viewCount != null ? Math.max(0L, viewCount) : 0L,
+                likeCount != null ? Math.max(0L, likeCount) : 0L,
+                staticDto.gmtCreate(),
+                staticDto.gmtModified()
         );
     }
 }

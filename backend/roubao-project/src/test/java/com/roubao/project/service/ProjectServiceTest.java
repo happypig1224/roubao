@@ -3,11 +3,13 @@ package com.roubao.project.service;
 import com.roubao.framework.common.PageResult;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
+import com.roubao.framework.redis.RedisCache;
 import com.roubao.project.TestProjectApplication;
 import com.roubao.project.entity.ProjectDO;
 import com.roubao.project.mapper.ProjectMapper;
 import com.roubao.project.model.dto.ProjectQueryDTO;
 import com.roubao.project.model.vo.ProjectVO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,14 @@ class ProjectServiceTest {
 
     @Autowired
     private ProjectMapper projectMapper;
+
+    @Autowired
+    private RedisCache redisCache;
+
+    @BeforeEach
+    void cleanCache() {
+        redisCache.deleteObject("roubao:project:featured");
+    }
 
     @Test
     @DisplayName("精选项目列表拉取：仅返回 isFeatured=true 记录且按 Star 数降序排列")
@@ -92,6 +102,28 @@ class ProjectServiceTest {
                 .isInstanceOf(BusinessException.class)
                 .satisfies(ex -> assertThat(((BusinessException) ex).getErrorCode())
                         .isEqualTo(ErrorCode.PROJECT_NOT_FOUND));
+    }
+
+    @Test
+    @DisplayName("精选项目缓存集成：首次查库回填 Redis，新增项目时主动失效缓存")
+    void shouldCacheFeaturedProjectsAndInvalidateOnCreate() {
+        ProjectDO p = createProjectDo("精选响应式组件", "reactive-comp", true, 999, 1);
+        projectService.createProject(p);
+
+        // 首次读取：触发回填
+        List<ProjectVO> list1 = projectService.listFeaturedProjects();
+        assertThat(list1).isNotEmpty();
+        assertThat(redisCache.hasKey("roubao:project:featured")).isTrue();
+
+        // 再次新增精选项目：应主动触发缓存失效
+        ProjectDO p2 = createProjectDo("精选网关微核心", "gateway-micro", true, 1999, 2);
+        projectService.createProject(p2);
+        assertThat(redisCache.hasKey("roubao:project:featured")).isFalse();
+
+        // 重新读取：重新回填最新数据
+        List<ProjectVO> list2 = projectService.listFeaturedProjects();
+        assertThat(list2).hasSize(2);
+        assertThat(redisCache.hasKey("roubao:project:featured")).isTrue();
     }
 
     private ProjectDO createProjectDo(String name, String slug, boolean featured, int stars, int sortOrder) {
