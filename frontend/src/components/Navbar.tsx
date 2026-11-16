@@ -214,10 +214,10 @@ export function Navbar({
           </div>
         </div>
 
-        {/* Center: One Page Love Dock Navigation (Strict HIG 44pt Touch Targets) */}
+        {/* Center: Centered Navigation Links with Underline Indicator */}
         <nav
           aria-label="主导航"
-          className="flex items-center justify-center gap-2 sm:gap-4 lg:gap-6 text-sm"
+          className="flex items-center justify-center gap-6 sm:gap-8 lg:gap-10 text-sm sm:text-[15px]"
         >
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
@@ -225,13 +225,20 @@ export function Navbar({
               <Link
                 key={item.id}
                 href={item.href}
-                className={`relative min-h-[44px] min-w-[56px] inline-flex items-center justify-center px-3.5 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm font-medium ${
+                className={`group relative min-h-[44px] px-2.5 inline-flex items-center justify-center transition-colors whitespace-nowrap text-sm sm:text-[15px] ${
                   isActive
-                    ? "text-zinc-950 dark:text-zinc-50 font-semibold bg-zinc-200/70 dark:bg-zinc-800/80 shadow-2xs"
-                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/40"
+                    ? "text-zinc-950 dark:text-zinc-50 font-semibold"
+                    : "text-zinc-500 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100"
                 }`}
               >
-                {item.label}
+                <span className="relative py-1">
+                  {item.label}
+                  {isActive ? (
+                    <span className="absolute left-0 right-0 -bottom-1 h-0.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
+                  ) : (
+                    <span className="absolute left-0 right-0 -bottom-1 h-0.5 rounded-full bg-zinc-400/40 dark:bg-zinc-600/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  )}
+                </span>
               </Link>
             );
           })}
