@@ -17,6 +17,7 @@ import {
 import { GithubIcon } from "./icons";
 import { BaoCoreLogo } from "./BaoCoreLogo";
 import { AUTHOR_EMAIL, GITHUB_URL } from "@/lib/siteConfig";
+import { copyTextToClipboard } from "@/lib/utils";
 
 interface HeroProps {
   onOpenResume: () => void;
@@ -30,9 +31,10 @@ export function Hero({
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [stageTab, setStageTab] = useState<"benchmark" | "code">("benchmark");
 
-  const handleCopyEmail = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleCopyEmail = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigator.clipboard.writeText(AUTHOR_EMAIL);
+    const success = await copyTextToClipboard(AUTHOR_EMAIL);
+    if (!success) return;
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 1800);
   };

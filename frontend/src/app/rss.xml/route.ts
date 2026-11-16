@@ -1,4 +1,4 @@
-import { getCachedArticles } from "@/lib/articlesStore";
+import { fetchArticles } from "@/lib/api";
 import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
@@ -17,12 +17,13 @@ function escapeXml(value: string): string {
 }
 
 export async function GET() {
-  const articles = await getCachedArticles();
+  const articles = await fetchArticles();
 
   const itemsXml = articles
     .map((article) => {
       const link = `${SITE_URL}/blog/${encodeURIComponent(article.slug)}`;
-      const pubDate = new Date(`${article.publishedAt}T00:00:00.000Z`).toUTCString();
+      const dateStr = article.publishedAt ? article.publishedAt.slice(0, 10) : new Date().toISOString().slice(0, 10);
+      const pubDate = new Date(`${dateStr}T00:00:00.000Z`).toUTCString();
       const categoriesXml = [article.category, ...article.tags]
         .map((tag) => `      <category>${escapeXml(tag)}</category>`)
         .join("\n");
@@ -38,10 +39,8 @@ ${categoriesXml}
     })
     .join("\n");
 
-  const lastBuildDate =
-    articles.length > 0
-      ? new Date(`${articles[0].publishedAt}T00:00:00.000Z`).toUTCString()
-      : new Date().toUTCString();
+  const firstDateStr = articles[0]?.publishedAt ? articles[0].publishedAt.slice(0, 10) : new Date().toISOString().slice(0, 10);
+  const lastBuildDate = new Date(`${firstDateStr}T00:00:00.000Z`).toUTCString();
 
   const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">

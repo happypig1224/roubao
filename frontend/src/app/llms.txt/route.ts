@@ -1,5 +1,5 @@
 import { MOCK_PROJECTS } from "@/data/mockData";
-import { getCachedArticles } from "@/lib/articlesStore";
+import { fetchArticles } from "@/lib/api";
 import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
@@ -9,7 +9,7 @@ import {
 } from "@/lib/siteConfig";
 
 export async function GET() {
-  const articles = await getCachedArticles();
+  const articles = await fetchArticles();
 
   const projectsLines = MOCK_PROJECTS.map((project) => {
     const metricsNote = project.metrics ? ` (${project.metrics})` : "";

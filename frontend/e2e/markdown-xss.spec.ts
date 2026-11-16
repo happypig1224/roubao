@@ -10,6 +10,9 @@ test.describe("Markdown XSS 防御与富文本消毒门禁", () => {
 
 <script>window.__xss_leaked = true;</script>
 <img src="invalid-image.jpg" onerror="window.__xss_leaked = true;" />
+<img/src="x"/onerror=alert(1)>
+<details open ontoggle="alert(1)">展开</details>
+<svg><script>alert(1)</script></svg>
 <a href="javascript:alert(1)">恶意JS伪协议超链接</a>
 `;
 
@@ -19,8 +22,9 @@ test.describe("Markdown XSS 防御与富文本消毒门禁", () => {
     expect(html).not.toContain("<script");
     expect(html).not.toContain("window.__xss_leaked");
 
-    // 2. 验证 onerror 事件属性被剥离
-    expect(html).not.toContain("onerror=");
+    // 2. 验证 onerror/ontoggle 事件属性被剥离
+    expect(html).not.toContain("onerror");
+    expect(html).not.toContain("ontoggle");
 
     // 3. 验证 javascript: 伪协议被剥离
     expect(html).not.toContain("javascript:");

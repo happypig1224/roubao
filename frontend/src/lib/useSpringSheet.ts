@@ -27,19 +27,27 @@ export function useSpringSheet({
   }
 
   useEffect(() => {
-    if (isOpen) {
-      const frameTimer = setTimeout(() => setIsVisible(true), 20);
-      return () => clearTimeout(frameTimer);
-    }
+    let frameId: number | null = null;
+    let timerId: NodeJS.Timeout | null = null;
 
-    if (isMounted) {
-      const unmountTimer = setTimeout(() => {
+    if (isOpen) {
+      frameId = requestAnimationFrame(() => {
+        timerId = setTimeout(() => {
+          setIsVisible(true);
+        }, 20);
+      });
+    } else if (isMounted) {
+      timerId = setTimeout(() => {
         setIsVisible(false);
         setIsMounted(false);
         onExited?.();
       }, durationMs);
-      return () => clearTimeout(unmountTimer);
     }
+
+    return () => {
+      if (frameId !== null) cancelAnimationFrame(frameId);
+      if (timerId !== null) clearTimeout(timerId);
+    };
   }, [isOpen, isMounted, durationMs, onExited]);
 
   return {

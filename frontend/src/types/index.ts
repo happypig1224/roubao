@@ -48,8 +48,8 @@ export interface Article {
   slug: string;
   summary: string;
   contentUrl?: string;
-  fileType?: "md" | "pdf" | string;
-  category: "backend" | "frontend" | "performance" | "architecture" | string;
+  fileType?: "md" | "pdf" | (string & {});
+  category: "backend" | "frontend" | "performance" | "architecture" | (string & {});
   categoryId?: number;
   categoryName?: string;
   tags: string[];

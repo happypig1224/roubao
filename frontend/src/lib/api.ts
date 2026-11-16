@@ -70,7 +70,7 @@ export function mapArticleFromVO(raw: BackendArticleVO): Article {
     views: raw.viewCount ?? raw.views ?? 0,
     likeCount: raw.likeCount ?? 0,
     readTimeMinutes: raw.readTimeMinutes ?? 5,
-    publishedAt: raw.publishedAt || new Date().toISOString().slice(0, 10),
+    publishedAt: raw.publishedAt ? raw.publishedAt.slice(0, 10) : new Date().toISOString().slice(0, 10),
     contentMarkdown: raw.contentMarkdown || "",
     top: Boolean(raw.top),
     featured: Boolean(raw.featured),

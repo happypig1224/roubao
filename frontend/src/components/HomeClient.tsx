@@ -100,17 +100,16 @@ export function HomeClient({ initialArticles, initialProjects }: HomeClientProps
         e.key.toLowerCase() === "keya";
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && isKeyA) {
         e.preventDefault();
+        e.stopPropagation();
         setAdminOpen((prev) => !prev);
       }
     };
     const handleToggleAdmin = () => setAdminOpen((prev) => !prev);
 
-    window.addEventListener("keydown", handleGlobalKey, true);
-    document.addEventListener("keydown", handleGlobalKey, true);
+    window.addEventListener("keydown", handleGlobalKey);
     window.addEventListener("roubao:toggle-admin", handleToggleAdmin);
     return () => {
-      window.removeEventListener("keydown", handleGlobalKey, true);
-      document.removeEventListener("keydown", handleGlobalKey, true);
+      window.removeEventListener("keydown", handleGlobalKey);
       window.removeEventListener("roubao:toggle-admin", handleToggleAdmin);
     };
   }, []);

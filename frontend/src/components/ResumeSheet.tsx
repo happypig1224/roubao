@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Mail, MapPin, X, Check, Copy } from "lucide-react";
 import { useSpringSheet } from "@/lib/useSpringSheet";
 import { AUTHOR_EMAIL, SITE_HOST } from "@/lib/siteConfig";
+import { copyTextToClipboard } from "@/lib/utils";
 
 interface ResumeSheetProps {
   isOpen: boolean;
@@ -89,8 +90,9 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
     URL.revokeObjectURL(url);
   };
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(AUTHOR_EMAIL);
+  const handleCopyEmail = async () => {
+    const success = await copyTextToClipboard(AUTHOR_EMAIL);
+    if (!success) return;
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 1800);
   };

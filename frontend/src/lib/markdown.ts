@@ -1,4 +1,4 @@
-import { marked, type Tokens } from "marked";
+import { Marked, marked, type Tokens } from "marked";
 import hljs from "highlight.js";
 import DOMPurify from "isomorphic-dompurify";
 
@@ -150,23 +150,14 @@ export function renderMarkdownToHtml(markdown: string): string {
     return `<code class="px-1.5 py-0.5 mx-0.5 rounded text-[12px] font-mono bg-zinc-100 dark:bg-zinc-800 text-pink-600 dark:text-pink-400 border border-zinc-200/60 dark:border-zinc-700/60 font-semibold">${text}</code>`;
   };
 
-  marked.use({
+  const localMarked = new Marked({
     renderer,
     gfm: true,
     breaks: true,
   });
 
-  const rawHtml = marked.parse(clean, { async: false }) as string;
-  if (typeof window !== "undefined") {
-    return DOMPurify.sanitize(rawHtml, {
-      ADD_ATTR: ["target", "rel", "data-code", "aria-label"],
-    });
-  }
-  return rawHtml
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script\s*>/gi, "")
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe\s*>/gi, "")
-    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object\s*>/gi, "")
-    .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed\s*>/gi, "")
-    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/href\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*'|javascript:[^\s>]+)/gi, 'href="#"');
+  const rawHtml = localMarked.parse(clean, { async: false }) as string;
+  return DOMPurify.sanitize(rawHtml, {
+    ADD_ATTR: ["target", "rel", "data-code", "aria-label"],
+  });
 }

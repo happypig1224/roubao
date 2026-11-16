@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, X, Sparkles, BookOpen } from "lucide-react";
 import { Article } from "@/types";
@@ -34,8 +34,15 @@ export function BlogSection({
     { key: "performance", label: "调优" },
   ];
 
-  const getCategoryCount = (key: string) =>
-    key === "all" ? articles.length : articles.filter((a) => a.category === key).length;
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: articles.length };
+    for (const a of articles) {
+      counts[a.category] = (counts[a.category] || 0) + 1;
+    }
+    return counts;
+  }, [articles]);
+
+  const getCategoryCount = (key: string) => categoryCounts[key] ?? 0;
 
   const filteredArticles = articles.filter((art) => {
     const matchesCat = selectedCategory === "all" || art.category === selectedCategory;

@@ -5,12 +5,14 @@ import { Check, Copy, Mail } from "lucide-react";
 import { GithubIcon } from "./icons";
 import { BaoCoreLogo } from "./BaoCoreLogo";
 import { AUTHOR_EMAIL, GITHUB_URL } from "@/lib/siteConfig";
+import { copyTextToClipboard } from "@/lib/utils";
 
 export function Footer() {
   const [copied, setCopied] = useState(false);
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(AUTHOR_EMAIL);
+  const handleCopyEmail = async () => {
+    const success = await copyTextToClipboard(AUTHOR_EMAIL);
+    if (!success) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };

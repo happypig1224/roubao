@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import { renderMarkdownToHtml } from "@/lib/markdown";
+import { copyTextToClipboard } from "@/lib/utils";
 
 interface MarkdownRendererProps {
   markdown: string;
@@ -12,7 +13,7 @@ export function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
     return renderMarkdownToHtml(markdown || "");
   }, [markdown]);
 
-  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleContainerClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     const btn = target.closest(".code-copy-btn") as HTMLButtonElement | null;
     if (btn) {
@@ -20,7 +21,8 @@ export function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
       const rawCode = btn.getAttribute("data-code");
       if (rawCode) {
         const text = decodeURIComponent(rawCode);
-        navigator.clipboard.writeText(text);
+        const copied = await copyTextToClipboard(text);
+        if (!copied) return;
 
         const label = btn.querySelector(".copy-label");
         if (label) {

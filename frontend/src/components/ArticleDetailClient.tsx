@@ -18,6 +18,7 @@ import { AdminDrawer } from "@/components/AdminDrawer";
 import { ArticleToc } from "@/components/ArticleToc";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { extractTocHeadings, TocHeading } from "@/lib/markdown";
+import { copyTextToClipboard } from "@/lib/utils";
 import { MOCK_PROJECTS } from "@/data/mockData";
 import { Article } from "@/types";
 
@@ -79,6 +80,8 @@ export function ArticleDetailClient({
     if (trackedSlugRef.current === article.slug) return;
     trackedSlugRef.current = article.slug;
 
+    const controller = new AbortController();
+
     const STORAGE_KEY = `roubao_viewed_${article.slug}`;
     try {
       const lastViewed = localStorage.getItem(STORAGE_KEY);
@@ -93,6 +96,7 @@ export function ArticleDetailClient({
 
     fetch(`/api/v1/articles/${encodeURIComponent(article.slug)}/views`, {
       method: "POST",
+      signal: controller.signal,
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((data: { views?: number; code?: number } | null) => {
@@ -100,9 +104,15 @@ export function ArticleDetailClient({
           setViewsOverride({ slug: article.slug, views: data.views });
         }
       })
-      .catch(() => {
-        // 忽略网络瞬态错误
+      .catch((err) => {
+        if (err?.name !== "AbortError") {
+          // 忽略常规网络瞬态错误
+        }
       });
+
+    return () => {
+      controller.abort();
+    };
   }, [article.slug]);
 
   // 2. 快捷键监听
@@ -114,17 +124,16 @@ export function ArticleDetailClient({
         e.key.toLowerCase() === "keya";
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && isKeyA) {
         e.preventDefault();
+        e.stopPropagation();
         setAdminOpen((prev) => !prev);
       }
     };
     const handleToggleAdmin = () => setAdminOpen((prev) => !prev);
 
-    window.addEventListener("keydown", handleGlobalKey, true);
-    document.addEventListener("keydown", handleGlobalKey, true);
+    window.addEventListener("keydown", handleGlobalKey);
     window.addEventListener("roubao:toggle-admin", handleToggleAdmin);
     return () => {
-      window.removeEventListener("keydown", handleGlobalKey, true);
-      document.removeEventListener("keydown", handleGlobalKey, true);
+      window.removeEventListener("keydown", handleGlobalKey);
       window.removeEventListener("roubao:toggle-admin", handleToggleAdmin);
     };
   }, []);
@@ -178,8 +187,9 @@ export function ArticleDetailClient({
     [router]
   );
 
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText(window.location.href);
+  const handleCopyUrl = async () => {
+    const success = await copyTextToClipboard(window.location.href);
+    if (!success) return;
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 1800);
   };
