@@ -9,6 +9,8 @@ import com.roubao.framework.common.PageResult;
 import com.roubao.framework.exception.BusinessException;
 import com.roubao.framework.exception.ErrorCode;
 
+import com.roubao.article.model.dto.ArticleUpdateDTO;
+
 /**
  * 文章业务领域服务接口
  *
@@ -32,6 +34,58 @@ public interface ArticleService {
      * @return 文章详情 VO
      */
     ArticleDetailVO getArticleDetailBySlug(String slug);
+
+    /**
+     * 根据主键 ID 查询文章完整详情
+     *
+     * @param id 文章主键 ID
+     * @return 文章详情 VO
+     */
+    ArticleDetailVO getArticleDetailById(Long id);
+
+    /**
+     * 获取全站文章与冷热指标大盘概览统计
+     *
+     * @return 大盘指标统计 VO
+     */
+    com.roubao.article.model.vo.ArticleStatsSummaryVO getArticleStatsSummary();
+
+    /**
+     * 更新文章信息与正文大字段
+     *
+     * @param id  文章主键 ID
+     * @param dto 文章更新入参 DTO
+     */
+    void updateArticle(Long id, ArticleUpdateDTO dto);
+
+    /**
+     * 逻辑删除文章并失效关联缓存
+     *
+     * @param id 文章主键 ID
+     */
+    void deleteArticle(Long id);
+
+    /**
+     * 切换文章置顶状态
+     *
+     * @param id 文章主键 ID
+     */
+    void toggleTop(Long id);
+
+    /**
+     * 切换文章精选推荐状态
+     *
+     * @param id 文章主键 ID
+     */
+    void toggleFeatured(Long id);
+
+    /**
+     * 更新文章发布状态 (上线/下线为草稿)
+     *
+     * @param id        文章主键 ID
+     * @param published 是否发布
+     */
+    void updatePublishStatus(Long id, boolean published);
 
     /**
      * 原子创建文章 (推荐：跨模块解耦，短事务控制与提交后缓存失效)

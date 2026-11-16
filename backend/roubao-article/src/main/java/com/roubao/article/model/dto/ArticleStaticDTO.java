@@ -20,6 +20,7 @@ public record ArticleStaticDTO(
         Long id,
         Long categoryId,
         String categoryName,
+        String categorySlug,
         String title,
         String slug,
         String summary,
@@ -45,7 +46,7 @@ public record ArticleStaticDTO(
      * 空对象防穿透常量标记 (Null-Object)
      */
     public static final ArticleStaticDTO EMPTY = new ArticleStaticDTO(
-            -1L, null, null, null, null, null, null, null, null, null,
+            -1L, null, null, null, null, null, null, null, null, null, null,
             Collections.emptyList(), null, null, null, null, null, null, null, null
     );
 
@@ -59,14 +60,22 @@ public record ArticleStaticDTO(
     }
 
     /**
-     * 从文章实体与正文组装静态传输对象
+     * 从文章实体与正文组装静态传输对象 (兼容模式)
+     */
+    public static ArticleStaticDTO from(ArticleDO article, String contentMarkdown, String categoryName) {
+        return from(article, contentMarkdown, categoryName, "");
+    }
+
+    /**
+     * 从文章实体与正文组装静态传输对象 (全契约对齐)
      *
      * @param article         文章元数据实体
      * @param contentMarkdown Markdown 完整长正文
-     * @param categoryName    所属分类名称
+     * @param categoryName    所属分类展示名
+     * @param categorySlug    所属分类英文路由标识
      * @return 静态传输对象
      */
-    public static ArticleStaticDTO from(ArticleDO article, String contentMarkdown, String categoryName) {
+    public static ArticleStaticDTO from(ArticleDO article, String contentMarkdown, String categoryName, String categorySlug) {
         if (article == null) {
             return null;
         }
@@ -74,6 +83,7 @@ public record ArticleStaticDTO(
                 article.getId(),
                 article.getCategoryId(),
                 categoryName != null ? categoryName : "",
+                categorySlug != null ? categorySlug : "",
                 article.getTitle(),
                 article.getSlug(),
                 article.getSummary(),

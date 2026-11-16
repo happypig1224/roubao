@@ -66,6 +66,7 @@ public enum ErrorCode {
      */
     ARTICLE_NOT_FOUND(1001, "文章不存在或已下架"),
     CATEGORY_NOT_FOUND(1002, "分类不存在"),
+    CATEGORY_IN_USE(1003, "当前分类下存在关联文章，禁止直接删除"),
 
     /**
      * 项目展厅领域业务错误

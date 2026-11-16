@@ -45,4 +45,9 @@ public class ArticleQueryDTO extends PageQuery {
      * 是否仅查询已公开发布的文章 (前台默认 true，后台管理可查全部)
      */
     private Boolean publishedOnly = true;
+
+    /**
+     * 明确发布状态筛选：true=仅已发布, false=仅草稿, null=全部
+     */
+    private Boolean published;
 }

@@ -99,6 +99,64 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
+    public ProjectVO getProjectById(Long id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "项目 ID 不能为空");
+        }
+        ProjectDO project = projectMapper.selectById(id);
+        if (project == null) {
+            throw new BusinessException(ErrorCode.PROJECT_NOT_FOUND);
+        }
+        return ProjectVO.from(project);
+    }
+
+    @Override
+    public void updateProject(Long id, com.roubao.project.model.dto.ProjectUpdateDTO dto) {
+        if (id == null || dto == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "项目更新入参不能为空");
+        }
+        ProjectDO project = projectMapper.selectById(id);
+        if (project == null) {
+            throw new BusinessException(ErrorCode.PROJECT_NOT_FOUND);
+        }
+
+        project.setProjectName(dto.projectName().trim());
+        project.setSlug(dto.slug().trim());
+        project.setTagline(dto.tagline() != null ? dto.tagline().trim() : "");
+        project.setDescription(dto.description() != null ? dto.description().trim() : "");
+        project.setArchitectureHighlights(dto.architectureHighlights());
+        project.setTechTags(dto.techTags());
+        project.setRepoUrl(dto.repoUrl() != null ? dto.repoUrl().trim() : "");
+        project.setDemoUrl(dto.demoUrl() != null ? dto.demoUrl().trim() : "");
+        project.setStarCount(dto.starCount() != null ? dto.starCount() : 0);
+        project.setMetricsSummary(dto.metricsSummary() != null ? dto.metricsSummary().trim() : "");
+        project.setSortOrder(dto.sortOrder() != null ? dto.sortOrder() : 0);
+        project.setFeatured(Boolean.TRUE.equals(dto.featured()));
+
+        projectMapper.updateById(project);
+        RedisUtils.deleteObject(CacheConstants.PROJECT_FEATURED);
+    }
+
+    @Override
+    public void deleteProject(Long id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "项目 ID 不能为空");
+        }
+        ProjectDO project = projectMapper.selectById(id);
+        if (project == null) {
+            throw new BusinessException(ErrorCode.PROJECT_NOT_FOUND);
+        }
+        projectMapper.deleteById(id);
+        RedisUtils.deleteObject(CacheConstants.PROJECT_FEATURED);
+    }
+
+    @Override
+    public long countProjects() {
+        Long count = projectMapper.selectCount(null);
+        return count != null ? count : 0L;
+    }
+
+    @Override
     public Long createProject(ProjectCreateDTO dto) {
         if (dto == null) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "项目创建参数不能为空");

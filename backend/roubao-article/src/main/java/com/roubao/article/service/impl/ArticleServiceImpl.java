@@ -94,7 +94,9 @@ public class ArticleServiceImpl implements ArticleService {
                 wrapper.and(w -> w.like(ArticleDO::getTitle, kw).or().like(ArticleDO::getSummary, kw));
             }
             // 4. 发布状态筛选
-            if (Boolean.TRUE.equals(query.getPublishedOnly())) {
+            if (query.getPublished() != null) {
+                wrapper.eq(ArticleDO::getPublished, query.getPublished());
+            } else if (Boolean.TRUE.equals(query.getPublishedOnly())) {
                 wrapper.eq(ArticleDO::getPublished, true);
             }
         }
@@ -114,10 +116,10 @@ public class ArticleServiceImpl implements ArticleService {
                 .filter(id -> id != null && id > 0)
                 .collect(Collectors.toSet());
 
-        Map<Long, String> categoryNameMap = categoryIds.isEmpty()
+        Map<Long, CategoryDO> categoryMap = categoryIds.isEmpty()
                 ? Collections.emptyMap()
                 : categoryMapper.selectBatchIds(categoryIds).stream()
-                .collect(Collectors.toMap(CategoryDO::getId, CategoryDO::getCategoryName, (k1, k2) -> k1));
+                .collect(Collectors.toMap(CategoryDO::getId, c -> c, (k1, k2) -> k1));
 
         Set<Long> articleIds = records.stream()
                 .map(ArticleDO::getId)
@@ -128,11 +130,13 @@ public class ArticleServiceImpl implements ArticleService {
         ).stream().collect(Collectors.toMap(ArticleStatsDO::getArticleId, s -> s, (s1, s2) -> s1));
 
         List<ArticleListVO> voList = records.stream().map(article -> {
-            String categoryName = categoryNameMap.getOrDefault(article.getCategoryId(), "");
+            CategoryDO cat = categoryMap.get(article.getCategoryId());
+            String categoryName = cat != null ? cat.getCategoryName() : "";
+            String categorySlug = cat != null ? cat.getCategorySlug() : "";
             ArticleStatsDO stats = statsMap.get(article.getId());
             Long viewCount = stats != null ? stats.getViewCount() : 0L;
             Long likeCount = stats != null ? stats.getLikeCount() : 0L;
-            return ArticleListVO.from(article, categoryName, viewCount, likeCount);
+            return ArticleListVO.from(article, categoryName, categorySlug, viewCount, likeCount);
         }).toList();
 
         PageResult<ArticleListVO> pageResult = new PageResult<>(voList, resultPage.getTotal(), current, size);
@@ -189,8 +193,9 @@ public class ArticleServiceImpl implements ArticleService {
 
             String markdown = contentDO != null ? contentDO.getContentMarkdown() : "";
             String categoryName = categoryDO != null ? categoryDO.getCategoryName() : "";
+            String categorySlug = categoryDO != null ? categoryDO.getCategorySlug() : "";
 
-            staticDto = ArticleStaticDTO.from(article, markdown, categoryName);
+            staticDto = ArticleStaticDTO.from(article, markdown, categoryName, categorySlug);
             // 回填 Redis 缓存，带随机扰动 TTL
             RedisUtils.setCacheObjectWithJitter(
                     cacheKey,
@@ -210,6 +215,38 @@ public class ArticleServiceImpl implements ArticleService {
         Long likeCount = statsDO != null ? statsDO.getLikeCount() : 0L;
 
         return ArticleDetailVO.from(staticDto, viewCount, likeCount);
+    }
+
+    @Override
+    public com.roubao.article.model.vo.ArticleStatsSummaryVO getArticleStatsSummary() {
+        Long totalArticles = articleMapper.selectCount(null);
+        Long publishedArticles = articleMapper.selectCount(
+                new LambdaQueryWrapper<ArticleDO>().eq(ArticleDO::getPublished, true)
+        );
+        long total = totalArticles != null ? totalArticles : 0L;
+        long published = publishedArticles != null ? publishedArticles : 0L;
+        long draft = Math.max(0L, total - published);
+
+        List<ArticleStatsDO> statsList = articleStatsMapper.selectList(null);
+        long totalViews = 0L;
+        long totalLikes = 0L;
+        if (statsList != null) {
+            for (ArticleStatsDO s : statsList) {
+                if (s.getViewCount() != null) {
+                    totalViews += s.getViewCount();
+                }
+                if (s.getLikeCount() != null) {
+                    totalLikes += s.getLikeCount();
+                }
+            }
+        }
+        return new com.roubao.article.model.vo.ArticleStatsSummaryVO(
+                total,
+                published,
+                draft,
+                totalViews,
+                totalLikes
+        );
     }
 
     @Override
@@ -269,6 +306,148 @@ public class ArticleServiceImpl implements ArticleService {
         article.setPublishedAt(LocalDateTime.now());
 
         return createArticle(article, dto.contentMarkdown());
+    }
+
+    @Override
+    public ArticleDetailVO getArticleDetailById(Long id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章 ID 不能为空");
+        }
+        ArticleDO article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+
+        ArticleContentDO contentDO = articleContentMapper.selectOne(
+                new LambdaQueryWrapper<ArticleContentDO>().eq(ArticleContentDO::getArticleId, id)
+        );
+        CategoryDO categoryDO = (article.getCategoryId() != null && article.getCategoryId() > 0)
+                ? categoryMapper.selectById(article.getCategoryId())
+                : null;
+        ArticleStatsDO statsDO = articleStatsMapper.selectOne(
+                new LambdaQueryWrapper<ArticleStatsDO>().eq(ArticleStatsDO::getArticleId, id)
+        );
+
+        String markdown = contentDO != null ? contentDO.getContentMarkdown() : "";
+        String categoryName = categoryDO != null ? categoryDO.getCategoryName() : "";
+        String categorySlug = categoryDO != null ? categoryDO.getCategorySlug() : "";
+        Long viewCount = statsDO != null ? statsDO.getViewCount() : 0L;
+        Long likeCount = statsDO != null ? statsDO.getLikeCount() : 0L;
+
+        return ArticleDetailVO.from(article, markdown, categoryName, categorySlug, viewCount, likeCount);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateArticle(Long id, com.roubao.article.model.dto.ArticleUpdateDTO dto) {
+        if (id == null || dto == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章更新入参不能为空");
+        }
+        ArticleDO existing = articleMapper.selectById(id);
+        if (existing == null) {
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+
+        String oldSlug = existing.getSlug();
+
+        existing.setCategoryId(dto.categoryId());
+        existing.setTitle(dto.title().trim());
+        existing.setSlug(dto.slug().trim());
+        existing.setSummary(dto.summary() != null ? dto.summary().trim() : "");
+        existing.setCoverImageKey(dto.coverImageKey() != null ? dto.coverImageKey().trim() : "");
+        existing.setTags(dto.tags() != null ? dto.tags() : Collections.emptyList());
+        existing.setReadTimeMinutes(dto.readTimeMinutes() != null ? dto.readTimeMinutes() : 5);
+        existing.setSortOrder(dto.sortOrder() != null ? dto.sortOrder() : 0);
+        existing.setTop(Boolean.TRUE.equals(dto.top()));
+        existing.setFeatured(Boolean.TRUE.equals(dto.featured()));
+
+        boolean newPublished = Boolean.TRUE.equals(dto.published());
+        if (newPublished && !Boolean.TRUE.equals(existing.getPublished()) && existing.getPublishedAt() == null) {
+            existing.setPublishedAt(LocalDateTime.now());
+        }
+        existing.setPublished(newPublished);
+
+        articleMapper.updateById(existing);
+
+        ArticleContentDO contentDO = articleContentMapper.selectOne(
+                new LambdaQueryWrapper<ArticleContentDO>().eq(ArticleContentDO::getArticleId, id)
+        );
+        if (contentDO == null) {
+            contentDO = new ArticleContentDO();
+            contentDO.setArticleId(id);
+            contentDO.setContentMarkdown(dto.contentMarkdown());
+            articleContentMapper.insert(contentDO);
+        } else {
+            contentDO.setContentMarkdown(dto.contentMarkdown());
+            articleContentMapper.updateById(contentDO);
+        }
+
+        evictArticleCacheAfterCommit(oldSlug);
+        if (oldSlug != null && !oldSlug.equals(existing.getSlug())) {
+            evictArticleCacheAfterCommit(existing.getSlug());
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteArticle(Long id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章 ID 不能为空");
+        }
+        ArticleDO article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+        articleMapper.deleteById(id);
+        evictArticleCacheAfterCommit(article.getSlug());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void toggleTop(Long id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章 ID 不能为空");
+        }
+        ArticleDO article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+        article.setTop(!Boolean.TRUE.equals(article.getTop()));
+        articleMapper.updateById(article);
+        evictArticleCacheAfterCommit(article.getSlug());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void toggleFeatured(Long id) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章 ID 不能为空");
+        }
+        ArticleDO article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+        article.setFeatured(!Boolean.TRUE.equals(article.getFeatured()));
+        articleMapper.updateById(article);
+        evictArticleCacheAfterCommit(article.getSlug());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updatePublishStatus(Long id, boolean published) {
+        if (id == null) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "文章 ID 不能为空");
+        }
+        ArticleDO article = articleMapper.selectById(id);
+        if (article == null) {
+            throw new BusinessException(ErrorCode.ARTICLE_NOT_FOUND);
+        }
+        if (published && !Boolean.TRUE.equals(article.getPublished()) && article.getPublishedAt() == null) {
+            article.setPublishedAt(LocalDateTime.now());
+        }
+        article.setPublished(published);
+        articleMapper.updateById(article);
+        evictArticleCacheAfterCommit(article.getSlug());
     }
 
     private void evictArticleCacheAfterCommit(String slug) {

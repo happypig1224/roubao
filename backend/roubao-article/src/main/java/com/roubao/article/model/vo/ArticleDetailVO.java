@@ -20,6 +20,7 @@ public record ArticleDetailVO(
         Long id,
         Long categoryId,
         String categoryName,
+        String categorySlug,
         String title,
         String slug,
         String summary,
@@ -44,11 +45,23 @@ public record ArticleDetailVO(
     private static final long serialVersionUID = 1L;
 
     /**
+     * 静态组装文章正文详情 (兼容旧版调用)
+     */
+    public static ArticleDetailVO from(ArticleDO article,
+                                       String contentMarkdown,
+                                       String categoryName,
+                                       Long viewCount,
+                                       Long likeCount) {
+        return from(article, contentMarkdown, categoryName, "", viewCount, likeCount);
+    }
+
+    /**
      * 静态组装文章正文详情，执行数据防腐与非空保底
      *
      * @param article         文章元数据实体
      * @param contentMarkdown 正文大字段 Markdown 内容
      * @param categoryName    所属分类名称
+     * @param categorySlug    所属分类英文标识
      * @param viewCount       阅读量
      * @param likeCount       点赞量
      * @return 文章详情视图对象
@@ -56,6 +69,7 @@ public record ArticleDetailVO(
     public static ArticleDetailVO from(ArticleDO article,
                                        String contentMarkdown,
                                        String categoryName,
+                                       String categorySlug,
                                        Long viewCount,
                                        Long likeCount) {
         if (article == null) {
@@ -65,6 +79,7 @@ public record ArticleDetailVO(
                 article.getId(),
                 article.getCategoryId(),
                 categoryName != null ? categoryName : "",
+                categorySlug != null ? categorySlug : "",
                 article.getTitle(),
                 article.getSlug(),
                 article.getSummary(),
@@ -104,6 +119,7 @@ public record ArticleDetailVO(
                 staticDto.id(),
                 staticDto.categoryId(),
                 staticDto.categoryName() != null ? staticDto.categoryName() : "",
+                staticDto.categorySlug() != null ? staticDto.categorySlug() : "",
                 staticDto.title(),
                 staticDto.slug(),
                 staticDto.summary(),

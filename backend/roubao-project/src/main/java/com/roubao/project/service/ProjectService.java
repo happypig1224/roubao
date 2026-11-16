@@ -42,6 +42,36 @@ public interface ProjectService {
     ProjectVO getProjectBySlug(String slug);
 
     /**
+     * 根据 ID 查询项目详情
+     *
+     * @param id 项目 ID
+     * @return 项目详情 VO
+     */
+    ProjectVO getProjectById(Long id);
+
+    /**
+     * 更新开源项目信息
+     *
+     * @param id  项目 ID
+     * @param dto 更新入参 DTO
+     */
+    void updateProject(Long id, com.roubao.project.model.dto.ProjectUpdateDTO dto);
+
+    /**
+     * 逻辑删除开源项目
+     *
+     * @param id 项目 ID
+     */
+    void deleteProject(Long id);
+
+    /**
+     * 统计开源项目总量
+     *
+     * @return 项目总数
+     */
+    long countProjects();
+
+    /**
      * 创建开源项目
      *
      * @param dto 项目创建入参 DTO

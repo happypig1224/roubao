@@ -19,6 +19,7 @@ public record ArticleListVO(
         Long id,
         Long categoryId,
         String categoryName,
+        String categorySlug,
         String title,
         String slug,
         String summary,
@@ -38,15 +39,23 @@ public record ArticleListVO(
     private static final long serialVersionUID = 1L;
 
     /**
+     * 静态组装文章列表项 (兼容模式)
+     */
+    public static ArticleListVO from(ArticleDO article, String categoryName, Long viewCount, Long likeCount) {
+        return from(article, categoryName, "", viewCount, likeCount);
+    }
+
+    /**
      * 静态组装文章列表项，执行深拷贝防腐与非空保底
      *
      * @param article      文章元数据实体
      * @param categoryName 所属分类展示名
+     * @param categorySlug 所属分类英文标识
      * @param viewCount    阅读量
      * @param likeCount    点赞量
      * @return 文章列表视图对象
      */
-    public static ArticleListVO from(ArticleDO article, String categoryName, Long viewCount, Long likeCount) {
+    public static ArticleListVO from(ArticleDO article, String categoryName, String categorySlug, Long viewCount, Long likeCount) {
         if (article == null) {
             return null;
         }
@@ -54,6 +63,7 @@ public record ArticleListVO(
                 article.getId(),
                 article.getCategoryId(),
                 categoryName != null ? categoryName : "",
+                categorySlug != null ? categorySlug : "",
                 article.getTitle(),
                 article.getSlug(),
                 article.getSummary(),

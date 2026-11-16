@@ -1,6 +1,9 @@
 package com.roubao.admin.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.roubao.admin.TestAdminApplication;
+import com.roubao.article.model.dto.ArticleCreateDTO;
+import com.roubao.article.model.dto.ArticleUpdateDTO;
 import com.roubao.article.service.ArticleService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,12 +18,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -39,6 +42,9 @@ class ArticleAdminControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @SpyBean
     private ArticleService articleService;
@@ -140,5 +146,128 @@ class ArticleAdminControllerTest {
         } finally {
             Mockito.reset(articleService);
         }
+    }
+
+    @Test
+    @DisplayName("管理端文章完整生命周期：创建、分页列表、按 ID 详情、更新、置顶切换、精选切换、发布上下线、删除")
+    void shouldPerformArticleCrudAndLifecycleSuccessfully() throws Exception {
+        // 1. 创建文章
+        ArticleCreateDTO createDTO = new ArticleCreateDTO(
+                1L,
+                "领域驱动设计在复杂系统的落地",
+                "ddd-tactical-patterns-in-action",
+                "DDD 战术设计与防腐层深度实战",
+                "cover/ddd.png",
+                List.of("DDD", "架构", "设计模式"),
+                12,
+                50,
+                false, // 默认草稿
+                false,
+                false,
+                "# DDD 战术设计实战\n\n聚合根与领域事件是核心..."
+        );
+
+        String createResp = mockMvc.perform(post("/api/v1/admin/articles")
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.data").value(greaterThan(0)))
+                .andReturn().getResponse().getContentAsString();
+
+        Number artIdNum = com.jayway.jsonpath.JsonPath.read(createResp, "$.data");
+        Long articleId = artIdNum.longValue();
+
+        // 2. 管理端分页查询 (默认查全部，包含草稿)
+        mockMvc.perform(get("/api/v1/admin/articles")
+                        .param("pageNo", "1")
+                        .param("pageSize", "10")
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.data.list", hasSize(greaterThan(0))))
+                .andExpect(jsonPath("$.data.list[*].slug", hasItem("ddd-tactical-patterns-in-action")));
+
+        // 3. 根据主键 ID 查询完整详情 (含正文 CLOB)
+        mockMvc.perform(get("/api/v1/admin/articles/" + articleId)
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.data.title").value("领域驱动设计在复杂系统的落地"))
+                .andExpect(jsonPath("$.data.published").value(false))
+                .andExpect(jsonPath("$.data.contentMarkdown").value(containsString("聚合根与领域事件是核心")));
+
+        // 4. 更新文章
+        ArticleUpdateDTO updateDTO = new ArticleUpdateDTO(
+                1L,
+                "领域驱动设计在复杂系统的落地 (精粹版)",
+                "ddd-tactical-patterns-v2",
+                "更新后的导读摘要",
+                "cover/ddd-v2.png",
+                List.of("DDD", "Java 21"),
+                15,
+                80,
+                false,
+                false,
+                false,
+                "# 优化升级正文\n\n新增了防腐层 ACL 实践..."
+        );
+
+        mockMvc.perform(put("/api/v1/admin/articles/" + articleId)
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0));
+
+        // 5. 校验更新后结果
+        mockMvc.perform(get("/api/v1/admin/articles/" + articleId)
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.title").value("领域驱动设计在复杂系统的落地 (精粹版)"))
+                .andExpect(jsonPath("$.data.slug").value("ddd-tactical-patterns-v2"))
+                .andExpect(jsonPath("$.data.contentMarkdown").value(containsString("新增了防腐层 ACL 实践")));
+
+        // 6. 置顶与精选切换
+        mockMvc.perform(patch("/api/v1/admin/articles/" + articleId + "/top")
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0));
+
+        mockMvc.perform(patch("/api/v1/admin/articles/" + articleId + "/featured")
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0));
+
+        // 7. 发布上线
+        mockMvc.perform(patch("/api/v1/admin/articles/" + articleId + "/publish")
+                        .param("published", "true")
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0));
+
+        // 8. 验证发布上线与置顶/精选状态已变更
+        mockMvc.perform(get("/api/v1/admin/articles/" + articleId)
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.top").value(true))
+                .andExpect(jsonPath("$.data.featured").value(true))
+                .andExpect(jsonPath("$.data.published").value(true));
+
+        // 9. 逻辑删除文章
+        mockMvc.perform(delete("/api/v1/admin/articles/" + articleId)
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(0));
+
+        // 10. 再次查询应当报 404
+        mockMvc.perform(get("/api/v1/admin/articles/" + articleId)
+                        .header(ADMIN_TOKEN_HEADER, VALID_ADMIN_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(1001));
     }
 }
