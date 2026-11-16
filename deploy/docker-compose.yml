@@ -5,7 +5,7 @@
 
 services:
   # ----------------------------------------------------------------------------
-  # 1. 关系型数据库 MySQL 8.0
+  # 1. 关系型数据库 MySQL 8.0 (1GB 极简低内存调优版)
   # ----------------------------------------------------------------------------
   mysql:
     image: mysql:8.0.36
@@ -15,7 +15,11 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --default-authentication-plugin=mysql_native_password
-      - --max_connections=300
+      - --performance-schema=OFF
+      - --innodb-buffer-pool-size=64M
+      - --innodb-log-buffer-size=8M
+      - --innodb-redo-log-capacity=32M
+      - --max_connections=50
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-RoubaoProd2026SecureRoot!}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-roubao_blog}
@@ -45,7 +49,7 @@ services:
     command: >
       redis-server
       --requirepass "${REDIS_PASSWORD:-RoubaoProd2026RedisPass!}"
-      --maxmemory 512mb
+      --maxmemory 64mb
       --maxmemory-policy allkeys-lru
       --appendonly yes
     volumes:
@@ -62,7 +66,7 @@ services:
       start_period: 5s
 
   # ----------------------------------------------------------------------------
-  # 3. 后端服务 Spring Boot 3 (Java 21 虚拟线程)
+  # 3. 后端服务 Spring Boot 3 (Java 21 虚拟线程 + 内存安全调优)
   # ----------------------------------------------------------------------------
   backend:
     build:
@@ -77,6 +81,7 @@ services:
       redis:
         condition: service_healthy
     environment:
+      JAVA_OPTS: "-XX:+UseContainerSupport -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF-8"
       SPRING_PROFILES_ACTIVE: prod
       DB_HOST: mysql
       DB_PORT: 3306
@@ -89,7 +94,7 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-RoubaoProd2026RedisPass!}
       ADMIN_TOKEN: ${ADMIN_TOKEN:-RoubaoProductionSecretToken2026Safe!}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost,https://roubao.dev,https://www.roubao.dev}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://roubao.cloud,https://www.roubao.cloud,http://roubao.cloud,http://www.roubao.cloud,http://47.251.182.2,http://localhost}
       TZ: Asia/Shanghai
     volumes:
       - app_logs:/app/logs
@@ -112,10 +117,11 @@ services:
       - backend
     environment:
       NODE_ENV: production
+      NODE_OPTIONS: "--max-old-space-size=192"
       PORT: 3000
       HOSTNAME: 0.0.0.0
       BACKEND_API_URL: http://backend:8080
-      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://roubao.cloud}
     networks:
       - roubao-net
     expose:
