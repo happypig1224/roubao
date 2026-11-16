@@ -92,15 +92,14 @@ export function BlogSection({
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="搜索文章标题、内容或标签..."
               aria-label="过滤技术文章"
-              className="w-full pl-9 pr-11 py-2.5 text-[13px] sm:text-[14px] rounded-[12px] bg-[#767680]/12 dark:bg-[#767680]/24 border border-black/[0.03] dark:border-white/[0.06] text-[#1c1c1e] dark:text-[#f2f2f7] placeholder:text-[#8e8e93] focus:outline-none focus:bg-white dark:focus:bg-[#1c1c1e] focus:ring-2 focus:ring-[#0071e3]/30 dark:focus:ring-[#2997ff]/40 transition-all duration-200"
+              className="w-full pl-9 pr-11 min-h-[44px] py-2.5 text-[13px] sm:text-[14px] rounded-[12px] bg-[#767680]/12 dark:bg-[#767680]/24 border border-black/[0.03] dark:border-white/[0.06] text-[#1c1c1e] dark:text-[#f2f2f7] placeholder:text-[#8e8e93] focus:outline-none focus:bg-white dark:focus:bg-[#1c1c1e] focus:ring-2 focus:ring-[#0071e3]/30 dark:focus:ring-[#2997ff]/40 transition-all duration-200"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
                 aria-label="清除搜索关键词"
-                /* HIG: hit-budget-44 确保移动端触控命中率 100% 达标 */
-                className="absolute right-0 top-1/2 -translate-y-1/2 hit-budget-44 text-[#8e8e93] hover:text-[#1c1c1e] dark:hover:text-[#f2f2f7] cursor-pointer ios-pressable"
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-[#8e8e93] hover:text-[#1c1c1e] dark:hover:text-[#f2f2f7] cursor-pointer ios-pressable"
               >
                 <span className="w-4 h-4 rounded-full bg-[#8e8e93]/30 dark:bg-[#8e8e93]/40 flex items-center justify-center">
                   <X className="w-2.5 h-2.5 stroke-[2.5]" />
@@ -184,13 +183,13 @@ export function BlogSection({
               )}
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="card-focus-group space-y-4">
               {filteredArticles.map((article) => (
                 <article key={article.id}>
                   <Link
                     href={`/blog/${article.slug}`}
-                    /* HIG: G2 连续超椭圆 (rounded-[22px]) + 天顶单边微高光 + 按压弹性微缩 */
-                    className="apple-card rounded-[22px] p-6 sm:p-7 group block text-left ios-pressable select-none"
+                    /* HIG: G2 连续超椭圆 (rounded-[22px]) + 天顶单边微高光 + Brittany Chiang Focus Dimming */
+                    className="group-card apple-card rounded-[22px] p-6 sm:p-7 group block text-left ios-pressable select-none hover:border-blue-500/40 dark:hover:border-blue-400/40 transition-all"
                   >
                     {/* 卡片头部：分类小胶囊 + 发布时间 */}
                     <div className="flex items-center justify-between gap-3 mb-2.5">

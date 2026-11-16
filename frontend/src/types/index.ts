@@ -52,6 +52,7 @@ export interface Article {
   category: "backend" | "frontend" | "performance" | "architecture" | (string & {});
   categoryId?: number;
   categoryName?: string;
+  categorySlug?: string;
   tags: string[];
   views: number;
   likeCount?: number;
@@ -59,5 +60,88 @@ export interface Article {
   publishedAt: string;
   contentMarkdown?: string;
   top?: boolean;
+  featured?: boolean;
+  published?: boolean;
+}
+
+export interface CategoryStats extends Category {
+  articleCount: number;
+}
+
+export interface DashboardStats {
+  totalArticles: number;
+  publishedArticles: number;
+  draftArticles: number;
+  totalProjects: number;
+  totalViews: number;
+  totalLikes: number;
+  categoryStats: CategoryStats[];
+}
+
+export interface ArticleCreatePayload {
+  categoryId: number;
+  title: string;
+  slug: string;
+  summary: string;
+  coverImageKey?: string;
+  tags: string[];
+  readTimeMinutes?: number;
+  sortOrder?: number;
+  published?: boolean;
+  top?: boolean;
+  featured?: boolean;
+  contentMarkdown: string;
+}
+
+export interface ArticleUpdatePayload {
+  categoryId: number;
+  title: string;
+  slug: string;
+  summary: string;
+  coverImageKey?: string;
+  tags: string[];
+  readTimeMinutes?: number;
+  sortOrder?: number;
+  published?: boolean;
+  top?: boolean;
+  featured?: boolean;
+  contentMarkdown: string;
+}
+
+export interface CategoryPayload {
+  categoryName: string;
+  categorySlug: string;
+  description?: string;
+  iconName?: string;
+  sortOrder?: number;
+}
+
+export interface ProjectCreatePayload {
+  projectName: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  architectureHighlights: string[];
+  techTags: string[];
+  repoUrl: string;
+  demoUrl?: string;
+  starCount?: number;
+  metricsSummary?: string;
+  sortOrder?: number;
+  featured?: boolean;
+}
+
+export interface ProjectUpdatePayload {
+  projectName: string;
+  slug: string;
+  tagline: string;
+  description: string;
+  architectureHighlights: string[];
+  techTags: string[];
+  repoUrl: string;
+  demoUrl?: string;
+  starCount?: number;
+  metricsSummary?: string;
+  sortOrder?: number;
   featured?: boolean;
 }

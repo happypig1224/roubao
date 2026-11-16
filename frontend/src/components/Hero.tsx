@@ -74,14 +74,17 @@ export function Hero({
                 <p className="text-sm sm:text-base font-medium text-zinc-500 dark:text-zinc-400 mt-1.5">
                   全栈软件工程师 · 专注于高性能后端架构与现代 Web 开发
                 </p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400 mt-2.5">
-                  <span className="inline-flex items-center gap-1">
+                <div className="flex flex-wrap items-center gap-2.5 text-xs text-zinc-500 dark:text-zinc-400 mt-2.5">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60">
                     <MapPin className="w-3.5 h-3.5 text-zinc-400" />
                     中国 · 杭州
                   </span>
-                  <span className="text-zinc-300 dark:text-zinc-700">/</span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
-                    开放后端架构与全栈工程交流
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40 font-medium">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    开放架构与全栈交流
                   </span>
                 </div>
               </div>
@@ -104,11 +107,11 @@ export function Hero({
               </p>
             </div>
 
-            {/* Clean Minimal Action Row */}
+            {/* Clean Minimal Action Row (Strict HIG 44pt Touch Targets) */}
             <div className="flex flex-wrap items-center gap-2.5">
               <button
                 onClick={onOpenResume}
-                className="tactile-btn min-h-[40px] px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-950 inline-flex items-center gap-2 text-xs font-medium cursor-pointer"
+                className="tactile-btn min-h-[44px] px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-950 inline-flex items-center gap-2 text-xs sm:text-[13px] font-medium cursor-pointer shadow-2xs"
               >
                 <FileText className="w-3.5 h-3.5" />
                 <span>查看与下载简历 (PDF)</span>
@@ -118,9 +121,9 @@ export function Hero({
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="tactile-btn min-h-[40px] px-3.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
+                className="tactile-btn min-h-[44px] px-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
               >
-                <GithubIcon className="w-3.5 h-3.5" />
+                <GithubIcon className="w-4 h-4" />
                 <span>GitHub</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
               </a>
@@ -129,7 +132,7 @@ export function Hero({
                 href={`mailto:${AUTHOR_EMAIL}`}
                 onClick={handleCopyEmail}
                 title={`点击复制邮箱 ${AUTHOR_EMAIL}`}
-                className="tactile-btn min-h-[40px] px-3.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
+                className="tactile-btn min-h-[44px] px-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
               >
                 {copiedEmail ? (
                   <>
@@ -146,7 +149,7 @@ export function Hero({
 
               <a
                 href="#blog"
-                className="tactile-btn min-h-[40px] px-3.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
+                className="tactile-btn min-h-[44px] px-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-medium text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
               >
                 <span>技术笔记</span>
                 <ArrowDownRight className="w-3.5 h-3.5 text-zinc-400" />
@@ -240,12 +243,12 @@ export function Hero({
                   <Terminal className="w-3.5 h-3.5 text-zinc-400" />
                   实测数据切片
                 </span>
-                <div className="inline-flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/50 dark:border-zinc-700/50">
+                <div className="inline-flex items-center p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/50 dark:border-zinc-700/50">
                   <button
                     onClick={() => setStageTab("benchmark")}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                    className={`px-3 py-1.5 min-h-[38px] rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                       stageTab === "benchmark"
-                        ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
+                        ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold"
                         : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
                     }`}
                   >
@@ -253,9 +256,9 @@ export function Hero({
                   </button>
                   <button
                     onClick={() => setStageTab("code")}
-                    className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                    className={`px-3 py-1.5 min-h-[38px] rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                       stageTab === "code"
-                        ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs"
+                        ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold"
                         : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
                     }`}
                   >
@@ -314,18 +317,18 @@ public String fetchConfigFixed() {
               )}
             </div>
 
-            {/* Bottom Row */}
+            {/* Bottom Row (Strict HIG 44pt Touch Targets) */}
             <div className="flex items-center justify-between gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
               <Link
                 href={`/blog/${benchmarkSlug}`}
-                className="text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white inline-flex items-center gap-1 transition-colors"
+                className="min-h-[44px] inline-flex items-center gap-1 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 <span>阅读《Java 21 虚拟线程压测与踩坑记录》</span>
                 <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400" />
               </Link>
               <a
                 href="#projects"
-                className="text-xs font-mono text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
+                className="min-h-[44px] inline-flex items-center text-xs font-mono text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors"
               >
                 全部项目 ↓
               </a>

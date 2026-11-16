@@ -5,13 +5,21 @@ import { renderMarkdownToHtml } from "@/lib/markdown";
 import { copyTextToClipboard } from "@/lib/utils";
 
 interface MarkdownRendererProps {
-  markdown: string;
+  markdown?: string;
+  content?: string;
 }
 
-export function MarkdownRenderer({ markdown }: MarkdownRendererProps) {
+export function MarkdownRenderer({ markdown, content }: MarkdownRendererProps) {
+  const rawText = markdown ?? content ?? "";
+  const sanitizedMarkdown = useMemo(() => {
+    if (!rawText) return "";
+    // 剔除正文开头可能存在的与文章主标题重复的一级标题 (例如: # 标题)
+    return rawText.replace(/^#\s+[^\n]+(?:\r?\n)+/, "");
+  }, [rawText]);
+
   const html = useMemo(() => {
-    return renderMarkdownToHtml(markdown || "");
-  }, [markdown]);
+    return renderMarkdownToHtml(sanitizedMarkdown);
+  }, [sanitizedMarkdown]);
 
   const handleContainerClick = async (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;

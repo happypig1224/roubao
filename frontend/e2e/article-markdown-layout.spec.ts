@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("文章详情页工业级 Markdown 渲染与仿飞书左侧大纲平滑折叠伸缩 E2E 验证", () => {
-  const SLUG = "architect-knowledge-system-part-2";
+  const SLUG = "java-21-virtual-threads-benchmark-pitfalls";
 
   test.beforeEach(async ({ page }) => {
     await page.goto(`/blog/${SLUG}`);
@@ -58,10 +58,10 @@ test.describe("文章详情页工业级 Markdown 渲染与仿飞书左侧大纲�
 
   test("目录小节搜索过滤交互正常响应", async ({ page }) => {
     const searchInput = page.getByPlaceholder(/搜索目录|过滤目录/);
-    await searchInput.fill("Elasticsearch");
+    await searchInput.fill("HikariCP");
 
-    // 过滤后应精准命中包含 Elasticsearch 的条目
-    const matchItem = page.locator("aside a:has-text('Elasticsearch')");
+    // 过滤后应精准命中包含 HikariCP 的条目
+    const matchItem = page.locator("aside a:has-text('HikariCP')");
     await expect(matchItem).toBeVisible();
   });
 });

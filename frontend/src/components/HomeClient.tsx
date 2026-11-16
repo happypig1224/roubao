@@ -34,6 +34,7 @@ export function HomeClient({ initialArticles, initialProjects }: HomeClientProps
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
   const [resumeOpen, setResumeOpen] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<SectionId>("top");
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const isHydrated = useIsHydrated();
 
   const articles = React.useMemo(
@@ -122,15 +123,28 @@ export function HomeClient({ initialArticles, initialProjects }: HomeClientProps
   return (
     <div
       data-hydrated={isHydrated ? "true" : undefined}
-      className="min-h-screen flex flex-col bg-[#fafafa] dark:bg-[#0c0c0d] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 dark:selection:bg-zinc-800"
+      onMouseMove={(e) => {
+        setMousePos({ x: e.clientX, y: e.clientY });
+      }}
+      className="min-h-screen relative flex flex-col bg-[#fafafa] dark:bg-[#0c0c0d] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 dark:selection:bg-zinc-800 transition-colors"
     >
+      {/* Brittany Chiang 风格: 极客环境聚光灯 (Ambient Spotlight Glow) */}
+      {mousePos && (
+        <div
+          className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300 hidden md:block"
+          style={{
+            background: `radial-gradient(640px circle at ${mousePos.x}px ${mousePos.y}px, rgba(59, 130, 246, 0.07), transparent 80%)`,
+          }}
+        />
+      )}
+
       <Navbar
         activeSection={activeSection}
         articles={articles}
         projects={projects}
       />
 
-      <main className="flex-1">
+      <main id="main" className="flex-1 relative z-10">
         <Hero
           onOpenResume={() => setResumeOpen(true)}
           benchmarkSlug={benchmarkSlug}

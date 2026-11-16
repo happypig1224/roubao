@@ -150,6 +150,33 @@ export function renderMarkdownToHtml(markdown: string): string {
     return `<code class="px-1.5 py-0.5 mx-0.5 rounded text-[12px] font-mono bg-zinc-100 dark:bg-zinc-800 text-pink-600 dark:text-pink-400 border border-zinc-200/60 dark:border-zinc-700/60 font-semibold">${text}</code>`;
   };
 
+  renderer.table = function (token: Tokens.Table) {
+    let headerHtml = "";
+    for (const cell of token.header) {
+      headerHtml += `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-800 dark:text-zinc-200">${cell.text}</th>`;
+    }
+
+    let rowsHtml = "";
+    for (const row of token.rows) {
+      let rowContent = "";
+      for (const cell of row) {
+        rowContent += `<td class="px-4 py-3 text-xs sm:text-[13px] text-zinc-700 dark:text-zinc-300 font-mono">${cell.text}</td>`;
+      }
+      rowsHtml += `<tr class="border-b border-zinc-100 dark:border-zinc-800/70 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/30 transition-colors">${rowContent}</tr>`;
+    }
+
+    return `
+<div class="my-6 overflow-x-auto rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 shadow-2xs">
+  <table class="w-full text-left border-collapse">
+    <thead class="bg-zinc-50 dark:bg-zinc-800/80 border-b border-zinc-200 dark:border-zinc-800">
+      <tr>${headerHtml}</tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</div>
+`;
+  };
+
   const localMarked = new Marked({
     renderer,
     gfm: true,

@@ -55,9 +55,14 @@ export function ArticleDetailClient({
   const [selectedId, setSelectedId] = useState<string>("");
   const trackedSlugRef = useRef<string | null>(null);
 
+  const sanitizedMarkdown = useMemo(() => {
+    const raw = article.contentMarkdown || "";
+    return raw.replace(/^#\s+[^\n]+(?:\r?\n)+/, "");
+  }, [article.contentMarkdown]);
+
   const headings: TocHeading[] = useMemo(
-    () => extractTocHeadings(article.contentMarkdown || ""),
-    [article.contentMarkdown]
+    () => extractTocHeadings(sanitizedMarkdown),
+    [sanitizedMarkdown]
   );
   const showToc = headings.length >= 2;
   const activeId = selectedId || headings[0]?.id || "";
@@ -282,91 +287,93 @@ export function ArticleDetailClient({
           {/* 右侧文章主体内容: 占据剩余全部宽度 (展开时约 4/5，折叠时 100% 全宽自动伸缩平滑过渡) */}
           <div className="flex-1 min-w-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
             <article className="apple-card rounded-[24px] p-6 sm:p-10 lg:p-14">
-              <header className="space-y-4 pb-6 border-b border-zinc-100 dark:border-zinc-800">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono text-zinc-400 tabular-nums">
-                    <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-sans font-medium">
-                      {CATEGORY_LABELS[article.category] || "技术"}
-                    </span>
-                    <span>{article.publishedAt}</span>
-                    <span>•</span>
-                    <span>{article.readTimeMinutes} 分钟阅读</span>
-                    <span>•</span>
-                    <span>{views} 次阅读</span>
-                  </div>
+              <div className="max-w-3xl">
+                <header className="space-y-4 pb-6 border-b border-zinc-100 dark:border-zinc-800">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs font-mono text-zinc-400 tabular-nums">
+                      <span className="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-sans font-medium">
+                        {CATEGORY_LABELS[article.category] || "技术"}
+                      </span>
+                      <span>{article.publishedAt}</span>
+                      <span>•</span>
+                      <span>{article.readTimeMinutes} 分钟阅读</span>
+                      <span>•</span>
+                      <span>{views} 次阅读</span>
+                    </div>
 
-                  <div className="flex items-center gap-2">
-                    {/* 移动端目录折叠抽屉开关 */}
-                    {showToc && (
+                    <div className="flex items-center gap-2">
+                      {/* 移动端目录折叠抽屉开关 */}
+                      {showToc && (
+                        <button
+                          type="button"
+                          onClick={() => setMobileTocOpen((prev) => !prev)}
+                          className="lg:hidden inline-flex tactile-btn items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300"
+                        >
+                          <ListTree className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                          <span>目录 ({headings.length})</span>
+                          <ChevronDown
+                            className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${
+                              mobileTocOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                      )}
+
+                      {/* 快速返回列表 (移动端或桌面端大纲收起时提供快速回溯) */}
+                      {(sidebarCollapsed || !showToc) && (
+                        <Link
+                          href="/#blog"
+                          className="tactile-btn inline-flex items-center gap-1 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 py-1 px-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
+                          <span>返回列表</span>
+                        </Link>
+                      )}
+
                       <button
                         type="button"
-                        onClick={() => setMobileTocOpen((prev) => !prev)}
-                        className="lg:hidden inline-flex tactile-btn items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-300"
+                        onClick={handleCopyUrl}
+                        className="tactile-btn px-2.5 py-1 rounded-lg bg-zinc-100/80 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer shadow-2xs"
                       >
-                        <ListTree className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                        <span>目录 ({headings.length})</span>
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 text-zinc-400 transition-transform ${
-                            mobileTocOpen ? "rotate-180" : ""
-                          }`}
-                        />
+                        {copiedLink ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-emerald-600 dark:text-emerald-400">已复制</span>
+                          </>
+                        ) : (
+                          <>
+                            <Link2 className="w-3.5 h-3.5 text-zinc-400" />
+                            <span>分享</span>
+                          </>
+                        )}
                       </button>
-                    )}
-
-                    {/* 快速返回列表 (移动端或桌面端大纲收起时提供快速回溯) */}
-                    {(sidebarCollapsed || !showToc) && (
-                      <Link
-                        href="/#blog"
-                        className="tactile-btn inline-flex items-center gap-1 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 py-1 px-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5 text-zinc-400" />
-                        <span>返回列表</span>
-                      </Link>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={handleCopyUrl}
-                      className="tactile-btn px-2.5 py-1 rounded-lg bg-zinc-100/80 dark:bg-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-700 inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-300 cursor-pointer shadow-2xs"
-                    >
-                      {copiedLink ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400">已复制</span>
-                        </>
-                      ) : (
-                        <>
-                          <Link2 className="w-3.5 h-3.5 text-zinc-400" />
-                          <span>分享</span>
-                        </>
-                      )}
-                    </button>
+                    </div>
                   </div>
+
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-snug">
+                    {article.title}
+                  </h1>
+
+                  <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                    {article.summary}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {article.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </header>
+
+                {/* 正文 Markdown 高精渲染容器 (Optimal 65-75ch Reading Ergonomics) */}
+                <div className="pt-7">
+                  <MarkdownRenderer markdown={article.contentMarkdown || ""} />
                 </div>
-
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 leading-snug">
-                  {article.title}
-                </h1>
-
-                <p className="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                  {article.summary}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {article.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 rounded text-xs font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </header>
-
-              {/* 正文 Markdown 高精渲染容器 */}
-              <div className="pt-7">
-                <MarkdownRenderer markdown={article.contentMarkdown || ""} />
               </div>
             </article>
 

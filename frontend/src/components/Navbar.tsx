@@ -178,8 +178,8 @@ export function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full clean-nav border-b border-zinc-200/80 dark:border-zinc-800/80 pt-[env(safe-area-inset-top)]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 md:py-0 md:h-16 flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] md:items-center gap-3 md:gap-6">
+    <header className="sticky top-0 z-40 w-full clean-nav backdrop-blur-xl backdrop-saturate-180 bg-[#fafafa]/85 dark:bg-[#0c0c0d]/85 border-b border-zinc-200/80 dark:border-zinc-800/80 pt-[env(safe-area-inset-top)] transition-colors">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 md:py-0 md:h-16 flex flex-col md:grid md:grid-cols-[1fr_auto_1fr] md:items-center gap-2.5 md:gap-6">
         {/* Top / Left Row: Brand Logo + Mobile Right Actions */}
         <div className="flex items-center justify-between md:justify-start">
           <Link
@@ -192,21 +192,21 @@ export function Navbar({
             <span>{SITE_BRAND_NAME}</span>
           </Link>
 
-          {/* Mobile-only GitHub + Theme Toggle */}
-          <div className="flex md:hidden items-center gap-1.5">
+          {/* Mobile-only GitHub + Theme Toggle (Strict HIG 44pt Touch Targets) */}
+          <div className="flex md:hidden items-center gap-2">
             <a
               href={GITHUB_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
               title="GitHub"
-              className="tactile-btn hit-budget-44 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="tactile-btn w-11 h-11 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <GithubIcon className="w-5 h-5" />
             </a>
             <button
               onClick={toggleTheme}
-              className="tactile-btn hit-budget-44 rounded-xl text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              className="tactile-btn w-11 h-11 rounded-xl flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               aria-label={isDark ? "切换浅色模式" : "切换深色模式"}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -214,10 +214,10 @@ export function Navbar({
           </div>
         </div>
 
-        {/* Center: Enlarged Centered Navigation Links with Generous Spacing */}
+        {/* Center: One Page Love Dock Navigation (Strict HIG 44pt Touch Targets) */}
         <nav
           aria-label="主导航"
-          className="flex items-center justify-center gap-8 sm:gap-10 lg:gap-12 text-sm sm:text-[15px]"
+          className="flex items-center justify-center gap-2 sm:gap-4 lg:gap-6 text-sm"
         >
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
@@ -225,16 +225,13 @@ export function Navbar({
               <Link
                 key={item.id}
                 href={item.href}
-                className={`relative px-1 py-1.5 transition-colors whitespace-nowrap ${
+                className={`relative min-h-[44px] min-w-[56px] inline-flex items-center justify-center px-3.5 py-2 rounded-xl transition-all whitespace-nowrap text-xs sm:text-sm font-medium ${
                   isActive
-                    ? "text-zinc-950 dark:text-zinc-50 font-semibold"
-                    : "text-zinc-500 dark:text-zinc-400 font-medium hover:text-zinc-900 dark:hover:text-zinc-100"
+                    ? "text-zinc-950 dark:text-zinc-50 font-semibold bg-zinc-200/70 dark:bg-zinc-800/80 shadow-2xs"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/40"
                 }`}
               >
                 {item.label}
-                {isActive && (
-                  <span className="absolute left-0 right-0 -bottom-0.5 h-0.5 rounded-full bg-zinc-900 dark:bg-zinc-100" />
-                )}
               </Link>
             );
           })}
@@ -257,7 +254,7 @@ export function Navbar({
               onKeyDown={handleInputKeyDown}
               placeholder="搜索文章或项目..."
               aria-label="搜索文章或项目"
-              className="w-full pl-9 pr-9 py-2 text-xs sm:text-[13px] rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+              className="w-full pl-9 pr-10 min-h-[44px] md:min-h-[38px] py-2 text-xs sm:text-[13px] rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 placeholder:text-zinc-400 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
             />
             {searchQuery && (
               <button
@@ -266,7 +263,7 @@ export function Navbar({
                   inputRef.current?.focus();
                 }}
                 aria-label="清空搜索"
-                className="absolute right-0 top-1/2 -translate-y-1/2 hit-budget-44 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer ios-pressable"
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer ios-pressable"
               >
                 <span className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">
                   <X className="w-2.5 h-2.5" />

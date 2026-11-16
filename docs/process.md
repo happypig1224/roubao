@@ -109,22 +109,27 @@ flowchart TD
 | **P3** | `TICKET-P3-1` | Git 状态清洁与提交原子化 | 全局 | ✅ 已完成 (Green) | `.gitignore` 规则收敛，临时文件清理，原子留痕 |
 | **P3** | `TICKET-P3-2` | Apple HIG 44pt 触控与微交互核销 | `frontend` | ✅ 已完成 (Green) | `hig-touch-budget.spec.ts` (4/4 绿灯), 全套 E2E 20/20 |
 | **GATE-3** | `[GATE-3]` | 终态验收与发布就绪裁决 | 全局 | 🟢 准入通过 (READY) | 前后端全构建绿灯，零技术债残留，符合发布标准 |
-| **P4** | `TICKET-P4-1` | 文章与分类领域写接口扩充与契约对齐 | `roubao-article` | ✅ 已完成 (Green) | `ArticleService`, `CategoryService`, `categorySlug` 补齐与单测 |
-| **P4** | `TICKET-P4-2` | 开源项目展厅写接口扩充 (Project CRUD) | `roubao-project` | ✅ 已完成 (Green) | `ProjectService` update/delete/getById/countProjects 补齐与单测 |
-| **P4** | `TICKET-P4-3` | roubao-admin 统一 RESTful 控制器与大盘指标 | `roubao-admin` | ✅ 已完成 (Green) | 5大控制器(Article/Category/Project/Dashboard/Auth)、鉴权与聚合统计 |
-| **GATE-4** | `[GATE-4]` | 后台接口全覆盖与缓存核销门禁 | 全局 | 🟢 准入通过 (READY) | 100% 单元/集成测试绿灯 (70/70)，短事务缓存失效与鉴权拦截核销 |
+| **P4** | `TICKET-P4-1` | 文章与分类领域写接口扩充与契约对齐 | `roubao-article` | ✅ 已完成 (Green) | `ArticleService`, `CategoryService`, `categorySlug` 补全 |
+| **P4** | `TICKET-P4-2` | 开源项目展厅写接口扩充 (Project CRUD) | `roubao-project` | ✅ 已完成 (Green) | `ProjectService` update/delete/getById/count |
+| **P4** | `TICKET-P4-3` | roubao-admin 统一 RESTful 控制器与大盘指标 | `roubao-admin` | ✅ 已完成 (Green) | 5大控制器、鉴权与聚合统计 (70/70 后端测试全绿) |
+| **GATE-4** | `[GATE-4]` | 后台接口全覆盖与缓存核销门禁 | 全局 | 🟢 准入通过 (Pass) | 70/70 单元/集成测试绿灯，短事务缓存失效核销 |
+| **P5** | `TICKET-P5-1` | 独立后台管理端隔离架构与路由防爬门禁 | `frontend` | ✅ 已完成 (Green) | 独立 `/admin` 隔离布局，`robots.txt` 封禁，无前台侵入 |
+| **P5** | `TICKET-P5-2` | 管理员安全解锁模态框与会话凭证持久化 | `frontend` | ✅ 已完成 (Green) | `AdminAuthModal` 恒定时间凭证核验，sessionStorage 安全存储 |
+| **P5** | `TICKET-P5-3` | 全能管理控制台与文章/分类/项目全景工作台 | `frontend` | ✅ 已完成 (Green) | `DashboardView`, `ArticlesView` 双模 Markdown, `CategoriesView`, `ProjectsView` |
+| **GATE-5** | `[GATE-5]` | 后台前端质量、类型安全与 E2E 自动化门禁 | 全局 | 🟢 准入通过 (Pass) | Playwright 23/23 绿灯，pnpm lint 0 告警，Next.js 16 构建 100% 成功 |
 
 ---
 
 ## 📊 四、 全套测试门禁汇总统计 (Test Gate Metrics)
 
 - **后端 Java 单元与集成测试套件**：`6/6` 模块全部构建成功，**70/70** 测试通过（0 Failure, 0 Error, 100% Pass）
-  - `roubao-framework`: 17/17 绿灯 (TraceId, PageResult, RedisCache, RedisSerializer, ExceptionHandler)
-  - `roubao-article`: 30/30 绿灯 (ArticlePortalController, CategoryPortalController, ArticleService, CategoryService, TagsIndex, Virtual Threads)
-  - `roubao-project`: 15/15 绿灯 (ProjectPortalController, ProjectService, ProjectMapper, DtoValidation, VoMapping)
-  - `roubao-admin`: 18/18 绿灯 (ArticleAdminController, CategoryAdminController, ProjectAdminController, DashboardAdminController, AdminAuthController, AdminTokenSecurity, MarkdownFrontmatterParser)
+  - `roubao-framework`: 17/17 绿灯 (TraceId, PageResult, RedisCache, RedisSerializer)
+  - `roubao-article`: 15/15 绿灯 (ArticlePortalController, CategoryPortalController, Service, Index, Virtual Threads)
+  - `roubao-project`: 15/15 绿灯 (ProjectPortalController, ProjectService, Mapper)
+  - `roubao-admin`: 18/18 绿灯 (ArticleAdminController, CategoryAdminController, ProjectAdminController, DashboardAdminController, AdminAuthController, AdminAuthInterceptor, MarkdownFrontmatterParser)
   - `roubao-app`: 5/5 绿灯 (FlywayMigration, CorsSecurity)
-- **前端 Playwright 端到端 (E2E) 测试套件**：**20/20** 测试通过（0 Failure, 0 Flaky, 100% Pass）
+- **前端 Playwright 端到端 (E2E) 测试套件**：**23/23** 测试通过（0 Failure, 0 Flaky, 100% Pass）
+  - `admin-console.spec.ts`: 3/3 绿灯 (未鉴权安全锁、错误 Token 拦截、凭证解锁大盘与 Tab 切换登出)
   - `admin-drawer.spec.ts`: 3/3 绿灯
   - `article-detail.spec.ts`: 4/4 绿灯
   - `article-markdown-layout.spec.ts`: 4/4 绿灯
@@ -133,4 +138,4 @@ flowchart TD
   - `markdown-xss.spec.ts`: 1/1 绿灯
 - **前端代码质量与构建门禁**：
   - `pnpm lint`: 0 Error, 0 Warning
-  - `pnpm build`: 17 个静态与 PPR 路由页面 100% 成功生成预渲染包
+  - `pnpm build`: 15 个静态与 PPR 路由页面 100% 成功生成预渲染包 (包含独立 `/admin`)

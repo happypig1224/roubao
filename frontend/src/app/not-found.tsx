@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowLeft, Home, BookOpen } from "lucide-react";
+import { Home, BookOpen } from "lucide-react";
 import { BaoCoreLogo } from "@/components/BaoCoreLogo";
 
 export default function NotFound() {
