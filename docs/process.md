@@ -88,6 +88,28 @@ flowchart TD
         T_P4_2 --> T_P4_3
         T_P4_3 --> V_P4
     end
+
+    subgraph S_P5["Phase 5: 独立后台前端与工作台 (P5)"]
+        T_P5_1["[TICKET-P5-1]<br>管理端隔离架构与路由防爬"]:::p1
+        T_P5_2["[TICKET-P5-2]<br>安全解锁模态框与凭证持久化"]:::p1
+        T_P5_3["[TICKET-P5-3]<br>文章/分类/项目全景工作台"]:::p1
+        V_P5{"[GATE-5]<br>后台前端质量与 E2E 门禁"}:::gate
+        V_P4 --> T_P5_1
+        T_P5_1 --> T_P5_2
+        T_P5_2 --> T_P5_3
+        T_P5_3 --> V_P5
+    end
+
+    subgraph S_P6["Phase 6: 容器化编排与生产交付流水线 (P6)"]
+        T_P6_1["[TICKET-P6-1]<br>前后端多阶段 Dockerfile 封装"]:::p2
+        T_P6_2["[TICKET-P6-2]<br>全栈 Docker Compose 单机单体编排"]:::p2
+        T_P6_3["[TICKET-P6-3]<br>GitHub Actions CI/CD 双端门禁打通"]:::p2
+        V_P6{"[GATE-6]<br>生产不可变镜像与交付门禁"}:::gate
+        V_P5 --> T_P6_1
+        T_P6_1 --> T_P6_2
+        T_P6_2 --> T_P6_3
+        T_P6_3 --> V_P6
+    end
 ```
 
 ---
@@ -117,6 +139,10 @@ flowchart TD
 | **P5** | `TICKET-P5-2` | 管理员安全解锁模态框与会话凭证持久化 | `frontend` | ✅ 已完成 (Green) | `AdminAuthModal` 恒定时间凭证核验，sessionStorage 安全存储 |
 | **P5** | `TICKET-P5-3` | 全能管理控制台与文章/分类/项目全景工作台 | `frontend` | ✅ 已完成 (Green) | `DashboardView`, `ArticlesView` 双模 Markdown, `CategoriesView`, `ProjectsView` |
 | **GATE-5** | `[GATE-5]` | 后台前端质量、类型安全与 E2E 自动化门禁 | 全局 | 🟢 准入通过 (Pass) | Playwright 23/23 绿灯，pnpm lint 0 告警，Next.js 16 构建 100% 成功 |
+| **P6** | `TICKET-P6-1` | 前后端多阶段安全 Dockerfile 封装 | `backend`/`frontend` | ✅ 已完成 (Green) | Java 21 Alpine + Next.js 16 Standalone 非 root 镜像 |
+| **P6** | `TICKET-P6-2` | 生产级全栈单机 Docker Compose 容器编排 | `deploy` | ✅ 已完成 (Green) | Nginx 1.24 + MySQL 8.0 + Redis 7 + 前后端健康自愈探针 |
+| **P6** | `TICKET-P6-3` | GitHub Actions 全栈 CI/CD 自动化流水线 | `.github` | ✅ 已完成 (Green) | `ci.yml` 自动化运行 70/70 Java 单测、前端 lint 与构建 |
+| **GATE-6** | `[GATE-6]` | 容器交付就绪与自动化发布门禁 | 全局 | 🟢 准入通过 (READY) | 镜像构建通过、环境配置分离、自动化 CI 门禁闭环 |
 
 ---
 
