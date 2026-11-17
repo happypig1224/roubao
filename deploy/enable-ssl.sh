@@ -6,26 +6,24 @@
 set -e
 
 DOMAIN="roubao.cloud"
-EMAIL="admin@${DOMAIN}"
+EMAIL="3304661481@qq.com"
 
-echo ">>> 正在为 ${DOMAIN} 申请并配置 Let's Encrypt SSL 证书..."
+echo ">>> 正在为 ${DOMAIN} 及 www.${DOMAIN} 自动化配置 Let's Encrypt SSL 证书..."
 
 if ! command -v certbot &> /dev/null; then
-  apt-get update -y && apt-get install -y certbot
+  apt-get update -y && apt-get install -y certbot python3-certbot-nginx
 fi
 
-# 停止容器 Nginx 临时释放 80 端口用于 HTTP-01 验证
-docker compose stop nginx
+# 自动化申请并直接配置进 Nginx 站点，开启 HTTP -> HTTPS 自动 301 重定向
+certbot --nginx \
+  -d "${DOMAIN}" \
+  -d "www.${DOMAIN}" \
+  --non-interactive \
+  --agree-tos \
+  -m "${EMAIL}" \
+  --redirect
 
-# 申请证书
-certbot certonly --standalone -d "${DOMAIN}" -d "www.${DOMAIN}" --non-interactive --agree-tos --email "${EMAIL}" || {
-  echo "❌ 证书申请失败，请确认域名 DNS A 记录已解析至本机公网 IP！"
-  docker compose start nginx
-  exit 1
-}
+# 启用自动定时续期守护
+systemctl enable --now certbot.timer
 
-# 恢复 Nginx 容器
-docker compose start nginx
-
-echo "✅ 证书申请成功！证书位于 /etc/letsencrypt/live/${DOMAIN}/"
-
+echo "✅ HTTPS 证书申请并装配完成！全站已启用 SSL 加密与自动续期。"
