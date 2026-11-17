@@ -143,6 +143,10 @@ flowchart TD
 | **P6** | `TICKET-P6-2` | 生产级全栈单机 Docker Compose 容器编排 | `deploy` | ✅ 已完成 (Green) | Nginx 1.24 + MySQL 8.0 + Redis 7 + 前后端健康自愈探针 |
 | **P6** | `TICKET-P6-3` | GitHub Actions 全栈 CI/CD 自动化流水线 | `.github` | ✅ 已完成 (Green) | `ci.yml` 自动化运行 70/70 Java 单测、前端 lint 与构建 |
 | **GATE-6** | `[GATE-6]` | 容器交付就绪与自动化发布门禁 | 全局 | 🟢 准入通过 (READY) | 镜像构建通过、环境配置分离、自动化 CI 门禁闭环 |
+| **P7** | `TICKET-P7-1` | 宿主机无关进程彻底清理与内存释放 | `server` | ✅ 已完成 (Green) | 下线 reddit/short-video/social-viral，空闲内存释放超 300MB |
+| **P7** | `TICKET-P7-2` | Spring Boot 3 与 Next.js 16 生产托管 | `backend`/`frontend` | ✅ 已完成 (Green) | Systemd 守护，JVM 200M/Node 128M/4GB Swap 零崩溃防杀保障 |
+| **P7** | `TICKET-P7-3` | Nginx 独占托管与 roubao.cloud 域名绑定 | `deploy` | ✅ 已完成 (Green) | Nginx 独占 80 端口，反向代理与静态资源 Alias 零损耗托管 |
+| **GATE-7** | `[GATE-7]` | 生产公网全链路健康与独占上线门禁 | 全局 | 🟢 准入通过 (LIVE) | Actuator UP、Next.js 200 OK、公网文章 API 数据 100% 连通 |
 
 ---
 

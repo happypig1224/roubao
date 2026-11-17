@@ -28,3 +28,4 @@ certbot certonly --standalone -d "${DOMAIN}" -d "www.${DOMAIN}" --non-interactiv
 docker compose start nginx
 
 echo "✅ 证书申请成功！证书位于 /etc/letsencrypt/live/${DOMAIN}/"
+

@@ -33,3 +33,5 @@ frontend/playwright-report/
 **/node_modules/
 **/.next/
 **/*.tsbuildinfo
+deploy/*.tar.gz
+deploy/staging-*/
