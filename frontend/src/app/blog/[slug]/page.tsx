@@ -6,6 +6,9 @@ import { fetchArticleBySlug, fetchArticles } from "@/lib/api";
 
 export async function generateStaticParams() {
   const articles = await fetchArticles();
+  if (!articles || articles.length === 0) {
+    return [{ slug: "initial" }];
+  }
   return articles.map((article) => ({
     slug: article.slug,
   }));

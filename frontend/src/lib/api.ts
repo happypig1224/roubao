@@ -1,5 +1,4 @@
 import { Article, Category, PageResult, Project, Result } from "@/types";
-import { MOCK_ARTICLES, MOCK_PROJECTS } from "@/data/mockData";
 import { cacheTag } from "next/cache";
 
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://127.0.0.1:8080";
@@ -121,16 +120,16 @@ export async function fetchArticles(params?: {
     });
 
     if (!res.ok) {
-      return MOCK_ARTICLES;
+      return [];
     }
 
     const json = (await res.json()) as Result<PageResult<BackendArticleVO>>;
     if (json.code === 0 && json.data && Array.isArray(json.data.list)) {
       return json.data.list.map(mapArticleFromVO);
     }
-    return MOCK_ARTICLES;
+    return [];
   } catch {
-    return MOCK_ARTICLES;
+    return [];
   }
 }
 
@@ -150,11 +149,10 @@ export async function fetchArticleBySlug(slug: string): Promise<Article | null> 
       }
     }
   } catch {
-    // fallback to mock
+    // network or parse error
   }
 
-  const mock = MOCK_ARTICLES.find((a) => a.slug === slug);
-  return mock || null;
+  return null;
 }
 
 export async function fetchCategories(): Promise<Category[]> {
@@ -201,7 +199,7 @@ export async function fetchProjects(): Promise<Project[]> {
     // fallback
   }
 
-  return MOCK_PROJECTS;
+  return [];
 }
 
 export async function incrementArticleViews(slug: string): Promise<void> {

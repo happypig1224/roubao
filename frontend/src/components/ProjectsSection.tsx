@@ -47,10 +47,25 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
       </div>
 
       {/* Brittany Chiang / One Page Love Focus-Dimming Bento Grid */}
-      <div className="card-focus-group space-y-4">
-        {/* 1. Featured Bento Hero Card: Roubao Gateway */}
-        {featuredProject && (
-          <article className="group-card apple-card bento-card p-6 sm:p-8 group select-none hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
+      {projects.length === 0 ? (
+        <div className="apple-card rounded-[22px] py-16 px-6 text-center space-y-4">
+          <div className="w-12 h-12 mx-auto rounded-full bg-[#767680]/10 dark:bg-[#767680]/20 flex items-center justify-center text-[#8e8e93]">
+            <Cpu className="w-6 h-6 stroke-[1.5]" />
+          </div>
+          <div className="space-y-1">
+            <div className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100">
+              暂无开源项目展示
+            </div>
+            <p className="text-[13px] text-zinc-500 dark:text-zinc-400">
+              可在后台管理控制台录入新项目并勾选精选推荐
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="card-focus-group space-y-4">
+          {/* 1. Featured Bento Hero Card: Roubao Gateway */}
+          {featuredProject && (
+            <article className="group-card apple-card bento-card p-6 sm:p-8 group select-none hover:border-zinc-300 dark:hover:border-zinc-700 transition-all">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-start">
               {/* Left Info Column */}
               <div className="lg:col-span-7 space-y-4">
@@ -259,6 +274,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
           })}
         </div>
       </div>
+      )}
     </section>
   );
 }

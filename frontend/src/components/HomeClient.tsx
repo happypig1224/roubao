@@ -9,7 +9,6 @@ import { BlogSection } from "@/components/BlogSection";
 import { AdminDrawer } from "@/components/AdminDrawer";
 import { ResumeSheet } from "@/components/ResumeSheet";
 import { Footer } from "@/components/Footer";
-import { MOCK_PROJECTS } from "@/data/mockData";
 import { Article, Project } from "@/types";
 
 interface HomeClientProps {
@@ -28,7 +27,7 @@ function useIsHydrated() {
 
 export function HomeClient({ initialArticles, initialProjects }: HomeClientProps) {
   const router = useRouter();
-  const projects = initialProjects && initialProjects.length > 0 ? initialProjects : MOCK_PROJECTS;
+  const projects = initialProjects ?? [];
   const [extraArticles, setExtraArticles] = useState<Article[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
