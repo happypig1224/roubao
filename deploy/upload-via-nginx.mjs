@@ -8,6 +8,7 @@ console.log(`Frontend bundle size: ${(bundleSize / 1024 / 1024).toFixed(2)} MB`)
 
 // 1. Configure nginx reverse proxy for upload and start node receiver on 127.0.0.1:8000
 const prepareCmd = `
+fuser -k 8000/tcp || true
 python3 -c "
 with open('/etc/nginx/sites-available/roubao.conf', 'r') as f:
     c = f.read()
@@ -44,7 +45,7 @@ console.log(prepRes.output);
 
 // 2. Upload bundle via HTTPS (port 443) through Nginx
 console.log('Uploading bundle via HTTPS port 443...');
-execSync(`curl.exe -k -s -T "${bundlePath}" --resolve roubao.cloud:443:47.251.182.2 https://roubao.cloud/_deploy_upload/`, { stdio: 'inherit' });
+execSync(`curl.exe --noproxy "*" -k -s -T "${bundlePath}" --resolve roubao.cloud:443:47.251.182.2 https://roubao.cloud/_deploy_upload/`, { stdio: 'inherit' });
 console.log('Upload complete!');
 
 // 3. Extract, cleanup data, restart frontend, and cleanup Nginx route
