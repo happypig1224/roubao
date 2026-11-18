@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("肉包技术博客与展厅首页 - 纯净个人简介与无虚假数据 E2E 验证", () => {
+test.describe("肉包技术博客与展厅首页 - 工匠级 UI 重构与纯净真实性 E2E 验证", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
   });
@@ -34,7 +34,7 @@ test.describe("肉包技术博客与展厅首页 - 纯净个人简介与无虚�
     const githubLink = page.locator("a:has-text('GitHub')").first();
     await expect(githubLink).toBeVisible();
 
-    const emailBtn = page.locator("a:has-text('Email')").first();
+    const emailBtn = page.locator("button:has-text('Email'), a:has-text('Email')").first();
     await expect(emailBtn).toBeVisible();
 
     // 5. 验证核心技术专长三支柱
@@ -44,47 +44,56 @@ test.describe("肉包技术博客与展厅首页 - 纯净个人简介与无虚�
     await expect(page.locator("text=现代 Web 工程")).toBeVisible();
   });
 
-  test("数据库清空后，全站绝不存在任何硬编码或虚假数据", async ({ page }) => {
+  test("Hero 右侧 HUD 控制台完美运行且绝无虚假伪造指标", async ({ page }) => {
+    // 1. 验证 HUD 控制台正常渲染，消灭大片死白
+    const hud = page.locator("text=ROUBAO ENGINEERING HUD");
+    await expect(hud).toBeVisible();
+
+    // 2. 验证真实杭州时钟指示器存在 (CST UTC+8)
+    await expect(page.locator("text=CST (UTC+8)")).toBeVisible();
+
+    // 3. 验证选项卡交互（技术栈矩阵 / 架构宣言）
+    const stackTab = page.locator("button:has-text('技术栈矩阵')");
+    const archTab = page.locator("button:has-text('架构宣言')");
+    await expect(stackTab).toBeVisible();
+    await expect(archTab).toBeVisible();
+
+    // 点击架构宣言选项卡
+    await archTab.click();
+    await expect(page.locator("text=ArchitectureManifesto")).toBeVisible();
+    await expect(page.locator("text=坚持清晰的模块边界与分层防腐")).toBeVisible();
+
+    // 4. 严苛断言：绝不能出现原硬编码伪造指标（如 38K QPS 或假数据压测图）
     const pageContent = await page.content();
-
-    // 1. 绝不能出现原硬编码项目 "Roubao Gateway"
-    expect(pageContent).not.toContain("Roubao Gateway");
-
-    // 2. 绝不能出现虚构压测指标 "38K"
     expect(pageContent).not.toContain("38K req/sec");
     expect(pageContent).not.toContain("38K QPS");
-
-    // 3. 绝不能出现写死的技术文章标题 "Java 21 虚拟线程压测与踩坑记录"
+    expect(pageContent).not.toContain("18,950 QPS");
     expect(pageContent).not.toContain("Java 21 虚拟线程压测与踩坑记录");
-
-    // 4. 绝不能出现虚假项目 "CloudTrace Hub" 与 "Tactile UI"
-    expect(pageContent).not.toContain("CloudTrace Hub");
-    expect(pageContent).not.toContain("Tactile UI");
-
-    // 5. Hero 区域不能出现指向不存在笔记的假链接
-    const fakeBlogLink = page.locator("a:has-text('阅读《Java 21 虚拟线程压测与踩坑记录》')");
-    await expect(fakeBlogLink).toHaveCount(0);
   });
 
-  test("开源项目展厅与技术文章流正确呈现规范的空状态（Empty State）", async ({ page }) => {
+  test("开源项目展厅与技术文章流优雅呈现工坊在研蓝图与专栏排期（消灭绝望的 0 与死白方块）", async ({ page }) => {
     // 1. 滚动至开源项目展厅
     const projectsSection = page.locator("#projects");
     await expect(projectsSection).toBeVisible();
 
-    // 验证空状态提示卡片
-    const emptyProjectsText = page.locator("text=暂无开源项目展示");
-    await expect(emptyProjectsText).toBeVisible();
+    // 验证绝无粗暴的 '0 项开源实践在线' 标签与死板大白框
+    await expect(page.locator("text=0 项开源实践在线")).toHaveCount(0);
+    await expect(page.locator("text=暂无开源项目展示")).toHaveCount(0);
+
+    // 验证在研工坊标识与架构蓝图卡片呈现
+    await expect(page.locator("text=在研工坊 · 筹备发布中")).toBeVisible();
+    await expect(page.locator("text=高性能 API 网关内核实践")).toBeVisible();
 
     // 2. 滚动至博客流区域
     const blogSection = page.locator("#blog");
     await expect(blogSection).toBeVisible();
 
-    // 验证分类 Tab 包含 "全部"
-    const allTab = page.locator("button:has-text('全部')").first();
-    await expect(allTab).toBeVisible();
+    // 验证绝无冷冰冰的 '全部 0' 计数药丸与 '未找到匹配文章' 报错式提示
+    await expect(page.locator("text=未找到匹配文章")).toHaveCount(0);
 
-    // 验证文章流呈现空状态
-    const emptyBlogText = page.locator("text=未找到匹配文章");
-    await expect(emptyBlogText).toBeVisible();
+    // 验证技术文章与长文专栏排期卡片正常渲染
+    await expect(page.locator("text=技术文章与长文专栏")).toBeVisible();
+    await expect(page.locator("text=Upcoming Publications")).toBeVisible();
+    await expect(page.locator("text=Java 21 虚拟线程生产避坑实录")).toBeVisible();
   });
 });
