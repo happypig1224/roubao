@@ -19,7 +19,6 @@ import { ArticleToc } from "@/components/ArticleToc";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { extractTocHeadings, TocHeading } from "@/lib/markdown";
 import { copyTextToClipboard } from "@/lib/utils";
-import { MOCK_PROJECTS } from "@/data/mockData";
 import { Article } from "@/types";
 
 interface ArticleDetailClientProps {
@@ -204,7 +203,7 @@ export function ArticleDetailClient({
       <Navbar
         activeSection="blog"
         articles={articles}
-        projects={MOCK_PROJECTS}
+        projects={[]}
       />
 
       <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-12">

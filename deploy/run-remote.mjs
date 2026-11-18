@@ -53,13 +53,32 @@ export async function callSwasApi(action, extraParams = {}, retries = 5) {
         RegionId: REGION_ID,
         ...extraParams,
       };
-      params.Signature = signParams(params, sk);
+      params.Signature = signParams(params, sk, 'POST');
       const sortedKeys = Object.keys(params).sort();
-      const queryStr = sortedKeys.map((k) => `${percentEncode(k)}=${percentEncode(params[k])}`).join('&');
-      const url = `https://swas.${REGION_ID}.aliyuncs.com/?${queryStr}`;
+      const bodyStr = sortedKeys.map((k) => `${percentEncode(k)}=${percentEncode(params[k])}`).join('&');
+      const url = `https://swas.${REGION_ID}.aliyuncs.com/`;
 
-      const { stdout } = await execFileAsync('curl.exe', ['-s', '--connect-timeout', '15', '--retry', '2', url]);
-      return JSON.parse(stdout);
+      const tmpBodyFile = path.join(os.tmpdir(), `swas_req_${Date.now()}_${Math.random().toString(36).slice(2)}.tmp`);
+      fs.writeFileSync(tmpBodyFile, bodyStr, 'utf-8');
+      try {
+        const { stdout } = await execFileAsync('curl.exe', [
+          '-s',
+          '--connect-timeout',
+          '15',
+          '--retry',
+          '2',
+          '-X',
+          'POST',
+          '-H',
+          'Content-Type: application/x-www-form-urlencoded',
+          '--data-binary',
+          `@${tmpBodyFile}`,
+          url,
+        ]);
+        return JSON.parse(stdout);
+      } finally {
+        try { fs.unlinkSync(tmpBodyFile); } catch {}
+      }
     } catch (err) {
       if (attempt === retries) throw err;
       await new Promise((r) => setTimeout(r, 1000 * attempt));

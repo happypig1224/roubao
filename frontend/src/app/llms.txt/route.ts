@@ -1,5 +1,4 @@
-import { MOCK_PROJECTS } from "@/data/mockData";
-import { fetchArticles } from "@/lib/api";
+import { fetchArticles, fetchProjects } from "@/lib/api";
 import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
@@ -9,19 +8,30 @@ import {
 } from "@/lib/siteConfig";
 
 export async function GET() {
-  const articles = await fetchArticles();
+  const [articles, projects] = await Promise.all([
+    fetchArticles(),
+    fetchProjects(),
+  ]);
 
-  const projectsLines = MOCK_PROJECTS.map((project) => {
-    const metricsNote = project.metrics ? ` (${project.metrics})` : "";
-    return `- [${project.name}](${project.repoUrl})${metricsNote}: ${project.tagline} — ${project.description}`;
-  }).join("\n");
+  const projectsLines =
+    projects.length > 0
+      ? projects
+          .map((project) => {
+            const metricsNote = project.metrics ? ` (${project.metrics})` : "";
+            return `- [${project.name}](${project.repoUrl})${metricsNote}: ${project.tagline} — ${project.description}`;
+          })
+          .join("\n")
+      : "- 暂无开源项目展示";
 
-  const articleLines = articles
-    .map(
-      (article) =>
-        `- [${article.title}](${SITE_URL}/blog/${encodeURIComponent(article.slug)}): ${article.summary}`
-    )
-    .join("\n");
+  const articleLines =
+    articles.length > 0
+      ? articles
+          .map(
+            (article) =>
+              `- [${article.title}](${SITE_URL}/blog/${encodeURIComponent(article.slug)}): ${article.summary}`
+          )
+          .join("\n")
+      : "- 暂无技术文章发布";
 
   const body = `# ${AUTHOR_NAME}
 
@@ -43,14 +53,15 @@ ${articleLines}
 
 ## 站点资源
 
-- [工程履历 PDF](${SITE_URL}/Roubao-Resume-2026.pdf): 肉包 2026 版个人工程履历 PDF 下载
-- [RSS 订阅源](${SITE_URL}/rss.xml): 技术文章 RSS 2.0 订阅源
-- [站点地图](${SITE_URL}/sitemap.xml): 全站 URL 索引
+- 技术文章 RSS 源: ${SITE_URL}/rss.xml
+- 站点完整地图: ${SITE_URL}/sitemap.xml
 `;
 
   return new Response(body, {
+    status: 200,
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=3600, s-maxage=3600",
     },
   });
 }

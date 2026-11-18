@@ -114,11 +114,6 @@ export function HomeClient({ initialArticles, initialProjects }: HomeClientProps
     };
   }, []);
 
-  const benchmarkSlug =
-    articles.find((a) => a.id === "art-1")?.slug ??
-    articles[0]?.slug ??
-    "java-21-virtual-threads-benchmark-pitfalls";
-
   return (
     <div
       data-hydrated={isHydrated ? "true" : undefined}
@@ -146,7 +141,9 @@ export function HomeClient({ initialArticles, initialProjects }: HomeClientProps
       <main id="main" className="flex-1 relative z-10">
         <Hero
           onOpenResume={() => setResumeOpen(true)}
-          benchmarkSlug={benchmarkSlug}
+          hasArticles={articles.length > 0}
+          featuredProject={projects.find((p) => p.featured) ?? projects[0] ?? null}
+          featuredArticle={articles[0] ?? null}
         />
         <ProjectsSection projects={projects} />
         <BlogSection

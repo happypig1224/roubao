@@ -2,7 +2,6 @@ import { timingSafeEqual } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { cacheTag } from "next/cache";
-import { MOCK_ARTICLES } from "@/data/mockData";
 import { Article } from "@/types";
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -64,8 +63,8 @@ async function ensureArticlesFile(): Promise<Article[]> {
   }
 
   await fs.mkdir(DATA_DIR, { recursive: true });
-  await writeArticlesAtomically(MOCK_ARTICLES);
-  return MOCK_ARTICLES;
+  await writeArticlesAtomically([]);
+  return [];
 }
 
 async function writeArticlesAtomically(articles: Article[]): Promise<void> {

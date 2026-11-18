@@ -29,16 +29,19 @@ echo RECEIVER_DISPATCHED
 console.log('Dispatching remote HTTP receiver on port 8000...');
 await executeRemote(receiverCmd, 30);
 
-// 2. Upload bundle via curl
+// 2. Upload bundle via curl with --noproxy
 console.log('Uploading bundle via HTTP stream...');
-execSync(`curl.exe -s -T "${bundlePath}" http://47.251.182.2:8000/`, { stdio: 'inherit' });
+execSync(`curl.exe --noproxy "*" -s -T "${bundlePath}" http://47.251.182.2:8000/`, { stdio: 'inherit' });
 console.log('Upload complete!');
 
 // 3. Extract and restart frontend
 const extractAndRestart = `
 tar -xzf /opt/roubao/frontend/bundle.tar.gz -C /opt/roubao/frontend
 rm -f /opt/roubao/frontend/bundle.tar.gz
+mkdir -p /opt/roubao/frontend/data
+echo "[]" > /opt/roubao/frontend/data/articles.json
 rm -rf /opt/roubao/frontend/.next/cache || true
+redis-cli FLUSHALL || true
 systemctl restart roubao-frontend
 sleep 3
 systemctl is-active roubao-frontend
