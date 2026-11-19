@@ -16,7 +16,7 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
     // 3. 验证个人身份核心元素：姓名、定位与地理坐标（深圳）
     const heading = page.locator("h1");
     await expect(heading).toBeVisible();
-    await expect(heading).toContainText("肉包");
+    await expect(heading).toContainText("Roubao");
 
     const roleText = page.locator("text=苦恼的肉包🍔");
     await expect(roleText).toBeVisible();

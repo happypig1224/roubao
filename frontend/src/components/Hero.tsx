@@ -85,7 +85,7 @@ export function Hero({
           {/* 名字与核心简介 */}
           <div>
             <h1 className="text-3xl sm:text-4xl md:text-[44px] font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.15]">
-              肉包 <span className="text-zinc-400 dark:text-zinc-600 font-normal text-2xl sm:text-3xl font-mono">/ Roubao</span>
+              Roubao
             </h1>
             <p className="text-base sm:text-lg font-medium text-zinc-600 dark:text-zinc-300 mt-2.5 tracking-tight">
               苦恼的肉包🍔

@@ -15,7 +15,7 @@ test.describe("公网生产环境 (https://roubao.cloud) 真实状态与纯净�
     // 2. 验证个人简介核心要素：深圳与苦恼的肉包
     const heading = page.locator("h1");
     await expect(heading).toBeVisible();
-    await expect(heading).toContainText("肉包");
+    await expect(heading).toContainText("Roubao");
 
     await expect(page.locator("text=苦恼的肉包🍔")).toBeVisible();
     await expect(page.locator("text=中国 · 深圳")).toBeVisible();
