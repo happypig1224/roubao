@@ -44,18 +44,18 @@ export function Hero({
   const pillars = [
     {
       icon: Cpu,
-      title: "高并发服务架构",
+      title: "后端高并发架构",
       detail: "Java 21 虚拟线程 · Netty · 短事务隔离",
     },
     {
       icon: Database,
-      title: "可观测与存储设计",
-      detail: "ClickHouse 列式压缩 · Redis 7 Lua 限流",
+      title: "存储与可观测",
+      detail: "MySQL 8 · Redis 7 · ClickHouse",
     },
     {
       icon: Layers,
       title: "现代 Web 工程",
-      detail: "Next.js · React 19 · TypeScript",
+      detail: "Next.js 16 · React 19 · TypeScript",
     },
   ];
 
@@ -71,7 +71,7 @@ export function Hero({
           <div className="flex flex-wrap items-center gap-2.5 text-xs text-zinc-500 dark:text-zinc-400">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 font-medium">
               <MapPin className="w-3.5 h-3.5 text-zinc-400" />
-              中国 · 杭州
+              中国 · 深圳
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40 font-medium">
               <span className="relative flex h-2 w-2">
@@ -82,13 +82,13 @@ export function Hero({
             </span>
           </div>
 
-          {/* 名字与核心技术定位 */}
+          {/* 名字与核心简介 */}
           <div>
             <h1 className="text-3xl sm:text-4xl md:text-[44px] font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.15]">
               肉包 <span className="text-zinc-400 dark:text-zinc-600 font-normal text-2xl sm:text-3xl font-mono">/ Roubao</span>
             </h1>
             <p className="text-base sm:text-lg font-medium text-zinc-600 dark:text-zinc-300 mt-2.5 tracking-tight">
-              全栈软件工程师 · 专注于高性能后端架构与现代 Web 开发
+              苦恼的肉包🍔
             </p>
           </div>
 
@@ -103,21 +103,21 @@ export function Hero({
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
                 Next.js / React
               </strong>{" "}
-              工匠级现代前端工程。
+              现代前端工程。
             </p>
             <p>
               技术上追求清晰的模块边界、短事务设计与单机极致吞吐，避免无意义的过度设计。在高性能高并发、分布式可观测与工匠级前端体验中持续深耕沉淀。
             </p>
           </div>
 
-          {/* 操作触点栏 (Strict Apple HIG 44pt Touch Targets) */}
+          {/* 操作触点栏 (统一轻量边框质感，下载简历、GitHub、Email 风格 100% 对齐) */}
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button
               onClick={onOpenResume}
-              className="tactile-btn min-h-[44px] px-5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-950 inline-flex items-center gap-2 text-xs sm:text-[13px] font-semibold cursor-pointer shadow-md transition-all active:scale-[0.97]"
+              className="tactile-btn min-h-[44px] px-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white shadow-2xs transition-all active:scale-[0.97] cursor-pointer"
             >
-              <FileText className="w-4 h-4" />
-              <span>查看与下载简历 (PDF)</span>
+              <FileText className="w-4 h-4 text-zinc-400" />
+              <span>下载简历</span>
             </button>
 
             <a
@@ -162,10 +162,10 @@ export function Hero({
           </div>
         </div>
 
-        {/* 核心技术专长 (Capabilities 3 Pillars) */}
+        {/* 核心技术沉淀 (彻底消灭彩色 AI 模板图标，纯正高品质工程师极简排版) */}
         <div className="pt-2">
           <div className="text-[11px] font-mono uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-3 font-semibold">
-            核心技术专长 / Capabilities
+            技术方向与实践
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {pillars.map((pillar) => {
@@ -173,12 +173,10 @@ export function Hero({
               return (
                 <div
                   key={pillar.title}
-                  className="p-4 rounded-2xl border border-zinc-200/70 dark:border-zinc-800/70 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-sm hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors shadow-2xs"
+                  className="p-4 rounded-xl border border-zinc-200/70 dark:border-zinc-800/70 bg-white/50 dark:bg-zinc-900/30 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
                 >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-                      <Icon className="w-4 h-4" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <Icon className="w-3.5 h-3.5 text-zinc-400 dark:text-zinc-500 shrink-0" />
                     <span className="text-xs sm:text-[13px] font-semibold text-zinc-900 dark:text-zinc-100">
                       {pillar.title}
                     </span>

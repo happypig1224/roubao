@@ -5,32 +5,32 @@ test.describe("公网生产环境 (https://roubao.cloud) 真实状态与纯净�
   test.setTimeout(90000);
   test.describe.configure({ retries: 2 });
 
-  test("生产环境页面首屏加载成功并仅展示真实个人简介（Personal Bio）", async ({ page }) => {
+  test("生产环境页面首屏加载成功并展示真实个人简介（深圳与苦恼的肉包）", async ({ page }) => {
     await page.goto("https://roubao.cloud/", { waitUntil: "domcontentloaded", timeout: 60000 });
 
     // 1. 验证标题与导航
     await expect(page).toHaveTitle(/肉包 \(Roubao\)/);
     await expect(page.locator("nav")).toBeVisible();
 
-    // 2. 验证个人简介核心要素
+    // 2. 验证个人简介核心要素：深圳与苦恼的肉包
     const heading = page.locator("h1");
     await expect(heading).toBeVisible();
     await expect(heading).toContainText("肉包");
 
-    await expect(page.locator("text=全栈软件工程师 · 专注于高性能后端架构与现代 Web 开发")).toBeVisible();
-    await expect(page.locator("text=中国 · 杭州")).toBeVisible();
+    await expect(page.locator("text=苦恼的肉包🍔")).toBeVisible();
+    await expect(page.locator("text=中国 · 深圳")).toBeVisible();
     await expect(page.locator("text=开放架构与全栈交流")).toBeVisible();
 
-    // 3. 验证操作触点（简历、GitHub、Email）
-    await expect(page.locator("text=查看与下载简历 (PDF)")).toBeVisible();
+    // 3. 验证操作触点（下载简历、GitHub、Email）
+    await expect(page.locator("button:has-text('下载简历')")).toBeVisible();
     await expect(page.locator("a:has-text('GitHub')").first()).toBeVisible();
     await expect(page.locator("button:has-text('Email'), a:has-text('Email')").first()).toBeVisible();
 
     // 4. 验证核心技术专长三支柱
-    await expect(page.locator("text=核心技术专长 / Capabilities")).toBeVisible();
-    await expect(page.locator("text=高并发服务架构")).toBeVisible();
-    await expect(page.locator("text=可观测与存储设计")).toBeVisible();
-    await expect(page.locator("text=现代 Web 工程")).toBeVisible();
+    await expect(page.locator("text=技术方向与实践")).toBeVisible();
+    await expect(page.getByText("后端高并发架构", { exact: true })).toBeVisible();
+    await expect(page.getByText("存储与可观测", { exact: true })).toBeVisible();
+    await expect(page.getByText("现代 Web 工程", { exact: true })).toBeVisible();
   });
 
   test("生产环境绝无任何硬编码伪造指标、虚构卡片与写死假项目", async ({ page }) => {
