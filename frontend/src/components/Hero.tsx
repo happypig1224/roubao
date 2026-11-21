@@ -12,7 +12,6 @@ import {
   GraduationCap,
   Sparkles,
   Mail,
-  Phone,
 } from "lucide-react";
 import { GithubIcon } from "./icons";
 import { AUTHOR_EMAIL, GITHUB_URL } from "@/lib/siteConfig";
@@ -72,7 +71,7 @@ export function Hero({
           <div className="flex flex-wrap items-center gap-2.5 text-xs text-zinc-500 dark:text-zinc-400">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 font-medium">
               <GraduationCap className="w-3.5 h-3.5 text-zinc-400" />
-              绥化学院 · 计算机科学与技术 (2027届本科)
+              2027届全日制本科 · 计算机科学与技术
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40 font-medium">
               <span className="relative flex h-2 w-2">
@@ -87,7 +86,7 @@ export function Hero({
           <div>
             <div className="flex items-baseline gap-3 flex-wrap">
               <h1 className="text-3xl sm:text-4xl md:text-[44px] font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.15]">
-                吴汇明
+                苦恼的肉包🍔
               </h1>
               <span className="text-base sm:text-lg font-mono text-zinc-500 dark:text-zinc-400">
                 (Roubao)
@@ -101,11 +100,11 @@ export function Hero({
           {/* 真实个人陈述 */}
           <div className="max-w-[68ch] text-[14px] sm:text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-300 space-y-3">
             <p>
-              你好，我是吴汇明（Roubao）。目前就读于{" "}
+              你好，我是苦恼的肉包🍔（Roubao）。目前是{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
-                绥化学院计算机科学与技术专业（2027届本科）
+                2027届全日制本科计算机科学与技术专业
               </strong>
-              ，专注{" "}
+              在读，主攻{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
                 Java 21 / Spring Boot 3
               </strong>{" "}
@@ -159,11 +158,6 @@ export function Hero({
                 </>
               )}
             </a>
-
-            <span className="tactile-btn min-h-[44px] px-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-800/60 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-mono text-zinc-500 dark:text-zinc-400">
-              <Phone className="w-3.5 h-3.5 text-zinc-400" />
-              <span>19997556314</span>
-            </span>
 
             {hasArticles && (
               <a

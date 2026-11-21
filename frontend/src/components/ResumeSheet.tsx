@@ -60,21 +60,20 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
   };
 
   const handleDownloadMarkdown = () => {
-    const resumeText = `# 吴汇明 (Roubao) — Java后端开发 / AI工程化
+    const resumeText = `# 苦恼的肉包🍔 (Roubao) — Java后端开发 / AI工程化
 
-- 姓名: 吴汇明
-- 年龄: 21岁
-- 电话: 19997556314
-- 邮箱: ${AUTHOR_EMAIL}
+- 昵称: 苦恼的肉包🍔 (Roubao)
 - 学历: 全日制本科 (2027届)
-- 学校/专业: 绥化学院 · 计算机科学与技术
+- 专业: 计算机科学与技术
+- 方向: Java后端开发工程师 / AI工程化
+- 邮箱: ${AUTHOR_EMAIL}
 - 个人格言: 我一直在努力成为更好的自己
 - 个人站点: ${SITE_HOST}
 
 ---
 
 ## 🎓 教育背景
-- **学校与专业**: 绥化学院 · 计算机科学与技术 (全日制本科) | 2023-09 ~ 2027-07
+- **学历与专业**: 2027届全日制本科 · 计算机科学与技术 (2023-09 ~ 2027-07)
 - **个人荣誉**: 全国计算机能力挑战赛程序设计东北赛区本研组三等奖、国家三等励志奖学金
 - **主修课程**: 数据结构与算法、计算机网络、计算机组成原理、操作系统、程序设计语言、数据库原理等
 
@@ -115,7 +114,7 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "吴汇明-Java后端开发-简历.md";
+    link.download = "苦恼的肉包-Java后端开发-简历.md";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -175,7 +174,7 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
                 id="resume-sheet-title"
                 className="text-base sm:text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
               >
-                吴汇明 (Roubao) · 个人工程履历
+                苦恼的肉包🍔 · 个人工程履历
               </h2>
               <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-medium">
                 Java后端开发
@@ -184,14 +183,12 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
               <span className="inline-flex items-center gap-1 font-medium text-zinc-700 dark:text-zinc-300">
                 <GraduationCap className="w-3.5 h-3.5 text-zinc-400" />
-                绥化学院 · 计算机科学与技术
+                2027届全日制本科 · 计算机科学与技术
               </span>
               <span aria-hidden="true" className="opacity-40">·</span>
-              <span>2027届全日制本科</span>
+              <span>Java后端 & AI工程化</span>
               <span aria-hidden="true" className="opacity-40">·</span>
-              <span>21岁</span>
-              <span aria-hidden="true" className="opacity-40">·</span>
-              <span>电话: 19997556314</span>
+              <span>{AUTHOR_EMAIL}</span>
             </p>
           </div>
 
@@ -213,12 +210,12 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
             <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
               <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
                 <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
-                <span>教育资质</span>
+                <span>学历与专业</span>
               </div>
               <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                绥化学院 · 计科
+                2027届全日制本科
               </div>
-              <div className="text-[11px] text-zinc-400 mt-0.5">2027届全日制本科</div>
+              <div className="text-[11px] text-zinc-400 mt-0.5">计算机科学与技术专业</div>
             </div>
 
             <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
@@ -255,8 +252,12 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
             </div>
             <div className="text-xs text-zinc-600 dark:text-zinc-300 space-y-1">
               <p>
+                <strong className="text-zinc-800 dark:text-zinc-200">培养层次：</strong>
+                2027届全日制本科
+              </p>
+              <p>
                 <strong className="text-zinc-800 dark:text-zinc-200">主修专业：</strong>
-                绥化学院 · 计算机科学与技术（本科）
+                计算机科学与技术
               </p>
               <p>
                 <strong className="text-zinc-800 dark:text-zinc-200">个人荣誉：</strong>
@@ -385,7 +386,7 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
 
             <a
               href="/Roubao-Resume-2026.pdf"
-              download="2027届_吴汇明_本科_后端开发.pdf"
+              download="苦恼的肉包-Java后端开发-简历.pdf"
               className="tactile-btn px-3.5 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 text-xs font-medium inline-flex items-center gap-1.5"
             >
               <Download className="w-3.5 h-3.5" />

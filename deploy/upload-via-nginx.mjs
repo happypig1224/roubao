@@ -50,6 +50,7 @@ console.log('Upload complete!');
 
 // 3. Extract, cleanup data, restart frontend, and cleanup Nginx route
 const finishCmd = `
+rm -rf /opt/roubao/frontend/.next
 tar -xzf /opt/roubao/frontend/bundle.tar.gz -C /opt/roubao/frontend
 rm -f /opt/roubao/frontend/bundle.tar.gz
 mkdir -p /opt/roubao/frontend/data

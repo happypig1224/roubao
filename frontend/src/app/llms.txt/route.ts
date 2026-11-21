@@ -39,9 +39,8 @@ export async function GET() {
 
 - 主页: ${SITE_URL}
 - GitHub: ${GITHUB_URL}
-- 教育背景: 绥化学院 · 计算机科学与技术 (2027届全日制本科)
+- 学历方向: 2027届全日制本科 · 计算机科学与技术
 - 邮箱: ${AUTHOR_EMAIL}
-- 电话: 19997556314
 - 荣誉: 全国计算机能力挑战赛程序设计东北赛区本研组三等奖、国家三等励志奖学金
 - 工程范式: Specs Coding (SDD/TDD) 驱动开发、Claude Code / Gemini 辅助编程、追求清晰模块边界与单机极致吞吐。
 
