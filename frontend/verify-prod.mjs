@@ -37,22 +37,25 @@ async function verify() {
   }
   console.log("PASS: 0 privacy leak in production HTML.");
 
+  // 技能体系面板已下线断言
+  if (html.includes("专业技能体系 · Technical Skills")) {
+    throw new Error("STALE CONTENT: '专业技能体系 · Technical Skills' is still present in production HTML!");
+  }
+  console.log("PASS: Skill grid panel is cleanly removed from production HTML.");
+
   // 核心内容存在性检查
   const required = [
     "苦恼的肉包",
     "2027届全日制本科 · 计算机科学与技术",
-    "Java 核心与并发底层",
-    "框架与微服务生态",
-    "数据存储与中间件治理",
-    "AI 工程化与大模型应用",
-    "前端联调与 DevOps 工程化",
+    "后端开发",
+    "大模型工程化落地",
   ];
   for (const item of required) {
     if (!html.includes(item)) {
       throw new Error(`MISSING REQUIRED CONTENT: '${item}' not found in production HTML!`);
     }
   }
-  console.log("PASS: All 5 Bento skill domains verified in production HTML.");
+  console.log("PASS: Core identity and bio verified in production HTML.");
 
   // Playwright 真实渲染截图
   console.log("2. Launching Playwright Chromium for production visual audit...");

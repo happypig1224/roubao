@@ -28,19 +28,8 @@ test.describe("Hero 区域布局重构与响应式排版质量门禁", () => {
     await expect(bioSection).toContainText("专注 后端开发 与 大模型工程化落地。");
     await expect(bioSection).toContainText("Specs Coding（SDD 规范驱动 / TDD 测试驱动）");
 
-    // 3. 验证 5 大技能卡片均已渲染
-    const skillCards = [
-      "Java 核心与并发底层",
-      "框架与微服务生态",
-      "数据存储与中间件治理",
-      "AI 工程化与大模型应用",
-      "前端联调与 DevOps 工程化",
-    ];
-
-    for (const title of skillCards) {
-      const card = heroSection.locator(`h2:has-text('${title}')`);
-      await expect(card).toBeVisible();
-    }
+    // 3. 验证“专业技能体系”大面板已彻底移除
+    await expect(page.locator("text=专业技能体系 · Technical Skills")).toHaveCount(0);
 
     // 4. 验证隐私安全（0 泄漏）
     const content = await page.content();
@@ -75,7 +64,7 @@ test.describe("Hero 区域布局重构与响应式排版质量门禁", () => {
     await expect(page.locator("button:has-text('工程履历 / 简历')")).toBeVisible();
     await expect(page.locator("a:has-text('GitHub')").first()).toBeVisible();
 
-    // 首屏视口截图（展示移动端真实视觉，包含顶栏与 Hero 内容）
+    // 首屏视口截图
     await page.screenshot({
       path: path.join(ARTIFACT_DIR, "hero-mobile.png"),
       fullPage: false,
