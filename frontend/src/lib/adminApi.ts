@@ -107,56 +107,84 @@ export async function fetchAdminArticles(
   });
 }
 
+export async function triggerRevalidate(
+  token: string,
+  options?: { tag?: string; path?: string }
+): Promise<void> {
+  try {
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    await fetch(`${origin}/api/revalidate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Token": token.trim(),
+      },
+      body: JSON.stringify(options || { tag: "articles", path: "/" }),
+    });
+  } catch {
+    // 渐进降级：重验证网络波动不阻断主数据流程
+  }
+}
+
 export async function fetchAdminArticleDetail(token: string, id: number | string): Promise<Article> {
   return adminRequest<Article>(token, `/articles/${id}`);
 }
 
 export async function createAdminArticle(token: string, payload: ArticleCreatePayload): Promise<number> {
-  return adminRequest<number>(token, "/articles", {
+  const result = await adminRequest<number>(token, "/articles", {
     method: "POST",
     body: payload,
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
+  return result;
 }
 
 export async function updateAdminArticle(token: string, id: number | string, payload: ArticleUpdatePayload): Promise<void> {
-  return adminRequest<void>(token, `/articles/${id}`, {
+  await adminRequest<void>(token, `/articles/${id}`, {
     method: "PUT",
     body: payload,
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
 }
 
 export async function deleteAdminArticle(token: string, id: number | string): Promise<void> {
-  return adminRequest<void>(token, `/articles/${id}`, {
+  await adminRequest<void>(token, `/articles/${id}`, {
     method: "DELETE",
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
 }
 
 export async function toggleArticleTop(token: string, id: number | string): Promise<void> {
-  return adminRequest<void>(token, `/articles/${id}/top`, {
+  await adminRequest<void>(token, `/articles/${id}/top`, {
     method: "PATCH",
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
 }
 
 export async function toggleArticleFeatured(token: string, id: number | string): Promise<void> {
-  return adminRequest<void>(token, `/articles/${id}/featured`, {
+  await adminRequest<void>(token, `/articles/${id}/featured`, {
     method: "PATCH",
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
 }
 
 export async function updateArticlePublishStatus(token: string, id: number | string, published: boolean): Promise<void> {
-  return adminRequest<void>(token, `/articles/${id}/publish`, {
+  await adminRequest<void>(token, `/articles/${id}/publish`, {
     method: "PATCH",
     params: { published },
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
 }
 
 export async function uploadMarkdownArticleDirect(token: string, file: File): Promise<number> {
   const formData = new FormData();
   formData.append("file", file);
-  return adminRequest<number>(token, "/articles/upload", {
+  const result = await adminRequest<number>(token, "/articles/upload", {
     method: "POST",
     body: formData,
   });
+  await triggerRevalidate(token, { tag: "articles", path: "/" });
+  return result;
 }
 
 // 4. 分类管理

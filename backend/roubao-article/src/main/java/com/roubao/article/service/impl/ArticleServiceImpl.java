@@ -227,19 +227,11 @@ public class ArticleServiceImpl implements ArticleService {
         long published = publishedArticles != null ? publishedArticles : 0L;
         long draft = Math.max(0L, total - published);
 
-        List<ArticleStatsDO> statsList = articleStatsMapper.selectList(null);
-        long totalViews = 0L;
-        long totalLikes = 0L;
-        if (statsList != null) {
-            for (ArticleStatsDO s : statsList) {
-                if (s.getViewCount() != null) {
-                    totalViews += s.getViewCount();
-                }
-                if (s.getLikeCount() != null) {
-                    totalLikes += s.getLikeCount();
-                }
-            }
-        }
+        // 单步 SQL 聚合计算全站浏览量与点赞数，避免全表加载到堆内存造成 OOM 与 GC 停顿
+        ArticleStatsDO aggregate = articleStatsMapper.aggregateTotalStats();
+        long totalViews = (aggregate != null && aggregate.getViewCount() != null) ? aggregate.getViewCount() : 0L;
+        long totalLikes = (aggregate != null && aggregate.getLikeCount() != null) ? aggregate.getLikeCount() : 0L;
+
         return new com.roubao.article.model.vo.ArticleStatsSummaryVO(
                 total,
                 published,

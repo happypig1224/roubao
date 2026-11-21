@@ -204,48 +204,15 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 text-xs sm:text-[13px] leading-relaxed text-zinc-600 dark:text-zinc-300">
-          {/* Key Metrics / Highlights */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
-              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                学历与专业
-              </div>
-              <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                2027届全日制本科
-              </div>
-              <div className="text-[11px] text-zinc-400 mt-0.5">计算机科学与技术专业</div>
-            </div>
-
-            <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
-              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                竞赛与荣誉
-              </div>
-              <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                国家三等励志奖学金
-              </div>
-              <div className="text-[11px] text-zinc-400 mt-0.5">计算机能力挑战赛省三等奖</div>
-            </div>
-
-            <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
-              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                工程规范
-              </div>
-              <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
-                Specs / SDD / TDD
-              </div>
-              <div className="text-[11px] text-zinc-400 mt-0.5">Claude Code / Gemini 辅助</div>
-            </div>
-          </div>
-
           {/* Education Section */}
-          <div className="p-3.5 rounded-xl border border-zinc-200/70 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/40 space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
-                教育背景与在校表现
+                教育背景
               </h3>
               <span className="text-[11px] font-mono text-zinc-400">2023-09 ~ 2027-07</span>
             </div>
-            <div className="text-xs text-zinc-600 dark:text-zinc-300 space-y-1">
+            <div className="p-3.5 rounded-xl border border-zinc-200/70 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/40 text-xs text-zinc-600 dark:text-zinc-300 space-y-1.5">
               <p>
                 <strong className="text-zinc-800 dark:text-zinc-200">培养层次：</strong>
                 2027届全日制本科

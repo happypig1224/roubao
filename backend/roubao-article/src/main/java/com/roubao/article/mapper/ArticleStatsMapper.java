@@ -59,4 +59,16 @@ public interface ArticleStatsMapper extends BaseMapper<ArticleStatsDO> {
             WHERE article_id = #{articleId}
             """)
     int incrementLikeCount(@Param("articleId") Long articleId, @Param("delta") long delta);
+
+    /**
+     * 聚合计算全站文章总浏览量与总点赞数 (单步 SQL 聚合计算，避免内存全表扫描)
+     *
+     * @return 携带聚合 viewCount 与 likeCount 的统计指标实体
+     */
+    @Select("""
+            SELECT COALESCE(SUM(view_count), 0) AS view_count,
+                   COALESCE(SUM(like_count), 0) AS like_count
+            FROM tb_article_stats
+            """)
+    ArticleStatsDO aggregateTotalStats();
 }

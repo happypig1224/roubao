@@ -110,6 +110,18 @@ flowchart TD
         T_P6_2 --> T_P6_3
         T_P6_3 --> V_P6
     end
+
+    subgraph S_P8["Phase 8: 生产效能优化与系统健壮性加固 (P8)"]
+        T_P8_1["[TICKET-P8-1]<br>大盘统计单步 SQL 聚合优化"]:::p1
+        T_P8_2["[TICKET-P8-2]<br>Next.js 按需即时重验证与缓存联动"]:::p1
+        T_P8_3["[TICKET-P8-3]<br>Nginx HSTS 加固与 llms.txt 敏感信息脱敏"]:::p2
+        T_P8_4["[TICKET-P8-4]<br>生产 MySQL 自动化定时热备与滚动归档"]:::p2
+        V_P8{"[GATE-8]<br>效能与健壮性全链路门禁"}:::gate
+        T_P8_1 --> V_P8
+        T_P8_2 --> V_P8
+        T_P8_3 --> V_P8
+        T_P8_4 --> V_P8
+    end
 ```
 
 ---
@@ -147,6 +159,11 @@ flowchart TD
 | **P7** | `TICKET-P7-2` | Spring Boot 3 与 Next.js 16 生产托管 | `backend`/`frontend` | ✅ 已完成 (Green) | Systemd 守护，JVM 200M/Node 128M/4GB Swap 零崩溃防杀保障 |
 | **P7** | `TICKET-P7-3` | Nginx 独占托管与 roubao.cloud 域名绑定 | `deploy` | ✅ 已完成 (Green) | Nginx 独占 80 端口，反向代理与静态资源 Alias 零损耗托管 |
 | **GATE-7** | `[GATE-7]` | 生产公网全链路健康与独占上线门禁 | 全局 | 🟢 准入通过 (LIVE) | Actuator UP、Next.js 200 OK、公网文章 API 数据 100% 连通 |
+| **P8** | `TICKET-P8-1` | 大盘统计单步 SQL 聚合与内存开销归零 | `roubao-article` | ✅ 已完成 (Green) | `ArticleStatsMapper` 聚合查询，单测红绿覆盖 |
+| **P8** | `TICKET-P8-2` | Next.js 按需即时重验证与后台联动 | `frontend` | ✅ 已完成 (Green) | `/api/revalidate` 路由与 Playwright 3/3 绿灯 |
+| **P8** | `TICKET-P8-3` | Nginx HSTS 响应头加固与 llms.txt 脱敏 | `deploy`/`frontend` | ✅ 已完成 (Green) | HSTS 31536000 注入，荣誉地域信息一致性对齐 |
+| **P8** | `TICKET-P8-4` | 生产 MySQL 自动化定时热备与滚动归档 | `deploy` | ✅ 已完成 (Green) | `backup-mysql.sh` 脚本构建与防破坏自检 |
+| **GATE-8** | `[GATE-8]` | 效能与健壮性全链路门禁裁决 | 全局 | 🟢 准入通过 (READY) | 全栈测试全绿，代码无损，构建 100% 通过 |
 
 ---
 

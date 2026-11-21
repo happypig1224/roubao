@@ -322,6 +322,18 @@ class ArticleServiceTest {
         assertThat(stats.getViewCount()).isEqualTo(1L);
     }
 
+    @Test
+    @DisplayName("应该通过 SQL 单步聚合正确返回大盘文章、发布状态、浏览与点赞总览指标")
+    void shouldReturnCorrectArticleStatsSummary() {
+        var summary = articleService.getArticleStatsSummary();
+        assertThat(summary).isNotNull();
+        assertThat(summary.totalArticles()).isGreaterThanOrEqualTo(0L);
+        assertThat(summary.publishedArticles()).isGreaterThanOrEqualTo(0L);
+        assertThat(summary.draftArticles()).isGreaterThanOrEqualTo(0L);
+        assertThat(summary.totalViews()).isGreaterThanOrEqualTo(0L);
+        assertThat(summary.totalLikes()).isGreaterThanOrEqualTo(0L);
+    }
+
     private ArticleDO createArticleDo(Long categoryId, String title, String slug,
                                      List<String> tags, Integer sortOrder, LocalDateTime publishedAt) {
         ArticleDO article = new ArticleDO();

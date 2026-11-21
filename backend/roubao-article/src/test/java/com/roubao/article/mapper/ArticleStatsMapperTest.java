@@ -54,4 +54,29 @@ class ArticleStatsMapperTest {
         assertThat(statsOpt.get().getViewCount()).isEqualTo(115L);
         assertThat(statsOpt.get().getLikeCount()).isEqualTo(15L);
     }
+
+    @Test
+    @DisplayName("应该支持单步 SQL 聚合计算全站总浏览量与总点赞量")
+    void shouldAggregateTotalViewsAndLikesViaSql() {
+        // Arrange
+        ArticleStatsDO s1 = new ArticleStatsDO();
+        s1.setArticleId(1001L);
+        s1.setViewCount(500L);
+        s1.setLikeCount(50L);
+        articleStatsMapper.insert(s1);
+
+        ArticleStatsDO s2 = new ArticleStatsDO();
+        s2.setArticleId(1002L);
+        s2.setViewCount(300L);
+        s2.setLikeCount(30L);
+        articleStatsMapper.insert(s2);
+
+        // Act
+        ArticleStatsDO aggregate = articleStatsMapper.aggregateTotalStats();
+
+        // Assert
+        assertThat(aggregate).isNotNull();
+        assertThat(aggregate.getViewCount()).isGreaterThanOrEqualTo(800L);
+        assertThat(aggregate.getLikeCount()).isGreaterThanOrEqualTo(80L);
+    }
 }

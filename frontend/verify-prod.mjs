@@ -37,7 +37,7 @@ async function verify() {
   }
   console.log("PASS: 0 privacy leak in production HTML.");
 
-  // 技能体系面板、(Roubao) 冗余与“工程履历”下线断言
+  // 技能体系面板、(Roubao) 冗余、“工程履历”与冗余标题下线断言
   if (html.includes("专业技能体系 · Technical Skills")) {
     throw new Error("STALE CONTENT: '专业技能体系 · Technical Skills' is still present in production HTML!");
   }
@@ -47,7 +47,10 @@ async function verify() {
   if (html.includes("工程履历")) {
     throw new Error("STALE CONTENT: '工程履历' is still present in production HTML!");
   }
-  console.log("PASS: Skill grid panel, (Roubao) suffix, and '工程履历' are cleanly removed from production HTML.");
+  if (html.includes("教育背景与在校表现")) {
+    throw new Error("STALE CONTENT: '教育背景与在校表现' is still present in production HTML!");
+  }
+  console.log("PASS: Skill grid panel, (Roubao) suffix, '工程履历', and redundant title are cleanly removed from production HTML.");
 
   // 核心内容存在性检查
   const required = [

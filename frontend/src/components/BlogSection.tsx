@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import { Search, Rss } from "lucide-react";
+import { Search, Rss, X } from "lucide-react";
 import { Article } from "@/types";
 
 interface BlogSectionProps {
@@ -87,86 +87,96 @@ export function BlogSection({
         </div>
       </div>
 
-      {hasDynamicArticles ? (
-        <div className="space-y-6">
-          {/* 搜索与分类 */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {categories.map((c) => {
-                const isSelected = selectedCategory === c.key;
-                return (
-                  <button
-                    key={c.key}
-                    type="button"
-                    onClick={() => onCategoryChange(c.key)}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
-                      isSelected
-                        ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-semibold shadow-xs"
-                        : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80"
-                    }`}
-                  >
-                    <span>{c.label}</span>
-                    <span className="ml-1 text-[10px] font-mono opacity-60">
-                      ({getCategoryCount(c.key)})
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="relative w-full sm:w-64">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="搜索文章..."
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-transparent focus:border-zinc-300 dark:focus:border-zinc-700 outline-none text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 transition-colors"
-              />
-            </div>
+      <div className="space-y-6">
+        {/* 搜索与分类 */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div role="tablist" aria-label="文章分类筛选" className="flex flex-wrap items-center gap-1.5">
+            {categories.map((c) => {
+              const isSelected = selectedCategory === c.key;
+              return (
+                <button
+                  key={c.key}
+                  role="tab"
+                  aria-selected={isSelected}
+                  type="button"
+                  onClick={() => onCategoryChange(c.key)}
+                  className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center ${
+                    isSelected
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-semibold shadow-xs"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80"
+                  }`}
+                >
+                  <span>{c.label}</span>
+                  <span className="ml-1 text-[10px] font-mono opacity-60">
+                    ({getCategoryCount(c.key)})
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* 文章流 */}
-          {filteredArticles.length === 0 ? (
-            <div className="py-10 text-center text-zinc-400 dark:text-zinc-500 font-mono text-xs">
-              未找到匹配文章
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {filteredArticles.map((article) => (
-                <article key={article.id}>
-                  <Link
-                    href={`/blog/${article.slug}`}
-                    className="block apple-card rounded-2xl p-5 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all select-none"
-                  >
-                    <div className="flex items-center justify-between gap-3 mb-1.5">
-                      <span className="text-[11px] font-mono text-blue-600 dark:text-blue-400">
-                        {CATEGORY_MAP[article.category] || "文章"}
-                      </span>
-                      <time className="text-[11px] font-mono text-zinc-400 tabular-nums">
-                        {article.publishedAt}
-                      </time>
-                    </div>
-                    <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-1">
-                      {article.title}
-                    </h3>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                      {article.summary}
-                    </p>
-                  </Link>
-                </article>
-              ))}
-            </div>
-          )}
+          <div className="relative w-full sm:w-64">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+            <input
+              type="text"
+              aria-label="过滤技术文章"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="搜索文章..."
+              className="w-full pl-9 pr-11 py-2.5 text-xs rounded-xl bg-zinc-100 dark:bg-zinc-800/60 border border-transparent focus:border-zinc-300 dark:focus:border-zinc-700 outline-none text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 transition-colors"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                aria-label="清除搜索关键词"
+                onClick={() => setSearchQuery("")}
+                className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
-      ) : (
-        /* 纯粹极简的空状态：不渲染任何虚构文稿与伪造长文排期 */
-        <div className="py-12 px-4 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 text-center">
-          <p className="text-xs sm:text-[13px] text-zinc-400 dark:text-zinc-500 font-mono">
-            暂无已公开发布的技术文章
-          </p>
-        </div>
-      )}
+
+        {/* 文章流 */}
+        {!hasDynamicArticles ? (
+          <div className="py-12 px-4 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-800 text-center">
+            <p className="text-xs sm:text-[13px] text-zinc-400 dark:text-zinc-500 font-mono">
+              暂无已公开发布的技术文章
+            </p>
+          </div>
+        ) : filteredArticles.length === 0 ? (
+          <div className="py-10 text-center text-zinc-400 dark:text-zinc-500 font-mono text-xs">
+            未找到匹配文章
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredArticles.map((article) => (
+              <article key={article.id}>
+                <Link
+                  href={`/blog/${article.slug}`}
+                  className="block apple-card rounded-2xl p-5 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all select-none"
+                >
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
+                    <span className="text-[11px] font-mono text-blue-600 dark:text-blue-400">
+                      {CATEGORY_MAP[article.category] || "文章"}
+                    </span>
+                    <time className="text-[11px] font-mono text-zinc-400 tabular-nums">
+                      {article.publishedAt}
+                    </time>
+                  </div>
+                  <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 tracking-tight mb-1">
+                    {article.title}
+                  </h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                    {article.summary}
+                  </p>
+                </Link>
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
