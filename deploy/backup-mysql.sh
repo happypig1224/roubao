@@ -37,6 +37,7 @@ if command -v docker &>/dev/null && docker ps --format '{{.Names}}' | grep -q "^
     -u"${DB_USER}" \
     -p"${DB_PASSWORD}" \
     --single-transaction \
+    --no-tablespaces \
     --quick \
     --routines \
     --triggers \
@@ -49,6 +50,7 @@ elif command -v mysqldump &>/dev/null; then
     -P"${DB_PORT}" \
     -u"${DB_USER}" \
     --single-transaction \
+    --no-tablespaces \
     --quick \
     --routines \
     --triggers \
