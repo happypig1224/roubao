@@ -115,7 +115,10 @@ export function Hero({
               。
             </p>
             <p>
-              熟练掌握 Spring 全家桶（Spring、SpringMVC、SpringBoot）和 MyBatis 系列框架，熟练使用 Spring AI Alibaba / LangChain；掌握 Java 核心技术、JVM 与并发底层原理（JUC / 线程池）、MySQL 慢 SQL 排查优化、Redis 缓存设计及 RocketMQ 消息排查。工程上推崇 Specs Coding（SDD 规范驱动 / TDD 测试驱动）开发模式，熟练运用 Claude Code、Gemini 等 AI 辅助编程工具提升研发效能与工程质量。
+              熟练掌握 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">Spring 全家桶（Spring Boot、SpringMVC）</strong>与 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">MyBatis</strong> 系列框架，掌握 Bean 生命周期、IoC/AOP 底层实现、事务传播机制及自动装配原理，熟悉 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">Spring Cloud Alibaba</strong> 微服务体系；掌握 Java 核心技术，深入理解 HashMap、ConcurrentHashMap 等集合底层源码与虚拟线程，掌握 JVM 内存模型、双亲委派机制与 GC 算法（CMS/G1），扎实掌握 JUC 并发底层原理（AQS、CAS、锁机制与线程池调优），熟练运用 CompletableFuture 进行异步编排。
+            </p>
+            <p>
+              深入理解 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">MySQL</strong> InnoDB 引擎与 B+ 树索引，具备慢 SQL 分析与执行计划调优能力；掌握 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">Redis</strong> 缓存架构设计（穿透/击穿/雪崩治理）与 Redisson 分布式锁，掌握 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">RocketMQ</strong> 消息模型及消息可靠性排查。熟练使用 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">Spring AI Alibaba / LangChain</strong>，熟悉 RAG 全链路优化（混合检索 BM25+Vector、重排序及元数据过滤），具备 LLM 推理加速与滑动窗口实践；工程上推崇 <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">Specs Coding（SDD 规范驱动 / TDD 测试驱动）</strong>开发模式，熟练运用 Claude Code、Gemini 等 AI 辅助编程工具提升研发效能与工程质量。
             </p>
           </div>
 
