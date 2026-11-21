@@ -104,18 +104,18 @@ export function Hero({
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
                 2027届全日制本科计算机科学与技术专业
               </strong>
-              在读，主攻{" "}
+              在读，专注{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
-                Java 21 / Spring Boot 3
+                后端开发
               </strong>{" "}
-              高并发后端架构与{" "}
+              与{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
-                Spring AI Alibaba / RAG
-              </strong>{" "}
-              大模型工程化落地。
+                大模型工程化落地
+              </strong>
+              。
             </p>
             <p>
-              技术上深入 Java 并发底层原理与中间件治理（MySQL 慢查询治理、Redis 缓存架构、RocketMQ 消息可靠性）；工程上推崇 Specs Coding（SDD 规范驱动 / TDD 测试驱动）开发模式，熟练运用 Claude Code、Gemini 等 AI 辅助编程工具提升研发效能与工程质量。
+              熟练掌握 Spring 全家桶（Spring、SpringMVC、SpringBoot）和 MyBatis 系列框架，熟练使用 Spring AI Alibaba / LangChain；掌握 Java 核心技术、JVM 与并发底层原理（JUC / 线程池）、MySQL 慢 SQL 排查优化、Redis 缓存设计及 RocketMQ 消息排查。工程上推崇 Specs Coding（SDD 规范驱动 / TDD 测试驱动）开发模式，熟练运用 Claude Code、Gemini 等 AI 辅助编程工具提升研发效能与工程质量。
             </p>
           </div>
 
