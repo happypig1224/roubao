@@ -37,14 +37,17 @@ async function verify() {
   }
   console.log("PASS: 0 privacy leak in production HTML.");
 
-  // 技能体系面板与 (Roubao) 冗余下线断言
+  // 技能体系面板、(Roubao) 冗余与“工程履历”下线断言
   if (html.includes("专业技能体系 · Technical Skills")) {
     throw new Error("STALE CONTENT: '专业技能体系 · Technical Skills' is still present in production HTML!");
   }
   if (html.includes("（Roubao）") || html.includes("(Roubao)")) {
     throw new Error("STALE CONTENT: '(Roubao)' is still present in production HTML!");
   }
-  console.log("PASS: Skill grid panel and (Roubao) suffix are cleanly removed from production HTML.");
+  if (html.includes("工程履历")) {
+    throw new Error("STALE CONTENT: '工程履历' is still present in production HTML!");
+  }
+  console.log("PASS: Skill grid panel, (Roubao) suffix, and '工程履历' are cleanly removed from production HTML.");
 
   // 核心内容存在性检查
   const required = [
@@ -85,7 +88,16 @@ async function verify() {
     path: path.join(ARTIFACT_DIR, "prod-full-desktop.png"),
     fullPage: false,
   });
-  console.log("Desktop production screenshots saved.");
+
+  // 点击打开简历弹窗并截图核验无 emo 图标
+  const resumeBtn = desktopPage.locator("button:has-text('简历')");
+  await resumeBtn.click();
+  await desktopPage.waitForTimeout(600);
+  const resumeModal = desktopPage.locator("[role='dialog']").first();
+  await resumeModal.screenshot({
+    path: path.join(ARTIFACT_DIR, "prod-resume-modal.png"),
+  });
+  console.log("Desktop resume modal screenshot saved.");
 
   // Mobile
   const mobileContext = await browser.newContext({

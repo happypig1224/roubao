@@ -21,8 +21,8 @@ test.describe("公网生产环境 (https://roubao.cloud) 真实状态与纯净�
     await expect(page.locator("text=2027届全日制本科 · 计算机科学与技术")).toBeVisible();
     await expect(page.locator("text=开放实习交流 · 后端开发 & AI 工程化")).toBeVisible();
 
-    // 3. 验证操作触点（工程履历 / 简历、GitHub、Email）
-    await expect(page.locator("button:has-text('工程履历 / 简历')")).toBeVisible();
+    // 3. 验证操作触点（简历、GitHub、Email）
+    await expect(page.locator("button:has-text('简历')")).toBeVisible();
     await expect(page.locator("a:has-text('GitHub')").first()).toBeVisible();
     await expect(page.locator("button:has-text('Email'), a:has-text('Email')").first()).toBeVisible();
   });

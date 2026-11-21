@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Download, Mail, GraduationCap, X, Check, Copy, Award, Sparkles, BookOpen, Layers } from "lucide-react";
+import { Download, Mail, X, Check, Copy } from "lucide-react";
 import { useSpringSheet } from "@/lib/useSpringSheet";
 import { AUTHOR_EMAIL, SITE_HOST } from "@/lib/siteConfig";
 import { copyTextToClipboard } from "@/lib/utils";
@@ -60,9 +60,9 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
   };
 
   const handleDownloadMarkdown = () => {
-    const resumeText = `# 苦恼的肉包🍔 — Java后端开发 / AI工程化
+    const resumeText = `# 苦恼的肉包 — Java后端开发 / AI工程化
 
-- 昵称: 苦恼的肉包🍔
+- 昵称: 苦恼的肉包
 - 学历: 全日制本科 (2027届)
 - 专业: 计算机科学与技术
 - 方向: Java后端开发工程师 / AI工程化
@@ -72,14 +72,14 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
 
 ---
 
-## 🎓 教育背景
+## 教育背景
 - **学历与专业**: 2027届全日制本科 · 计算机科学与技术 (2023-09 ~ 2027-07)
 - **个人荣誉**: 全国计算机能力挑战赛程序设计东北赛区本研组三等奖、国家三等励志奖学金
 - **主修课程**: 数据结构与算法、计算机网络、计算机组成原理、操作系统、程序设计语言、数据库原理等
 
 ---
 
-## 🛠️ 专业技能
+## 专业技能
 
 ### 1. Java核心与并发编程
 - 熟练掌握 Java 核心技术，深入理解 ArrayList、HashMap、ConcurrentHashMap 等集合底层源码，掌握反射机制、动态代理技术、虚拟线程（Virtual Threads），在实际项目中熟练运用 Lambda 与 Stream API 进行函数式编程开发。
@@ -105,7 +105,7 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
 
 ---
 
-## 🌟 个人优势
+## 个人优势
 1. **大模型工程化**: 实践过 RAG 检索链路与元数据过滤，用滑动窗口与并行组装降低延迟，关注减少生成幻觉。
 2. **规范与测试驱动**: 遵循 Specs Coding 开发模式，结合 SDD 与 TDD，运用 Claude Code、Gemini 辅助编写测试与重构代码。
 3. **工程交付习惯**: 能独立负责模块开发与接口联调，习惯在敏捷迭代中持续沟通与复盘。
@@ -174,15 +174,14 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
                 id="resume-sheet-title"
                 className="text-base sm:text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100"
               >
-                苦恼的肉包🍔 · 个人工程履历
+                苦恼的肉包 · 简历
               </h2>
               <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-medium">
                 Java后端开发
               </span>
             </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-              <span className="inline-flex items-center gap-1 font-medium text-zinc-700 dark:text-zinc-300">
-                <GraduationCap className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">
                 2027届全日制本科 · 计算机科学与技术
               </span>
               <span aria-hidden="true" className="opacity-40">·</span>
@@ -208,9 +207,8 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
           {/* Key Metrics / Highlights */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
-              <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                <GraduationCap className="w-3.5 h-3.5 text-blue-500" />
-                <span>学历与专业</span>
+              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                学历与专业
               </div>
               <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
                 2027届全日制本科
@@ -219,9 +217,8 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
             </div>
 
             <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
-              <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                <Award className="w-3.5 h-3.5 text-amber-500" />
-                <span>竞赛与荣誉</span>
+              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                竞赛与荣誉
               </div>
               <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
                 国家三等励志奖学金
@@ -230,9 +227,8 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
             </div>
 
             <div className="rounded-xl p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200/70 dark:border-zinc-800">
-              <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
-                <span>AI 原生开发</span>
+              <div className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                工程规范
               </div>
               <div className="text-sm sm:text-base font-bold text-zinc-900 dark:text-zinc-100 mt-1">
                 Specs / SDD / TDD
@@ -244,9 +240,8 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
           {/* Education Section */}
           <div className="p-3.5 rounded-xl border border-zinc-200/70 dark:border-zinc-800 bg-white/60 dark:bg-zinc-900/40 space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5 text-blue-500" />
-                <span>教育背景与在校表现</span>
+              <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                教育背景与在校表现
               </h3>
               <span className="text-[11px] font-mono text-zinc-400">2023-09 ~ 2027-07</span>
             </div>
@@ -272,9 +267,8 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
 
           {/* Core Technical Skills */}
           <div className="space-y-3">
-            <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-emerald-500" />
-              <span>专业技能深度</span>
+            <h3 className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+              专业技能
             </h3>
 
             <div className="space-y-2 text-xs">

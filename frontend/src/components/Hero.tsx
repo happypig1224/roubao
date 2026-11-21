@@ -109,7 +109,7 @@ export function Hero({
               className="tactile-btn min-h-[42px] px-4 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white shadow-2xs transition-all active:scale-[0.97] cursor-pointer"
             >
               <FileText className="w-4 h-4 text-zinc-400" />
-              <span>工程履历 / 简历</span>
+              <span>简历</span>
             </button>
 
             <a

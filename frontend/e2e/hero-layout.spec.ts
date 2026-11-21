@@ -64,7 +64,7 @@ test.describe("Hero 区域布局重构与响应式排版质量门禁", () => {
     expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 2);
 
     // 验证操作按钮可见可点击
-    await expect(page.locator("button:has-text('工程履历 / 简历')")).toBeVisible();
+    await expect(page.locator("button:has-text('简历')")).toBeVisible();
     await expect(page.locator("a:has-text('GitHub')").first()).toBeVisible();
 
     // 首屏视口截图

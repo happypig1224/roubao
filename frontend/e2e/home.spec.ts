@@ -24,8 +24,8 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
     const statusBadge = page.locator("text=开放实习交流 · 后端开发 & AI 工程化");
     await expect(statusBadge).toBeVisible();
 
-    // 4. 验证操作触点（工程履历/简历、GitHub、Email）正常可见
-    const resumeBtn = page.locator("button:has-text('工程履历 / 简历')");
+    // 4. 验证操作触点（简历、GitHub、Email）正常可见
+    const resumeBtn = page.locator("button:has-text('简历')");
     await expect(resumeBtn).toBeVisible();
 
     const githubLink = page.locator("a:has-text('GitHub')").first();

@@ -40,7 +40,7 @@ test.describe("Playwright 驱动全量 UI 页面文案提取与视觉审核", ()
     record("首页 (/) ", "页脚版权与联系方式 (Footer)", footerText);
 
     // 打开简历抽屉
-    const resumeBtn = page.locator("button:has-text('工程履历 / 简历')");
+    const resumeBtn = page.locator("button:has-text('简历')");
     if (await resumeBtn.isVisible()) {
       await resumeBtn.click();
       await page.waitForTimeout(600);
