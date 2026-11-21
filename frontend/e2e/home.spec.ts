@@ -7,28 +7,25 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
 
   test("页面首屏加载成功并展示规范真实的个人简介（Personal Bio）", async ({ page }) => {
     // 1. 验证页面 SEO 标题
-    await expect(page).toHaveTitle(/肉包 \(Roubao\)/);
+    await expect(page).toHaveTitle(/苦恼的肉包/);
 
     // 2. 验证导航栏
     const nav = page.locator("nav");
     await expect(nav).toBeVisible();
 
-    // 3. 验证个人身份核心元素：姓名、定位与地理坐标（深圳）
+    // 3. 验证个人身份核心元素：昵称、学历专业、开放交流状态
     const heading = page.locator("h1");
     await expect(heading).toBeVisible();
-    await expect(heading).toContainText("Roubao");
+    await expect(heading).toContainText("苦恼的肉包");
 
-    const roleText = page.locator("text=苦恼的肉包🍔");
-    await expect(roleText).toBeVisible();
+    const eduBadge = page.locator("text=2027届全日制本科 · 计算机科学与技术");
+    await expect(eduBadge).toBeVisible();
 
-    const locationBadge = page.locator("text=中国 · 深圳");
-    await expect(locationBadge).toBeVisible();
-
-    const statusBadge = page.locator("text=开放架构与全栈交流");
+    const statusBadge = page.locator("text=开放实习交流 · 后端开发 & AI 工程化");
     await expect(statusBadge).toBeVisible();
 
-    // 4. 验证操作触点（下载简历、GitHub、Email）正常可见
-    const resumeBtn = page.locator("button:has-text('下载简历')");
+    // 4. 验证操作触点（工程履历/简历、GitHub、Email）正常可见
+    const resumeBtn = page.locator("button:has-text('工程履历 / 简历')");
     await expect(resumeBtn).toBeVisible();
 
     const githubLink = page.locator("a:has-text('GitHub')").first();
@@ -37,11 +34,20 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
     const emailBtn = page.locator("button:has-text('Email'), a:has-text('Email')").first();
     await expect(emailBtn).toBeVisible();
 
-    // 5. 验证核心技术专长三支柱
-    await expect(page.locator("text=技术方向与实践")).toBeVisible();
-    await expect(page.getByText("后端高并发架构", { exact: true })).toBeVisible();
-    await expect(page.getByText("存储与可观测", { exact: true })).toBeVisible();
-    await expect(page.getByText("现代 Web 工程", { exact: true })).toBeVisible();
+    // 5. 验证 5 大专业技能核心板块
+    await expect(page.locator("text=专业技能体系 · Technical Skills")).toBeVisible();
+    await expect(page.getByText("Java 核心与并发底层", { exact: true })).toBeVisible();
+    await expect(page.getByText("框架与微服务生态", { exact: true })).toBeVisible();
+    await expect(page.getByText("数据存储与中间件治理", { exact: true })).toBeVisible();
+    await expect(page.getByText("AI 工程化与大模型应用", { exact: true })).toBeVisible();
+    await expect(page.getByText("前端联调与 DevOps 工程化", { exact: true })).toBeVisible();
+  });
+
+  test("全站绝无隐私泄露（无真实姓名、无学校名称、无手机号码）", async ({ page }) => {
+    const pageContent = await page.content();
+    expect(pageContent).not.toContain("吴汇明");
+    expect(pageContent).not.toContain("绥化学院");
+    expect(pageContent).not.toContain("19997556314");
   });
 
   test("数据库清空后，全站绝不存在任何硬编码虚假数据或伪造项目/文稿", async ({ page }) => {
@@ -72,7 +78,6 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
     const projectsSection = page.locator("#projects");
     await expect(projectsSection).toBeVisible();
 
-    // 验证绝无粗暴的 '0 项开源实践在线' 标签与虚假在研卡片
     await expect(page.locator("text=0 项开源实践在线")).toHaveCount(0);
     await expect(page.locator("text=在研工坊")).toHaveCount(0);
     await expect(page.locator("text=暂无已公开发布的开源项目")).toBeVisible();
@@ -81,7 +86,6 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
     const blogSection = page.locator("#blog");
     await expect(blogSection).toBeVisible();
 
-    // 验证绝无写死的文稿排期卡片
     await expect(page.locator("text=Upcoming Publications")).toHaveCount(0);
     await expect(page.locator("text=暂无已公开发布的技术文章")).toBeVisible();
   });
