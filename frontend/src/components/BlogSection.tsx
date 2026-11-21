@@ -70,7 +70,7 @@ export function BlogSection({
             技术文章与博客
           </h2>
           <p className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-            记录高性能架构、JVM 虚拟线程实测与工匠级前端细节
+            记录后端架构、JVM 虚拟线程实测与前端交互开发的心得
           </p>
         </div>
 

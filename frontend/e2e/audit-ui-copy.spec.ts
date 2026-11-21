@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -270,7 +270,7 @@ test.describe("Playwright 驱动全量 UI 页面文案提取与视觉审核", ()
     record("后台管理系统 (/admin)", "大盘仪表盘 (DashboardView)", dashText);
 
     // 切换至文章管理
-    const articlesTab = page.locator("button:has-text('文章管理')");
+    const articlesTab = page.locator("button:has-text('文章管理')").first();
     if (await articlesTab.isVisible()) {
       await articlesTab.click();
       await page.waitForTimeout(400);
@@ -279,7 +279,7 @@ test.describe("Playwright 驱动全量 UI 页面文案提取与视觉审核", ()
     }
 
     // 切换至分类管理
-    const categoriesTab = page.locator("button:has-text('分类管理')");
+    const categoriesTab = page.locator("button:has-text('分类管理')").first();
     if (await categoriesTab.isVisible()) {
       await categoriesTab.click();
       await page.waitForTimeout(400);
@@ -288,7 +288,7 @@ test.describe("Playwright 驱动全量 UI 页面文案提取与视觉审核", ()
     }
 
     // 切换至项目管理
-    const projectsTab = page.locator("button:has-text('项目管理')");
+    const projectsTab = page.locator("button:has-text('项目管理')").first();
     if (await projectsTab.isVisible()) {
       await projectsTab.click();
       await page.waitForTimeout(400);

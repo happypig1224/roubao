@@ -1,0 +1,141 @@
+{
+ "meta": {
+  "篇数": 1,
+  "万汉字": 0.14,
+  "段数": 119,
+  "小标题数": 13
+ },
+ "density": {
+  "翻案腔": 0.0,
+  "提示语冒号": 0.0,
+  "起手式": 0.0,
+  "当…时从句": 0.0,
+  "前置话题壳": 0.0,
+  "句首连接词": 0.0,
+  "顿号并列≥3": 10.737,
+  "过长前置定语": 0.0,
+  "拟人化喻体": 0.0,
+  "概括替代(已否决)": 0.0,
+  "序数词小标题(已否决)": 0.0,
+  "「这意味着」复述(已否决)": 0.0,
+  "空转句引列表(已否决)": 0.0
+ },
+ "char_density": {
+  "破折号": 0.0,
+  "分号": 7.874,
+  "引号": 0.0
+ },
+ "hits": {
+  "翻案腔": [],
+  "提示语冒号": [],
+  "起手式": [],
+  "当…时从句": [],
+  "前置话题壳": [],
+  "句首连接词": [],
+  "顿号并列≥3": [
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 4,
+    "excerpt": "情 /blog/[slug]、404 引导页、后台管理 /admin)"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 115,
+    "excerpt": "数据结构与算法、计算机网络、计算机组成原理"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 115,
+    "excerpt": "操作系统、程序设计语言、数据库原理等"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 121,
+    "excerpt": "深入理解 ArrayList、HashMap、ConcurrentHash"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 121,
+    "excerpt": "掌握反射机制、动态代理技术、虚拟线程（Virtual T"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 121,
+    "excerpt": "握 synchronized、ReentrantLock、CAS"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 121,
+    "excerpt": "AQS、ThreadLocal、volatile 等底层并发"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 125,
+    "excerpt": "ing 全家桶（Spring、SpringMVC、SpringBoot 3）与"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 125,
+    "excerpt": "掌握 Bean 生命周期、IoC/AOP 底层实现、事务传播机制与失效场景"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 125,
+    "excerpt": " Alibaba（Nacos、Feign、Gateway"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 129,
+    "excerpt": "理能力（Explain 分析、覆盖索引、深分页优化）"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 129,
+    "excerpt": "久化（RDB/AOF/混合）、内存淘汰、过期策略与哨兵高可用集群"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 137,
+    "excerpt": "熟悉前端技术栈（HTML5、CSS3、JavaScript"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 137,
+    "excerpt": "Vue3、Next.js、Axios）"
+   },
+   {
+    "file": "ui-pages-copy-after.md",
+    "line": 137,
+    "excerpt": "熟练使用 Git、Maven、Linux 常用运维命令"
+   }
+  ],
+  "过长前置定语": [],
+  "拟人化喻体": [],
+  "概括替代(已否决)": [],
+  "序数词小标题(已否决)": [],
+  "「这意味着」复述(已否决)": [],
+  "空转句引列表(已否决)": []
+ },
+ "syn_hits": [
+  {
+   "file": "ui-pages-copy-after.md",
+   "line": 133,
+   "excerpt": "使用／运用",
+   "context": "熟悉 RAG（检索增强生成）全链路优化，熟练使用 Spring AI Alibaba 与 LangChain；熟悉混合检索（BM25+Vec"
+  },
+  {
+   "file": "ui-pages-copy-after.md",
+   "line": 133,
+   "excerpt": "增强／优化",
+   "context": "熟悉 RAG（检索增强生成）全链路优化，熟练使用 Spring AI Alibaba 与 LangChain；熟悉混合检索（BM25+Vec"
+  }
+ ],
+ "structure": {
+  "句长CV": 0.831,
+  "节长CV": 1.786,
+  "小标题/千字": 9.306,
+  "两句同构/百段": 1.68,
+  "三句同构/百段": 0.0,
+  "mtld粗估": 309
+ }
+}

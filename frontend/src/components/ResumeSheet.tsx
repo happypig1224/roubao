@@ -106,9 +106,9 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
 ---
 
 ## 🌟 个人优势
-1. **AI 原生与工程落地**: 具备前沿的 AI Agent 与大模型落地实战、降低大模型幻觉经验，紧跟 AI 原生技术演进。
-2. **严苛规范驱动开发**: 遵循 Specs Coding、SDD（规范驱动）与 TDD（测试驱动）开发模式，熟练运用 Claude Code、Gemini 进行 AI 辅助编程，大幅提升代码可维护性与交付质量。
-3. **团队协作与攻坚**: 具备在校期间参与团队协作项目从 0 到 1 的开发经验，能够独立攻坚完成核心业务模块，积极配合团队进度保障项目里程碑达成。
+1. **大模型工程化**: 实践过 RAG 检索链路与元数据过滤，用滑动窗口与并行组装降低延迟，关注减少生成幻觉。
+2. **规范与测试驱动**: 遵循 Specs Coding 开发模式，结合 SDD 与 TDD，运用 Claude Code、Gemini 辅助编写测试与重构代码。
+3. **工程交付习惯**: 能独立负责模块开发与接口联调，习惯在敏捷迭代中持续沟通与复盘。
 `;
     const blob = new Blob([resumeText], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -332,16 +332,16 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
             </h3>
             <ul className="space-y-1 text-xs text-zinc-600 dark:text-zinc-400 list-disc list-inside">
               <li>
-                <strong className="text-zinc-800 dark:text-zinc-200">AI 原生工程实战：</strong>
-                具备前沿的 AI Agent 与大模型落地实战、降低大模型幻觉经验，紧跟 AI 辅助研发前沿。
+                <strong className="text-zinc-800 dark:text-zinc-200">大模型工程化：</strong>
+                实践过 RAG 检索链路与元数据过滤，用滑动窗口与并行组装降低延迟，关注减少生成幻觉。
               </li>
               <li>
-                <strong className="text-zinc-800 dark:text-zinc-200">Specs Coding 规范开发：</strong>
-                遵循 SDD 与 TDD 开发模式，熟练使用 Claude Code、Gemini 进行 AI 辅助编程，提升代码鲁棒性与开发质量。
+                <strong className="text-zinc-800 dark:text-zinc-200">规范与测试驱动：</strong>
+                遵循 Specs Coding 开发模式，结合 SDD 与 TDD，运用 Claude Code、Gemini 辅助编写测试与重构代码。
               </li>
               <li>
-                <strong className="text-zinc-800 dark:text-zinc-200">团队协作与独立交付：</strong>
-                具备参与团队项目从 0 到 1 的协作与独立模块攻坚交付经验，具备敏捷沟通与持续学习能力。
+                <strong className="text-zinc-800 dark:text-zinc-200">工程交付习惯：</strong>
+                能独立负责模块开发与接口联调，习惯在敏捷迭代中持续沟通与复盘。
               </li>
             </ul>
           </div>

@@ -24,9 +24,10 @@ test.describe("Hero 区域布局重构与响应式排版质量门禁", () => {
 
     const bioSection = heroSection.locator(".max-w-\\[68ch\\]");
     await expect(bioSection).toBeVisible();
+    await expect(bioSection).toContainText("你好，我是肉包。");
     await expect(bioSection).toContainText("2027届全日制本科计算机科学与技术专业");
     await expect(bioSection).toContainText("专注 后端开发 与 大模型工程化落地。");
-    await expect(bioSection).toContainText("Specs Coding（SDD 规范驱动 / TDD 测试驱动）");
+    await expect(bioSection).toContainText("Specs Coding（规范与测试驱动）");
 
     // 3. 验证“专业技能体系”大面板已彻底移除，且无 (Roubao) 冗余标注
     await expect(page.locator("text=专业技能体系 · Technical Skills")).toHaveCount(0);

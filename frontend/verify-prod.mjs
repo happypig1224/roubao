@@ -52,6 +52,7 @@ async function verify() {
     "2027届全日制本科 · 计算机科学与技术",
     "后端开发",
     "大模型工程化落地",
+    "你好，我是肉包。",
   ];
   for (const item of required) {
     if (!html.includes(item)) {

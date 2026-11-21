@@ -35,6 +35,7 @@ test.describe("肉包技术博客与展厅首页 - 纯净真实性与无虚假�
     await expect(emailBtn).toBeVisible();
 
     // 5. 验证个人陈述规范书写，且已彻底移除杂乱的专业技能体系大面板
+    await expect(page.locator(".max-w-\\[68ch\\]")).toContainText("你好，我是肉包。");
     await expect(page.locator(".max-w-\\[68ch\\]")).toContainText("2027届全日制本科计算机科学与技术专业");
     await expect(page.locator(".max-w-\\[68ch\\]")).toContainText("专注 后端开发 与 大模型工程化落地。");
     await expect(page.locator("text=专业技能体系 · Technical Skills")).toHaveCount(0);

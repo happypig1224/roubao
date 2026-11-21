@@ -75,7 +75,7 @@ export function Hero({
           {/* 个人陈述 (精炼克制，规范呈现) */}
           <div className="max-w-[68ch] text-[14px] sm:text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-300 space-y-2.5">
             <p>
-              你好，我是苦恼的肉包🍔。目前是{" "}
+              你好，我是肉包。目前是{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
                 2027届全日制本科计算机科学与技术专业
               </strong>
@@ -92,13 +92,13 @@ export function Hero({
             <p>
               工程上推崇{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
-                Specs Coding（SDD 规范驱动 / TDD 测试驱动）
+                Specs Coding（规范与测试驱动）
               </strong>
-              开发模式，熟练运用{" "}
+              开发，平时用{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
                 Claude Code、Gemini
               </strong>{" "}
-              等 AI 辅助编程工具提升研发效能与工程质量。
+              等工具辅助编写单元测试与重构代码。
             </p>
           </div>
 

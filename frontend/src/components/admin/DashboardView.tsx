@@ -83,7 +83,7 @@ export function DashboardView({
             系统大盘总览
           </h1>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            实时汇总文章冷热数据、发布状态、分类分布与开源展厅指标
+            汇总全站文章浏览、发布状态与各分类数据
           </p>
         </div>
 

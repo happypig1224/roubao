@@ -28,7 +28,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
             代表开源项目展厅
           </h2>
           <p className="text-xs sm:text-[13px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-            围绕单机极致吞吐、轻量化分布式追踪与现代 Web 交互的工程实践
+            平时在服务端高并发、链路追踪与现代前端交互方面写的真实代码
           </p>
         </div>
 
