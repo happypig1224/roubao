@@ -122,6 +122,37 @@ flowchart TD
         T_P8_3 --> V_P8
         T_P8_4 --> V_P8
     end
+
+    subgraph S_P9["Phase 9: 微交互触感与沉浸式禅阅读 (P9)"]
+        T_P9_1["[TICKET-P9-1]<br>全站微交互触感系统与轻量震动反馈"]:::p2
+        T_P9_2["[TICKET-P9-2]<br>沉浸式禅阅读器与排版舒适度工具箱"]:::p2
+        T_P9_3["[TICKET-P9-3]<br>代码块增强与 Markdown 图片画廊灯箱"]:::p2
+        V_P9{"[GATE-9]<br>触感交互与阅读器质量门禁"}:::gate
+        V_P8 --> T_P9_1
+        T_P9_1 --> T_P9_2
+        T_P9_2 --> T_P9_3
+        T_P9_3 --> V_P9
+    end
+
+    subgraph S_P10["Phase 10: 交互式架构游乐场·漫画趣味教学 (P10)"]
+        T_P10_1["[TICKET-P10-1]<br>架构游乐场分镜舞台与漫画对话泡泡系统"]:::p2
+        T_P10_2["[TICKET-P10-2]<br>首发互动剧本: Java 21 虚拟线程大战并发风暴"]:::p2
+        V_P10{"[GATE-10]<br>游乐场交互与性能门禁"}:::gate
+        V_P9 --> T_P10_1
+        T_P10_1 --> T_P10_2
+        T_P10_2 --> V_P10
+    end
+
+    subgraph S_P11["Phase 11: GitHub 授权互动留言墙 (P11)"]
+        T_P11_1["[TICKET-P11-1]<br>tb_guestbook 物理迁移与后端安全接口"]:::p1
+        T_P11_2["[TICKET-P11-2]<br>GitHub OAuth 鉴权与防刷频次限流"]:::p1
+        T_P11_3["[TICKET-P11-3]<br>留言墙拍脸便签 Bento 交互界面与管理员审核"]:::p1
+        V_P11{"[GATE-11]<br>留言墙端到端安全门禁"}:::gate
+        V_P10 --> T_P11_1
+        T_P11_1 --> T_P11_2
+        T_P11_2 --> T_P11_3
+        T_P11_3 --> V_P11
+    end
 ```
 
 ---
@@ -164,6 +195,17 @@ flowchart TD
 | **P8** | `TICKET-P8-3` | Nginx HSTS 响应头加固与 llms.txt 脱敏 | `deploy`/`frontend` | ✅ 已完成 (Green) | HSTS 31536000 注入，荣誉地域信息一致性对齐 |
 | **P8** | `TICKET-P8-4` | 生产 MySQL 自动化定时热备与滚动归档 | `deploy` | ✅ 已完成 (Green) | `backup-mysql.sh` 脚本构建与防破坏自检 |
 | **GATE-8** | `[GATE-8]` | 效能与健壮性全链路门禁裁决 | 全局 | 🟢 准入通过 (READY) | 全栈测试全绿，代码无损，构建 100% 通过 |
+| **P9** | `TICKET-P9-1` | 全站微交互触感系统与轻量震动反馈 | `frontend` | ✅ 已完成 (Green) | `globals.css`, `haptic.ts`, Dan Saffer 物理按压与 Web Vibration |
+| **P9** | `TICKET-P9-2` | 沉浸式禅阅读器与排版舒适度工具箱 | `frontend` | ✅ 已完成 (Green) | `ZenToolbar.tsx`, `ArticleDetailClient.tsx`, 禅模式/字号/衬线/暖纸色 |
+| **P9** | `TICKET-P9-3` | 代码块增强与 Markdown 图片画廊灯箱 | `frontend` | ✅ 已完成 (Green) | `MarkdownRenderer.tsx`, Lightbox 弹窗, 剪贴板安全降级 |
+| **GATE-9** | `[GATE-9]` | 触感交互与阅读器质量门禁裁决 | 全局 | 🟢 准入通过 (READY) | Playwright 36/36 全绿 (含新套件 3/3), ESLint 0 告警, Next 16 构建通过 |
+| **P10** | `TICKET-P10-1` | 架构游乐场分镜舞台与漫画对话泡泡系统 | `frontend` | ⚪ 规划中 | `/playground`, 漫画分镜格, 半色调网点, 角色气泡 |
+| **P10** | `TICKET-P10-2` | 首发互动剧本: Java 21 虚拟线程大战并发风暴 | `frontend` | ⚪ 规划中 | 虚拟线程/平台线程实时对比滑块, 吞吐量/内存动态图表 |
+| **GATE-10** | `[GATE-10]` | 游乐场交互与性能门禁裁决 | 全局 | ⚪ 待验证 | 漫画交互帧率 60fps、无布局抖动、可交互状态机测试 |
+| **P11** | `TICKET-P11-1` | tb_guestbook 物理迁移与后端安全接口 | `backend` | ⚪ 规划中 | Flyway V4, `GuestbookMapper`, `GuestbookService` |
+| **P11** | `TICKET-P11-2` | GitHub OAuth 鉴权与防刷频次限流 | `backend` | ⚪ 规划中 | GitHub OAuth 2.0, Redis 令牌桶滑动窗口限流 |
+| **P11** | `TICKET-P11-3` | 留言墙拍脸便签 Bento 交互界面与管理员审核 | `frontend` | ⚪ 规划中 | `/guestbook`, 便签卡片墙, 留言表单, 审核面板 |
+| **GATE-11** | `[GATE-11]` | 留言墙端到端安全门禁裁决 | 全局 | ⚪ 待验证 | 单元测试全绿, E2E 授权留言与反刷门禁闭环 |
 
 ---
 
@@ -175,14 +217,20 @@ flowchart TD
   - `roubao-project`: 15/15 绿灯 (ProjectPortalController, ProjectService, Mapper)
   - `roubao-admin`: 18/18 绿灯 (ArticleAdminController, CategoryAdminController, ProjectAdminController, DashboardAdminController, AdminAuthController, AdminAuthInterceptor, MarkdownFrontmatterParser)
   - `roubao-app`: 5/5 绿灯 (FlywayMigration, CorsSecurity)
-- **前端 Playwright 端到端 (E2E) 测试套件**：**23/23** 测试通过（0 Failure, 0 Flaky, 100% Pass）
+- **前端 Playwright 端到端 (E2E) 测试套件**：**36/36** 测试通过（0 Failure, 0 Flaky, 100% Pass）
   - `admin-console.spec.ts`: 3/3 绿灯 (未鉴权安全锁、错误 Token 拦截、凭证解锁大盘与 Tab 切换登出)
   - `admin-drawer.spec.ts`: 3/3 绿灯
   - `article-detail.spec.ts`: 4/4 绿灯
   - `article-markdown-layout.spec.ts`: 4/4 绿灯
+  - `audit-ui-copy.spec.ts`: 4/4 绿灯
+  - `hero-layout.spec.ts`: 2/2 绿灯
   - `hig-touch-budget.spec.ts`: 4/4 绿灯
   - `home.spec.ts`: 4/4 绿灯
   - `markdown-xss.spec.ts`: 1/1 绿灯
+  - `on-demand-revalidation.spec.ts`: 3/3 绿灯
+  - `prod-smoke.spec.ts`: 3/3 绿灯
+  - `zen-reader-micro-ux.spec.ts`: 3/3 绿灯 (禅模式、字号/衬线/纸色切换、代码复制与 44pt 触控)
+  - `screenshot.spec.ts`: 1/1 绿灯
 - **前端代码质量与构建门禁**：
   - `pnpm lint`: 0 Error, 0 Warning
   - `pnpm build`: 15 个静态与 PPR 路由页面 100% 成功生成预渲染包 (包含独立 `/admin`)

@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { Search, Rss, X } from "lucide-react";
 import { Article } from "@/types";
+import { triggerHaptic } from "@/lib/haptic";
 
 interface BlogSectionProps {
   articles: Article[];
@@ -99,8 +100,11 @@ export function BlogSection({
                   role="tab"
                   aria-selected={isSelected}
                   type="button"
-                  onClick={() => onCategoryChange(c.key)}
-                  className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center ${
+                  onClick={() => {
+                    triggerHaptic("selection");
+                    onCategoryChange(c.key);
+                  }}
+                  className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer flex items-center tactile-depress ${
                     isSelected
                       ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-950 font-semibold shadow-xs"
                       : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/80"

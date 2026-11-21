@@ -20,6 +20,13 @@ import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { extractTocHeadings, TocHeading } from "@/lib/markdown";
 import { copyTextToClipboard } from "@/lib/utils";
 import { Article } from "@/types";
+import {
+  ZenToolbar,
+  ReaderFontSize,
+  ReaderFontFamily,
+  ReaderThemeTone,
+} from "@/components/ZenToolbar";
+import { triggerHaptic } from "@/lib/haptic";
 
 interface ArticleDetailClientProps {
   article: Article;
@@ -53,6 +60,44 @@ export function ArticleDetailClient({
   const [mobileTocOpen, setMobileTocOpen] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string>("");
   const trackedSlugRef = useRef<string | null>(null);
+
+  const [zenMode, setZenMode] = useState<boolean>(false);
+  const [fontSize, setFontSize] = useState<ReaderFontSize>("sm");
+  const [fontFamily, setFontFamily] = useState<ReaderFontFamily>("sans");
+  const [themeTone, setThemeTone] = useState<ReaderThemeTone>("default");
+  const [readingProgress, setReadingProgress] = useState<number>(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (total > 0) {
+        const pct = Math.min(100, Math.max(0, (window.scrollY / total) * 100));
+        setReadingProgress(pct);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleZenKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+      if (e.key === "Escape" && zenMode) {
+        setZenMode(false);
+        triggerHaptic("light");
+      }
+      if ((e.key === "z" || e.key === "Z") && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        setZenMode((prev) => {
+          triggerHaptic(prev ? "light" : "medium");
+          return !prev;
+        });
+      }
+    };
+    window.addEventListener("keydown", handleZenKey);
+    return () => window.removeEventListener("keydown", handleZenKey);
+  }, [zenMode]);
 
   const sanitizedMarkdown = useMemo(() => {
     const raw = article.contentMarkdown || "";
@@ -194,21 +239,64 @@ export function ArticleDetailClient({
   const handleCopyUrl = async () => {
     const success = await copyTextToClipboard(window.location.href);
     if (!success) return;
+    triggerHaptic("success");
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 1800);
   };
 
+  const estimatedRemainingMinutes = Math.max(
+    1,
+    Math.round(article.readTimeMinutes * (1 - readingProgress / 100))
+  );
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#fafafa] dark:bg-[#0c0c0d] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 dark:selection:bg-zinc-800">
-      <Navbar
-        activeSection="blog"
-        articles={articles}
-        projects={[]}
+    <div
+      id="article-detail-root"
+      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+        themeTone === "paper"
+          ? "reader-theme-paper"
+          : themeTone === "oled"
+          ? "reader-theme-oled"
+          : "bg-[#fafafa] dark:bg-[#0c0c0d] text-zinc-900 dark:text-zinc-100"
+      } selection:bg-zinc-200 dark:selection:bg-zinc-800`}
+    >
+      {/* 顶部全局阅读进度高精发丝指示条 */}
+      <div
+        className="fixed top-0 left-0 right-0 h-[2.5px] z-50 bg-blue-600 transition-all duration-100 origin-left"
+        style={{ transform: `scaleX(${readingProgress / 100})` }}
       />
 
-      <main className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-5 pb-12">
+      {!zenMode && (
+        <Navbar
+          activeSection="blog"
+          articles={articles}
+          projects={[]}
+        />
+      )}
+
+      {/* 禅模式下的浮动快捷工具箱与退出胶囊 */}
+      {zenMode && (
+        <ZenToolbar
+          zenMode={zenMode}
+          onToggleZenMode={() => setZenMode(false)}
+          fontSize={fontSize}
+          onChangeFontSize={setFontSize}
+          fontFamily={fontFamily}
+          onChangeFontFamily={setFontFamily}
+          themeTone={themeTone}
+          onChangeThemeTone={setThemeTone}
+          readingProgress={readingProgress}
+          estimatedRemainingMinutes={estimatedRemainingMinutes}
+        />
+      )}
+
+      <main
+        className={`flex-1 w-full mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
+          zenMode ? "max-w-4xl pt-8 pb-20" : "max-w-[1600px] pt-5 pb-12"
+        }`}
+      >
         {/* 移动端展开目录下拉层 */}
-        {showToc && mobileTocOpen && (
+        {!zenMode && showToc && mobileTocOpen && (
           <div className="lg:hidden mb-4 clean-card rounded-2xl p-4 border border-zinc-200 dark:border-zinc-800 max-h-80 overflow-y-auto no-scrollbar shadow-md">
             <div className="text-xs font-bold text-zinc-900 dark:text-zinc-100 pb-2 mb-2 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
               <span>文章小节速览</span>
@@ -239,7 +327,7 @@ export function ArticleDetailClient({
         {/* 主内容区: 左侧大纲从零点完全锚定 (零位移无跳变) + 右侧流式正文主画布 */}
         <div className="flex items-start relative">
           {/* 左侧栏目录 (桌面端): 精准锚定在 sticky top-[86px]，与首屏 pt-5 (20px) 保持 100% 绝对零位移 (0.000px 差值) */}
-          {showToc && (
+          {!zenMode && showToc && (
             <div
               className={`hidden lg:block shrink-0 sticky top-[86px] overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 sidebarCollapsed
@@ -259,7 +347,7 @@ export function ArticleDetailClient({
           )}
 
           {/* 仿飞书左侧吸附式大纲展开图标按钮 (精准同步 top-[86px]，固定尺寸 w-9 h-9，悬停纯浮动 Tooltip，绝不改变宽度推挤正文) */}
-          {showToc && (
+          {!zenMode && showToc && (
             <div
               className={`hidden lg:block sticky top-[86px] z-20 shrink-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 sidebarCollapsed
@@ -270,7 +358,7 @@ export function ArticleDetailClient({
               <button
                 type="button"
                 onClick={() => setSidebarCollapsed(false)}
-                aria-label="展开目录"
+                aria-label="展开目录大纲"
                 className="relative group flex items-center justify-center w-9 h-9 rounded-xl bg-white/95 dark:bg-[#141416]/95 border border-zinc-200/90 dark:border-zinc-800/90 shadow-sm hover:shadow-md backdrop-blur-md text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-150 cursor-pointer"
               >
                 <PanelLeftOpen className="w-4 h-4 transition-transform group-hover:scale-110" />
@@ -300,9 +388,25 @@ export function ArticleDetailClient({
                       <span>{views} 次阅读</span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* 阅读偏好排版工具箱 (字号/字体/暖纸色/禅模式) */}
+                      {!zenMode && (
+                        <ZenToolbar
+                          zenMode={zenMode}
+                          onToggleZenMode={() => setZenMode(true)}
+                          fontSize={fontSize}
+                          onChangeFontSize={setFontSize}
+                          fontFamily={fontFamily}
+                          onChangeFontFamily={setFontFamily}
+                          themeTone={themeTone}
+                          onChangeThemeTone={setThemeTone}
+                          readingProgress={readingProgress}
+                          estimatedRemainingMinutes={estimatedRemainingMinutes}
+                        />
+                      )}
+
                       {/* 移动端目录折叠抽屉开关 */}
-                      {showToc && (
+                      {!zenMode && showToc && (
                         <button
                           type="button"
                           onClick={() => setMobileTocOpen((prev) => !prev)}
@@ -319,7 +423,7 @@ export function ArticleDetailClient({
                       )}
 
                       {/* 快速返回列表 (移动端或桌面端大纲收起时提供快速回溯) */}
-                      {(sidebarCollapsed || !showToc) && (
+                      {!zenMode && (sidebarCollapsed || !showToc) && (
                         <Link
                           href="/#blog"
                           className="tactile-btn inline-flex items-center gap-1 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 py-1 px-2.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -371,13 +475,17 @@ export function ArticleDetailClient({
 
                 {/* 正文 Markdown 高精渲染容器 (Optimal 65-75ch Reading Ergonomics) */}
                 <div className="pt-7">
-                  <MarkdownRenderer markdown={article.contentMarkdown || ""} />
+                  <MarkdownRenderer
+                    markdown={article.contentMarkdown || ""}
+                    fontSize={fontSize}
+                    fontFamily={fontFamily}
+                  />
                 </div>
               </div>
             </article>
 
             {/* 上下一篇文章导航卡片 */}
-            {(prevArticle || nextArticle) && (
+            {!zenMode && (prevArticle || nextArticle) && (
               <nav
                 aria-label="上下篇文章导航"
                 className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8"
@@ -419,7 +527,7 @@ export function ArticleDetailClient({
         </div>
       </main>
 
-      <Footer />
+      {!zenMode && <Footer />}
 
       <AdminDrawer
         isOpen={adminOpen}

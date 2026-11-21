@@ -10,8 +10,12 @@ export async function copyTextToClipboard(text: string): Promise<boolean> {
 
   try {
     if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return true;
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch {
+        // Fallback to execCommand if navigator.clipboard throws (e.g. headless/unfocused)
+      }
     }
 
     const textArea = document.createElement("textarea");

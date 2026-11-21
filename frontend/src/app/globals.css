@@ -367,3 +367,89 @@ pre::-webkit-scrollbar-track {
   outline-offset: 2px !important;
 }
 
+/* ==========================================================================
+   Dan Saffer 物理触感与微交互增强 (Micro-Interactions & Tactile Depress)
+   ========================================================================== */
+
+.tactile-depress {
+  transition:
+    transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.16s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.16s ease;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tactile-depress:hover {
+  transform: translateY(-1px);
+}
+
+.tactile-depress:active {
+  transform: translateY(0.5px) scale(0.975);
+  opacity: 0.88;
+}
+
+/* ==========================================================================
+   沉浸式禅阅读器排版与纸感主题 (Zen Reader System)
+   ========================================================================== */
+
+.font-reader-serif {
+  font-family: Newsreader, "Source Serif Pro", Georgia, "Noto Serif SC", "Songti SC", SimSun, serif !important;
+}
+
+.font-reader-sans {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* 护眼暖纸色模式 (Warm Paper Mode) */
+.reader-theme-paper {
+  background-color: #fbf7ee !important;
+  color: #2b2520 !important;
+}
+
+.reader-theme-paper article {
+  background-color: #f5eedc !important;
+  border-top-color: rgba(255, 255, 255, 0.7) !important;
+  border-bottom-color: rgba(140, 115, 80, 0.15) !important;
+  border-inline-color: rgba(140, 115, 80, 0.12) !important;
+  box-shadow:
+    0 1px 2px rgba(120, 90, 50, 0.04),
+    0 8px 24px -4px rgba(120, 90, 50, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.reader-theme-paper .prose {
+  color: #2e2824 !important;
+}
+
+.reader-theme-paper h1,
+.reader-theme-paper h2,
+.reader-theme-paper h3,
+.reader-theme-paper h4 {
+  color: #1a1512 !important;
+}
+
+/* 极致黑夜纯 OLED 模式 (Midnight Pure OLED Mode) */
+.reader-theme-oled {
+  background-color: #000000 !important;
+  color: #ededed !important;
+}
+
+.reader-theme-oled article {
+  background-color: #050505 !important;
+  border-color: #1a1a1a !important;
+  box-shadow: 0 0 0 1px #141414 !important;
+}
+
+.reader-theme-oled .prose {
+  color: #d1d1d6 !important;
+}
+
+.reader-theme-oled h1,
+.reader-theme-oled h2,
+.reader-theme-oled h3,
+.reader-theme-oled h4 {
+  color: #f5f5f7 !important;
+}
+
+

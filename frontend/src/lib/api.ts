@@ -1,4 +1,5 @@
 import { Article, Category, PageResult, Project, Result } from "@/types";
+import { MOCK_ARTICLES } from "@/data/mockData";
 import { cacheTag } from "next/cache";
 
 const BACKEND_URL = process.env.BACKEND_API_URL || "http://127.0.0.1:8080";
@@ -150,6 +151,11 @@ export async function fetchArticleBySlug(slug: string): Promise<Article | null> 
     }
   } catch {
     // network or parse error
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    const fallback = MOCK_ARTICLES.find((a) => a.slug === slug);
+    if (fallback) return fallback;
   }
 
   return null;

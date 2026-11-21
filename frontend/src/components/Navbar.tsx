@@ -8,6 +8,7 @@ import { GithubIcon } from "./icons";
 import { BaoCoreLogo } from "./BaoCoreLogo";
 import { GITHUB_URL, SITE_BRAND_NAME } from "@/lib/siteConfig";
 import { Article, Project } from "@/types";
+import { triggerHaptic } from "@/lib/haptic";
 
 export type SectionId = "top" | "projects" | "blog";
 
@@ -91,6 +92,7 @@ export function Navbar({
   }, []);
 
   const toggleTheme = () => {
+    triggerHaptic("selection");
     if (isDark) {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
