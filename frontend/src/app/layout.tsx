@@ -43,7 +43,7 @@ export const metadata: Metadata = {
       "application/rss+xml": [
         {
           url: "/rss.xml",
-          title: "肉包 (Roubao) 技术文章 RSS",
+          title: "苦恼的肉包技术文章 RSS",
         },
       ],
     },

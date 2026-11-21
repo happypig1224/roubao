@@ -66,9 +66,6 @@ export function Hero({
               <h1 className="text-3xl sm:text-4xl md:text-[44px] font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.15]">
                 苦恼的肉包🍔
               </h1>
-              <span className="text-base sm:text-lg font-mono text-zinc-500 dark:text-zinc-400">
-                (Roubao)
-              </span>
             </div>
             <p className="text-base sm:text-lg font-medium text-zinc-600 dark:text-zinc-300 mt-2 tracking-tight">
               我一直在努力成为更好的自己 · Java 后端开发工程师
@@ -78,7 +75,7 @@ export function Hero({
           {/* 个人陈述 (精炼克制，规范呈现) */}
           <div className="max-w-[68ch] text-[14px] sm:text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-300 space-y-2.5">
             <p>
-              你好，我是苦恼的肉包🍔（Roubao）。目前是{" "}
+              你好，我是苦恼的肉包🍔。目前是{" "}
               <strong className="text-zinc-900 dark:text-zinc-100 font-semibold">
                 2027届全日制本科计算机科学与技术专业
               </strong>

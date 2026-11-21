@@ -37,11 +37,14 @@ async function verify() {
   }
   console.log("PASS: 0 privacy leak in production HTML.");
 
-  // 技能体系面板已下线断言
+  // 技能体系面板与 (Roubao) 冗余下线断言
   if (html.includes("专业技能体系 · Technical Skills")) {
     throw new Error("STALE CONTENT: '专业技能体系 · Technical Skills' is still present in production HTML!");
   }
-  console.log("PASS: Skill grid panel is cleanly removed from production HTML.");
+  if (html.includes("（Roubao）") || html.includes("(Roubao)")) {
+    throw new Error("STALE CONTENT: '(Roubao)' is still present in production HTML!");
+  }
+  console.log("PASS: Skill grid panel and (Roubao) suffix are cleanly removed from production HTML.");
 
   // 核心内容存在性检查
   const required = [

@@ -60,9 +60,9 @@ export function ResumeSheet({ isOpen, onClose }: ResumeSheetProps) {
   };
 
   const handleDownloadMarkdown = () => {
-    const resumeText = `# 苦恼的肉包🍔 (Roubao) — Java后端开发 / AI工程化
+    const resumeText = `# 苦恼的肉包🍔 — Java后端开发 / AI工程化
 
-- 昵称: 苦恼的肉包🍔 (Roubao)
+- 昵称: 苦恼的肉包🍔
 - 学历: 全日制本科 (2027届)
 - 专业: 计算机科学与技术
 - 方向: Java后端开发工程师 / AI工程化

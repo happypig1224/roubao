@@ -25,7 +25,7 @@ export function Footer() {
             <BaoCoreLogo className="w-4 h-4" />
           </span>
           <span className="text-zinc-700 dark:text-zinc-300 font-semibold tracking-tight">
-            苦恼的肉包 · Roubao
+            苦恼的肉包
           </span>
           <span className="font-mono tabular-nums">© 2026</span>
         </div>

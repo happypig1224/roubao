@@ -9,7 +9,7 @@ interface BaoCoreLogoProps {
 
 export function BaoCoreLogo({
   className = "w-6 h-6",
-  alt = "肉包 (Roubao) 标志",
+  alt = "苦恼的肉包 标志",
   priority = false,
 }: BaoCoreLogoProps) {
   return (
